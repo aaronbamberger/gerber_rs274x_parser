@@ -1,12 +1,12 @@
 all: scanner_tester
 
 clean:
-	rm *.o
+	rm *.o *.yy.*
 
 scanner_tester: scanner_tester.o gerber_scanner.yy.o
 	gcc -g -o scanner_tester scanner_tester.o gerber_scanner.yy.o
 	
-scanner_tester.o: scanner_tester.c
+scanner_tester.o: scanner_tester.c gerber_scanner.yy.h
 	gcc -g -c scanner_tester.c -o scanner_tester.o
 
 gerber_scanner.yy.o: gerber_scanner.yy.c gerber_scanner.yy.h
