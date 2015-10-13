@@ -18,7 +18,6 @@ int return_state;
 %option bison-bridge
 %option bison-locations
 %option reentrant
-%option stack
 
 %x PARSING_COORD_FORMAT
 %x PARSING_COMMENT_STRING
