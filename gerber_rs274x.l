@@ -153,18 +153,15 @@ J{INT_W_SIGN}										{
 											}
 					
 {INTERPOLATE_CMD}							{
-												yylval->d_cmd = D_CMD_TYPE_INTERPOLATE;
-												return D_CMD;
+												return D_CMD_TYPE_INTERPOLATE;
 											}
 
 {MOVE_CMD}									{
-												yylval->d_cmd = D_CMD_TYPE_MOVE;
-												return D_CMD;
+												return D_CMD_TYPE_MOVE;
 											}
 					
 {FLASH_CMD}									{
-												yylval->d_cmd = D_CMD_TYPE_FLASH;
-												return D_CMD;
+												return D_CMD_TYPE_FLASH;
 											}
 					
 {APERTURE_NUMBER}							{
@@ -173,38 +170,31 @@ J{INT_W_SIGN}										{
 											}
 
 {LINEAR_INTERP_MODE}						{
-												yylval->g_cmd = G_CMD_TYPE_LINEAR_INTERP_MODE;
-												return G_CMD;
+												return G_CMD_TYPE_LINEAR_INTERP_MODE;
 											}
 
 {CW_CIRC_INTERP_MODE}						{
-												yylval->g_cmd = G_CMD_TYPE_CW_CIRC_INTERP_MODE;
-												return G_CMD;
+												return G_CMD_TYPE_CW_CIRC_INTERP_MODE;
 											}
 
 {CCW_CIRC_INTERP_MODE}						{
-												yylval->g_cmd = G_CMD_TYPE_CCW_CIRC_INTERP_MODE;
-												return G_CMD;
+												return G_CMD_TYPE_CCW_CIRC_INTERP_MODE;
 											}
 						
 {REGION_MODE_ON}							{
-												yylval->g_cmd = G_CMD_TYPE_REGION_MODE_ON;
-												return G_CMD;
+												return G_CMD_TYPE_REGION_MODE_ON;
 											}
 
 {REGION_MODE_OFF}							{
-												yylval->g_cmd = G_CMD_TYPE_REGION_MODE_OFF;
-												return G_CMD;
+												return G_CMD_TYPE_REGION_MODE_OFF;
 											}
 						
 {SINGLE_QUADRANT_MODE}						{
-												yylval->g_cmd = G_CMD_TYPE_SINGLE_QUADRANT_MODE;
-												return G_CMD;
+												return G_CMD_TYPE_SINGLE_QUADRANT_MODE;
 											}
 						
 {MULTI_QUADRANT_MODE}						{
-												yylval->g_cmd = G_CMD_TYPE_MULTI_QUADRANT_MODE;
-												return G_CMD;
+												return G_CMD_TYPE_MULTI_QUADRANT_MODE;
 											}
 						
 {END_OF_FILE}								{

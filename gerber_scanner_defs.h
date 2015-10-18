@@ -1,6 +1,14 @@
 typedef enum {
-	D_CMD = 1,
-	G_CMD,
+	D_CMD_TYPE_INTERPOLATE = 1,
+	D_CMD_TYPE_MOVE,
+	D_CMD_TYPE_FLASH,
+	G_CMD_TYPE_LINEAR_INTERP_MODE,
+	G_CMD_TYPE_CW_CIRC_INTERP_MODE,
+	G_CMD_TYPE_CCW_CIRC_INTERP_MODE,
+	G_CMD_TYPE_SINGLE_QUADRANT_MODE,
+	G_CMD_TYPE_MULTI_QUADRANT_MODE,
+	G_CMD_TYPE_REGION_MODE_ON,
+	G_CMD_TYPE_REGION_MODE_OFF,
 	APERTURE_NUMBER,
 	COMMENT_START,
 	COMMENT_STRING,
@@ -51,22 +59,6 @@ typedef enum {
 } Token;
 
 typedef enum {
-	D_CMD_TYPE_INTERPOLATE,
-	D_CMD_TYPE_MOVE,
-	D_CMD_TYPE_FLASH
-} DCommandType;
-
-typedef enum {
-	G_CMD_TYPE_LINEAR_INTERP_MODE,
-	G_CMD_TYPE_CW_CIRC_INTERP_MODE,
-	G_CMD_TYPE_CCW_CIRC_INTERP_MODE,
-	G_CMD_TYPE_SINGLE_QUADRANT_MODE,
-	G_CMD_TYPE_MULTI_QUADRANT_MODE,
-	G_CMD_TYPE_REGION_MODE_ON,
-	G_CMD_TYPE_REGION_MODE_OFF
-} GCommandType;
-
-typedef enum {
 	UNIT_TYPE_IN,
 	UNIT_TYPE_MM
 } UnitType;
@@ -76,9 +68,8 @@ typedef enum {
 	LEVEL_POLARITY_DARK
 } LevelPolarity;
 
+/*
 typedef union {
-	DCommandType d_cmd;
-	GCommandType g_cmd;
 	UnitType unit_type;
 	LevelPolarity level_polarity;
 	int aperture_number;
@@ -107,3 +98,4 @@ typedef struct {
 	int last_line;
 	int last_column;
 } YYLTYPE;
+*/

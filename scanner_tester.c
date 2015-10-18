@@ -47,58 +47,44 @@ int main(int argc, char** argv)
 void pretty_print_token(Token token_type, YYSTYPE* semantic_value)
 {
 	switch (token_type) {
-		case D_CMD:
-			printf("D Command: ");
-			switch (semantic_value->d_cmd) {
-				case D_CMD_TYPE_INTERPOLATE:
-					printf("Interpolate\n");
-					break;
-					
-				case D_CMD_TYPE_MOVE:
-					printf("Move\n");
-					break;
-					
-				case D_CMD_TYPE_FLASH:
-					printf("Flash\n");
-					break;
-					
-				default:
-					printf("Unknown: %d\n", semantic_value->d_cmd);
-					break;
-			}
+		case D_CMD_TYPE_INTERPOLATE:
+			printf("D Command: Interpolate\n");
 			break;
-			
-		case G_CMD:
-			printf("G Command: ");
-			switch (semantic_value->g_cmd) {
-				case G_CMD_TYPE_LINEAR_INTERP_MODE:
-					printf("Linear Interpolation Mode\n");
-					break;
-					
-				case G_CMD_TYPE_CW_CIRC_INTERP_MODE:
-					printf("Clockwise Circular Interpolation Mode\n");
-					break;
-					
-				case G_CMD_TYPE_CCW_CIRC_INTERP_MODE:
-					printf("Counter-Clockwise Circular Interpolation Mode\n");
-					break;
-					
-				case G_CMD_TYPE_SINGLE_QUADRANT_MODE:
-					printf("Single-Quadrant Mode\n");
-					break;
-					
-				case G_CMD_TYPE_MULTI_QUADRANT_MODE:
-					printf("Multi-Quadrant Mode\n");
-					break;
-					
-				case G_CMD_TYPE_REGION_MODE_ON:
-					printf("Region Mode On\n");
-					break;
-					
-				case G_CMD_TYPE_REGION_MODE_OFF:
-					printf("Region Mode Off\n");
-					break;
-			}
+
+		case D_CMD_TYPE_MOVE:
+			printf("D Command: Move\n");
+			break;
+
+		case D_CMD_TYPE_FLASH:
+			printf("D Command: Flash\n");
+			break;
+
+		case G_CMD_TYPE_LINEAR_INTERP_MODE:
+			printf("G Command: Linear Interpolation Mode\n");
+			break;
+
+		case G_CMD_TYPE_CW_CIRC_INTERP_MODE:
+			printf("G Command: Clockwise Circular Interpolation Mode\n");
+			break;
+
+		case G_CMD_TYPE_CCW_CIRC_INTERP_MODE:
+			printf("G Command: Counter-Clockwise Circular Interpolation Mode\n");
+			break;
+
+		case G_CMD_TYPE_SINGLE_QUADRANT_MODE:
+			printf("G Command: Single-Quadrant Mode\n");
+			break;
+
+		case G_CMD_TYPE_MULTI_QUADRANT_MODE:
+			printf("G Command: Multi-Quadrant Mode\n");
+			break;
+
+		case G_CMD_TYPE_REGION_MODE_ON:
+			printf("G Command: Region Mode On\n");
+			break;
+
+		case G_CMD_TYPE_REGION_MODE_OFF:
+			printf("G Command: Region Mode Off\n");
 			break;
 			
 		case APERTURE_NUMBER:
