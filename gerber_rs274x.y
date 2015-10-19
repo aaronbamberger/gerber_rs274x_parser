@@ -235,6 +235,14 @@ macro_primitive_circle:
 		$macro_primitive_circle->center_y = $[center_y];
 		$macro_primitive_circle->rotation = $rotation;
 	}
+|	APERTURE_PRIMITIVE_TYPE_CIRCLE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[diameter] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] {
+		$macro_primitive_circle = calloc(1, sizeof(MacroPrimitiveCircle));
+		$macro_primitive_circle->exposure = $exposure;
+		$macro_primitive_circle->diameter = $diameter;
+		$macro_primitive_circle->center_x = $[center_x];
+		$macro_primitive_circle->center_y = $[center_y];
+		$macro_primitive_circle->rotation = NULL;
+	}
 
 macro_primitive_vector_line:
 	APERTURE_PRIMITIVE_TYPE_VECTOR_LINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[line_width] AM_DELIM arithmetic_expression[start_x] AM_DELIM arithmetic_expression[start_y] AM_DELIM arithmetic_expression[end_x] AM_DELIM arithmetic_expression[end_y] AM_DELIM arithmetic_expression[rotation] {
@@ -247,6 +255,16 @@ macro_primitive_vector_line:
 		$macro_primitive_vector_line->end_y = $[end_y];
 		$macro_primitive_vector_line->rotation = $rotation;
 	}
+|	APERTURE_PRIMITIVE_TYPE_VECTOR_LINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[line_width] AM_DELIM arithmetic_expression[start_x] AM_DELIM arithmetic_expression[start_y] AM_DELIM arithmetic_expression[end_x] AM_DELIM arithmetic_expression[end_y] {
+		$macro_primitive_vector_line = calloc(1, sizeof(MacroPrimitiveVectorLine));
+		$macro_primitive_vector_line->exposure = $exposure;
+		$macro_primitive_vector_line->line_width = $[line_width];
+		$macro_primitive_vector_line->start_x = $[start_x];
+		$macro_primitive_vector_line->start_y = $[start_y];
+		$macro_primitive_vector_line->end_x = $[end_x];
+		$macro_primitive_vector_line->end_y = $[end_y];
+		$macro_primitive_vector_line->rotation = NULL;
+	}
 
 macro_primitive_center_line:
 	APERTURE_PRIMITIVE_TYPE_CENTER_LINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[rect_width] AM_DELIM arithmetic_expression[rect_height] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[rotation] {
@@ -258,6 +276,15 @@ macro_primitive_center_line:
 		$macro_primitive_center_line->center_y = $[center_y];
 		$macro_primitive_center_line->rotation = $rotation;
 	}
+|	APERTURE_PRIMITIVE_TYPE_CENTER_LINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[rect_width] AM_DELIM arithmetic_expression[rect_height] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] {
+		$macro_primitive_center_line = calloc(1, sizeof(MacroPrimitiveCenterLine));
+		$macro_primitive_center_line->exposure = $exposure;
+		$macro_primitive_center_line->rect_width = $[rect_width];
+		$macro_primitive_center_line->rect_height = $[rect_height];
+		$macro_primitive_center_line->center_x = $[center_x];
+		$macro_primitive_center_line->center_y = $[center_y];
+		$macro_primitive_center_line->rotation = NULL;
+	}
 
 macro_primitive_outline:
 	APERTURE_PRIMITIVE_TYPE_OUTLINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[num_points] expression_coord_list[coords] AM_DELIM arithmetic_expression[rotation] {
@@ -266,6 +293,13 @@ macro_primitive_outline:
 		$macro_primitive_outline->num_points = $[num_points];
 		$macro_primitive_outline->coords = $coords;
 		$macro_primitive_outline->rotation = $rotation;
+	}
+|	APERTURE_PRIMITIVE_TYPE_OUTLINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[num_points] expression_coord_list[coords] {
+		$macro_primitive_outline = calloc(1, sizeof(MacroPrimitiveOutline));
+		$macro_primitive_outline->exposure = $exposure;
+		$macro_primitive_outline->num_points = $[num_points];
+		$macro_primitive_outline->coords = $coords;
+		$macro_primitive_outline->rotation = NULL;
 	}
 
 macro_primitive_polygon:
@@ -277,6 +311,15 @@ macro_primitive_polygon:
 		$macro_primitive_polygon->center_y = $[center_y];
 		$macro_primitive_polygon->diameter = $diameter;
 		$macro_primitive_polygon->rotation = $rotation;
+	}
+|	APERTURE_PRIMITIVE_TYPE_POLYGON AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[num_vertices] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[diameter] {
+		$macro_primitive_polygon = calloc(1, sizeof(MacroPrimitivePolygon));
+		$macro_primitive_polygon->exposure = $exposure;
+		$macro_primitive_polygon->num_vertices = $[num_vertices];
+		$macro_primitive_polygon->center_x = $[center_x];
+		$macro_primitive_polygon->center_y = $[center_y];
+		$macro_primitive_polygon->diameter = $diameter;
+		$macro_primitive_polygon->rotation = NULL;
 	}
 
 macro_primitive_moire:
@@ -292,6 +335,18 @@ macro_primitive_moire:
 		$macro_primitive_moire->crosshair_length = $[crosshair_length];
 		$macro_primitive_moire->rotation = $rotation;
 	}
+|	APERTURE_PRIMITIVE_TYPE_MOIRE AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[outer_diameter] AM_DELIM arithmetic_expression[ring_thickness] AM_DELIM arithmetic_expression[ring_gap] AM_DELIM arithmetic_expression[max_rings] AM_DELIM arithmetic_expression[crosshair_thickness] AM_DELIM arithmetic_expression[crosshair_length] {
+		$macro_primitive_moire = calloc(1, sizeof(MacroPrimitiveMoire));
+		$macro_primitive_moire->center_x = $[center_x];
+		$macro_primitive_moire->center_y = $[center_y];
+		$macro_primitive_moire->outer_diameter = $[outer_diameter];
+		$macro_primitive_moire->ring_thickness = $[ring_thickness];
+		$macro_primitive_moire->ring_gap = $[ring_gap];
+		$macro_primitive_moire->max_rings = $[max_rings];
+		$macro_primitive_moire->crosshair_thickness = $[crosshair_thickness];
+		$macro_primitive_moire->crosshair_length = $[crosshair_length];
+		$macro_primitive_moire->rotation = NULL;
+	}
 
 macro_primitive_thermal:
 	APERTURE_PRIMITIVE_TYPE_THERMAL AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[outer_diameter] AM_DELIM arithmetic_expression[inner_diameter] AM_DELIM arithmetic_expression[gap_thickness] AM_DELIM arithmetic_expression[rotation] {
@@ -302,6 +357,15 @@ macro_primitive_thermal:
 		$macro_primitive_thermal->inner_diameter = $[inner_diameter];
 		$macro_primitive_thermal->gap_thickness = $[gap_thickness];
 		$macro_primitive_thermal->rotation = $rotation;
+	}
+|	APERTURE_PRIMITIVE_TYPE_THERMAL AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[outer_diameter] AM_DELIM arithmetic_expression[inner_diameter] AM_DELIM arithmetic_expression[gap_thickness] {
+		$macro_primitive_thermal = calloc(1, sizeof(MacroPrimitiveThermal));
+		$macro_primitive_thermal->center_x = $[center_x];
+		$macro_primitive_thermal->center_y = $[center_y];
+		$macro_primitive_thermal->outer_diameter = $[outer_diameter];
+		$macro_primitive_thermal->inner_diameter = $[inner_diameter];
+		$macro_primitive_thermal->gap_thickness = $[gap_thickness];
+		$macro_primitive_thermal->rotation = NULL;
 	}
 
 expression_coord_list[result]:
