@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-void pretty_print_token(Token token_type, YYSTYPE* semantic_value);
+void pretty_print_token(int token_type, YYSTYPE* semantic_value);
 
 int main(int argc, char** argv)
 {
@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 	bool done = false;
 	
 	while (!done) {
-		Token token_type = yylex(&semantic_value, &location, scanner);
+		int token_type = yylex(&semantic_value, &location, scanner);
 		if (token_type == 0) {
 			done = true;
 		} else {
@@ -42,8 +42,9 @@ int main(int argc, char** argv)
 	}
 	*/
 
+	yydebug = 1;
 	ApertureMacro* result;
-	int parse_result = yyparse(&result);
+	int parse_result = yyparse(&result, scanner);
 	printf("Parser returned result %d, top level of AST: %p\n", parse_result, result);
 	
 	yylex_destroy(scanner);
@@ -52,7 +53,7 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-void pretty_print_token(Token token_type, YYSTYPE* semantic_value)
+void pretty_print_token(int token_type, YYSTYPE* semantic_value)
 {
 	switch (token_type) {
 		case D_CMD_TYPE_INTERPOLATE:
@@ -254,7 +255,7 @@ void pretty_print_token(Token token_type, YYSTYPE* semantic_value)
 			printf("Aperture Primitive: Thermal\n");
 			break;
 
-		case APERTURE_PRIMITIVE_MODIFIER_DELIMITER:
+		case AM_DELIM:
 			printf("Aperture Primitive Modifier Delimiter\n");
 			break;
 

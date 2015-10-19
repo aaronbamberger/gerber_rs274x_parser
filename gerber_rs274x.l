@@ -1,12 +1,16 @@
+%top{
+	#include "gerber_parser.yy.h"
+}
+
 %{
-#include "gerber_scanner_defs.h"
+	#include "gerber_scanner_defs.h"
 
-#include <stdlib.h>
-#include <string.h>
+	#include <stdlib.h>
+	#include <string.h>
 
-int return_state;
+	int return_state;
 
-#define YY_USER_INIT return_state = INITIAL;
+	#define YY_USER_INIT return_state = INITIAL;
 %}
 
 %option header-file="gerber_scanner.yy.h"

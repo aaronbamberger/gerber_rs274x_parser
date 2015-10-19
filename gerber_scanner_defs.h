@@ -1,3 +1,7 @@
+#ifndef GERBER_SCANNER_DEFS_H
+#define GERBER_SCANNER_DEFS_H
+
+/*
 typedef enum {
 	D_CMD_TYPE_INTERPOLATE = 1,
 	D_CMD_TYPE_MOVE,
@@ -57,6 +61,7 @@ typedef enum {
 	STEP_AND_REPEAT_START,
 	LEVEL_POLARITY
 } Token;
+*/
 
 typedef enum {
 	UNIT_TYPE_IN,
@@ -99,3 +104,5 @@ typedef struct {
 	int last_column;
 } YYLTYPE;
 */
+
+#endif //GERBER_SCANNER_DEFS_H

@@ -1,21 +1,26 @@
-%code requires {
-#include "gerber_scanner_defs.h"
-#include "gerber_scanner.yy.h"
-#include "gerber_parser_defs.h"
+%code top {
+	#include <stdio.h>
+	#include <stdlib.h>
+}
 
-#include <stdio.h>
-%}
+%code requires {
+	#include "gerber_scanner_defs.h"
+	#include "gerber_parser_defs.h"
+	//#include "gerber_scanner.yy.h"
+}
 
 %code {
-void yyerror(YYLTYPE* yylocp, ApertureMacro** result, char const* s);
-%}
+	void yyerror(YYLTYPE* yylocp, ApertureMacro** result, void* scanner, char const* s);
+}
 
 %defines "gerber_parser.yy.h"
 %output "gerber_parser.yy.c"
 %define api.pure full
+%define parse.trace
 %language "C"
 %locations
 %parse-param {ApertureMacro** result}
+%param {void* scanner}
 
 %union {
 	UnitType unit_type;
@@ -38,6 +43,21 @@ void yyerror(YYLTYPE* yylocp, ApertureMacro** result, char const* s);
 	int y_repeats;
 	double x_step_distance;
 	double y_step_distance;
+	ArithmeticExpressionTreeElement* arithmetic_expression_tree_element_t;
+	VariableDefinition* variable_definition_t;
+	MacroPrimitiveCircle* macro_primitive_circle_t;
+	MacroPrimitiveVectorLine* macro_primitive_vector_line_t;
+	MacroPrimitiveCenterLine* macro_primitive_center_line_t;
+	ExpressionCoord* expression_coord_t;
+	ExpressionCoordList* expression_coord_list_t;
+	MacroPrimitiveOutline* macro_primitive_outline_t;
+	MacroPrimitivePolygon* macro_primitive_polygon_t;
+	MacroPrimitiveMoire* macro_primitive_moire_t;
+	MacroPrimitiveThermal* macro_primitive_thermal_t;
+	MacroPrimitive* macro_primitive_t;
+	MacroContentElement* macro_content_element_t;
+	MacroContentList* macro_content_list_t;
+	ApertureMacro* aperture_macro_t;
 }
 
 %destructor { free($$); } <comment_string>
@@ -71,7 +91,8 @@ void yyerror(YYLTYPE* yylocp, ApertureMacro** result, char const* s);
 %token <unit_type> UNIT_SPECIFIER
 %token END_OF_DATA_BLOCK
 %token EXT_CMD_DELIMITER
-%token <aperture_number> APERTURE_DEFINITION
+%token APERTURE_DEFINITION
+%token <aperture_number> APERTURE_NUMBER
 %token STANDARD_APERTURE_TYPE_CIRCLE
 %token STANDARD_APERTURE_TYPE_RECTANGLE
 %token STANDARD_APERTURE_TYPE_OBROUND
@@ -101,6 +122,23 @@ void yyerror(YYLTYPE* yylocp, ApertureMacro** result, char const* s);
 %left ARITHMETIC_MULT ARITHMETIC_DIV
 %precedence UNARY_MINUS
 
+%type <aperture_macro_t> am_command
+%type <macro_content_list_t> macro_content_list
+%type <macro_content_element_t> macro_content_element
+%type <macro_primitive_t> macro_primitive
+%type <aperture_comment> macro_primitive_comment
+%type <macro_primitive_circle_t> macro_primitive_circle
+%type <macro_primitive_vector_line_t> macro_primitive_vector_line
+%type <macro_primitive_center_line_t> macro_primitive_center_line
+%type <expression_coord_t> expression_coord
+%type <expression_coord_list_t> expression_coord_list
+%type <macro_primitive_outline_t> macro_primitive_outline
+%type <macro_primitive_polygon_t> macro_primitive_polygon
+%type <macro_primitive_moire_t> macro_primitive_moire
+%type <macro_primitive_thermal_t> macro_primitive_thermal
+%type <arithmetic_expression_tree_element_t> arithmetic_expression
+%type <variable_definition_t> variable_definition
+
 %%
 
 top_level:
@@ -111,7 +149,7 @@ top_level:
 am_command:
 	EXT_CMD_DELIMITER APERTURE_MACRO CUSTOM_APERTURE_NAME END_OF_DATA_BLOCK macro_content_list EXT_CMD_DELIMITER {
 		$am_command = calloc(1, sizeof(ApertureMacro));
-		$am_command->name = $CUSTOM_APERTUE_NAME;
+		$am_command->name = $CUSTOM_APERTURE_NAME;
 		$am_command->content_list = $macro_content_list;
 	}
 
@@ -322,7 +360,7 @@ arithmetic_expression[result]:
 		$result->left = $left;
 		$result->right = $right;
 	}
-|	ARITHMETIC_SUB expression[right] %prec UNARY_MINUS {
+|	ARITHMETIC_SUB arithmetic_expression[right] %prec UNARY_MINUS {
 		$result = calloc(1, sizeof(ArithmeticExpressionTreeElement));
 		$result->type = EXPRESSION_ELEMENT_TYPE_OPERATOR;
 		$result->element.op = OPERATOR_SUB;
@@ -351,7 +389,7 @@ arithmetic_expression[result]:
 
 %%
 
-void yyerror(YYLTYPE* locp, ApertureMacro** result, char const* s)
+void yyerror(YYLTYPE* locp, ApertureMacro** result, void* scanner, char const* s)
 {
 	fprintf(stderr, "%s\n", s);
 }

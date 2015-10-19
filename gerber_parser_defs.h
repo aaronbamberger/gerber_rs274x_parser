@@ -1,3 +1,6 @@
+#ifndef GERBER_PARSER_DEFS_H
+#define GERBER_PARSER_DEFS_H
+
 typedef enum {
 	OPERATOR_ADD,
 	OPERATOR_SUB,
@@ -33,11 +36,11 @@ typedef union {
 	Operator op;
 } ArithmeticExpressionElement;
 
-typedef struct {
+typedef struct _ArithmeticExpressionTreeElement {
 	ArithmeticExpressionElementType type;
 	ArithmeticExpressionElement element;
-	ArithmeticExpressionTreeElement* left;
-	ArithmeticExpressionTreeElement* right;
+	struct _ArithmeticExpressionTreeElement* left;
+	struct _ArithmeticExpressionTreeElement* right;
 } ArithmeticExpressionTreeElement;
 
 typedef struct {
@@ -72,8 +75,8 @@ typedef struct {
 	ArithmeticExpressionTreeElement* rotation;
 } MacroPrimitiveCenterLine;
 
-typedef struct {
-	ExpressionCoord* next;
+typedef struct _ExpressionCoord {
+	struct _ExpressionCoord* next;
 	ArithmeticExpressionTreeElement* coord_x;
 	ArithmeticExpressionTreeElement* coord_y;
 } ExpressionCoord;
@@ -141,8 +144,8 @@ typedef union {
 	MacroPrimitive* primitive;
 } MacroContent;
 
-typedef struct {
-	MacroContentElement* next;
+typedef struct _MacroContentElement {
+	struct _MacroContentElement* next;
 	MacroContentType type;
 	MacroContent content;
 } MacroContentElement;
@@ -154,5 +157,7 @@ typedef struct {
 
 typedef struct {
 	const char* name;
-	MacroContentList content_list;
+	MacroContentList* content_list;
 } ApertureMacro;
+
+#endif // GERBER_PARSER_DEFS_H
