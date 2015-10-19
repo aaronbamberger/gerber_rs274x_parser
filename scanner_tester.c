@@ -1,5 +1,7 @@
 #include "gerber_scanner_defs.h"
+#include "gerber_parser_defs.h"
 #include "gerber_scanner.yy.h"
+#include "gerber_parser.yy.h"
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -24,6 +26,7 @@ int main(int argc, char** argv)
 	
 	yyset_in(gerber_file, scanner);
 	
+	/*
 	YYSTYPE semantic_value;
 	YYLTYPE location;
 	
@@ -37,6 +40,11 @@ int main(int argc, char** argv)
 			pretty_print_token(token_type, &semantic_value);
 		}
 	}
+	*/
+
+	ApertureMacro* result;
+	int parse_result = yyparse(&result);
+	printf("Parser returned result %d, top level of AST: %p\n", parse_result, result);
 	
 	yylex_destroy(scanner);
 	fclose(gerber_file);

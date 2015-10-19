@@ -7,7 +7,7 @@
 %}
 
 %code {
-void yyerror(YYLTYPE* yylocp, char const* s);
+void yyerror(YYLTYPE* yylocp, ApertureMacro** result, char const* s);
 %}
 
 %defines "gerber_parser.yy.h"
@@ -15,6 +15,7 @@ void yyerror(YYLTYPE* yylocp, char const* s);
 %define api.pure full
 %language "C"
 %locations
+%parse-param {ApertureMacro** result}
 
 %union {
 	UnitType unit_type;
@@ -79,8 +80,6 @@ void yyerror(YYLTYPE* yylocp, char const* s);
 %token <aperture_definition_modifier> APERTURE_DEFINITION_MODIFIER
 %token APERTURE_MACRO
 %token <variable_definition> VARIABLE_DEFINITION
-%left ARITHMETIC_ADD ARITHMETIC_SUB
-%left ARITHMETIC_MULT ARITHMETIC_DIV
 %token ARITHMETIC_LEFT_PAREN
 %token ARITHMETIC_RIGHT_PAREN
 %token <arithmetic_constant> ARITHMETIC_CONSTANT
@@ -89,36 +88,203 @@ void yyerror(YYLTYPE* yylocp, char const* s);
 %token APERTURE_PRIMITIVE_TYPE_VECTOR_LINE
 %token APERTURE_PRIMITIVE_TYPE_CENTER_LINE
 %token APERTURE_PRIMITIVE_TYPE_OUTLINE
-%token APERTURE_PRIMITIVE_LINE_POLYGON
+%token APERTURE_PRIMITIVE_TYPE_POLYGON
 %token APERTURE_PRIMITIVE_TYPE_MOIRE
 %token APERTURE_PRIMITIVE_TYPE_THERMAL
-%token APERTURE_PRIMITIVE_MODIFIER_DELIMITER
+%token AM_DELIM
 %token APERTURE_COMMENT_START
 %token <aperture_comment> APERTURE_COMMENT_CONTENT
 %token STEP_AND_REPEAT_START
 %token <level_polarity> LEVEL_POLARITY
 
+%left ARITHMETIC_ADD ARITHMETIC_SUB
+%left ARITHMETIC_MULT ARITHMETIC_DIV
+%precedence UNARY_MINUS
 
 %%
 
-am_command:
-	APERTURE_MACRO CUSTOM_APERTURE_NAME END_OF_DATA_BLOCK macro_content {
-		$am_command = calloc(1, sizeof(ApertureMacro));
-		$am_command->name = $CUSTOM_APERTUE_NAME;
-		$am_command->content = $macro_content;
-		/*
-		$am_command->variable_defs_capacity = STARTING_NUM_VARIABLE_DEFS;
-		$am_command->primitives_capacity = STARTING_NUM_PRIMITIVES;
-		$am_command->variable_defs_length = 0;
-		$am_command->primitives_length = 0;
-		$am_command->variable_defs = calloc(STARTING_NUM_VARIABLE_DEFS, sizeof(VariableDefinition));
-		$am_command->primitives = calloc(STARTING_NUM_PRIMITIVES, sizeof(MacroPrimitive));
-		*/
-		
+top_level:
+	am_command {
+		*result = $[am_command];
 	}
 
-macro_content:
-	
+am_command:
+	EXT_CMD_DELIMITER APERTURE_MACRO CUSTOM_APERTURE_NAME END_OF_DATA_BLOCK macro_content_list EXT_CMD_DELIMITER {
+		$am_command = calloc(1, sizeof(ApertureMacro));
+		$am_command->name = $CUSTOM_APERTUE_NAME;
+		$am_command->content_list = $macro_content_list;
+	}
+
+macro_content_list[result]:
+	macro_content_list[list] macro_content_element[new_elem] {
+		$list->tail->next = $[new_elem];
+		$list->tail = $[new_elem];
+		$result = $list;
+	}
+|	macro_content_element[new_elem] {
+		$result = calloc(1, sizeof(MacroContentList));
+		$result->head = $[new_elem];
+		$result->tail = $[new_elem];
+	}
+
+macro_content_element:
+	variable_definition {
+		$macro_content_element = calloc(1, sizeof(MacroContentElement));
+		$macro_content_element->next = NULL;
+		$macro_content_element->type = MACRO_CONTENT_VAR_DEF;
+		$macro_content_element->content.var_def = $[variable_definition];
+	}
+|	macro_primitive {
+		$macro_content_element = calloc(1, sizeof(MacroContentElement));
+		$macro_content_element->next = NULL;
+		$macro_content_element->type = MACRO_CONTENT_PRIMITIVE;
+		$macro_content_element->content.primitive = $[macro_primitive];
+	}
+
+macro_primitive:
+	macro_primitive_comment END_OF_DATA_BLOCK {
+		$macro_primitive = calloc(1, sizeof(MacroPrimitive));
+		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_COMMENT;
+		$macro_primitive->primitive.comment = $macro_primitive_comment;
+	}
+|	macro_primitive_circle END_OF_DATA_BLOCK {
+		$macro_primitive = calloc(1, sizeof(MacroPrimitive));
+		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_CIRCLE;
+		$macro_primitive->primitive.circle = $macro_primitive_circle;
+	}
+|	macro_primitive_vector_line END_OF_DATA_BLOCK {
+		$macro_primitive = calloc(1, sizeof(MacroPrimitive));
+		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_VECTOR_LINE;
+		$macro_primitive->primitive.vector_line = $macro_primitive_vector_line;
+	}
+|	macro_primitive_center_line END_OF_DATA_BLOCK {
+		$macro_primitive = calloc(1, sizeof(MacroPrimitive));
+		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_CENTER_LINE;
+		$macro_primitive->primitive.center_line = $macro_primitive_center_line;
+	}
+|	macro_primitive_outline END_OF_DATA_BLOCK {
+		$macro_primitive = calloc(1, sizeof(MacroPrimitive));
+		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_OUTLINE;
+		$macro_primitive->primitive.outline = $macro_primitive_outline;
+	}
+|	macro_primitive_polygon END_OF_DATA_BLOCK {
+		$macro_primitive = calloc(1, sizeof(MacroPrimitive));
+		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_POLYGON;
+		$macro_primitive->primitive.polygon = $macro_primitive_polygon;
+	}
+|	macro_primitive_moire END_OF_DATA_BLOCK {
+		$macro_primitive = calloc(1, sizeof(MacroPrimitive));
+		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_MOIRE;
+		$macro_primitive->primitive.moire = $macro_primitive_moire;
+	}
+|	macro_primitive_thermal END_OF_DATA_BLOCK {
+		$macro_primitive = calloc(1, sizeof(MacroPrimitive));
+		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_THERMAL;
+		$macro_primitive->primitive.thermal = $macro_primitive_thermal;
+	}
+
+macro_primitive_comment:
+	APERTURE_COMMENT_START APERTURE_COMMENT_CONTENT {
+		$macro_primitive_comment = $APERTURE_COMMENT_CONTENT;
+	}
+
+macro_primitive_circle:
+	APERTURE_PRIMITIVE_TYPE_CIRCLE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[diameter] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[rotation] {
+		$macro_primitive_circle = calloc(1, sizeof(MacroPrimitiveCircle));
+		$macro_primitive_circle->exposure = $exposure;
+		$macro_primitive_circle->diameter = $diameter;
+		$macro_primitive_circle->center_x = $[center_x];
+		$macro_primitive_circle->center_y = $[center_y];
+		$macro_primitive_circle->rotation = $rotation;
+	}
+
+macro_primitive_vector_line:
+	APERTURE_PRIMITIVE_TYPE_VECTOR_LINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[line_width] AM_DELIM arithmetic_expression[start_x] AM_DELIM arithmetic_expression[start_y] AM_DELIM arithmetic_expression[end_x] AM_DELIM arithmetic_expression[end_y] AM_DELIM arithmetic_expression[rotation] {
+		$macro_primitive_vector_line = calloc(1, sizeof(MacroPrimitiveVectorLine));
+		$macro_primitive_vector_line->exposure = $exposure;
+		$macro_primitive_vector_line->line_width = $[line_width];
+		$macro_primitive_vector_line->start_x = $[start_x];
+		$macro_primitive_vector_line->start_y = $[start_y];
+		$macro_primitive_vector_line->end_x = $[end_x];
+		$macro_primitive_vector_line->end_y = $[end_y];
+		$macro_primitive_vector_line->rotation = $rotation;
+	}
+
+macro_primitive_center_line:
+	APERTURE_PRIMITIVE_TYPE_CENTER_LINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[rect_width] AM_DELIM arithmetic_expression[rect_height] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[rotation] {
+		$macro_primitive_center_line = calloc(1, sizeof(MacroPrimitiveCenterLine));
+		$macro_primitive_center_line->exposure = $exposure;
+		$macro_primitive_center_line->rect_width = $[rect_width];
+		$macro_primitive_center_line->rect_height = $[rect_height];
+		$macro_primitive_center_line->center_x = $[center_x];
+		$macro_primitive_center_line->center_y = $[center_y];
+		$macro_primitive_center_line->rotation = $rotation;
+	}
+
+macro_primitive_outline:
+	APERTURE_PRIMITIVE_TYPE_OUTLINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[num_points] expression_coord_list[coords] AM_DELIM arithmetic_expression[rotation] {
+		$macro_primitive_outline = calloc(1, sizeof(MacroPrimitiveOutline));
+		$macro_primitive_outline->exposure = $exposure;
+		$macro_primitive_outline->num_points = $[num_points];
+		$macro_primitive_outline->coords = $coords;
+		$macro_primitive_outline->rotation = $rotation;
+	}
+
+macro_primitive_polygon:
+	APERTURE_PRIMITIVE_TYPE_POLYGON AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[num_vertices] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[diameter] AM_DELIM arithmetic_expression[rotation] {
+		$macro_primitive_polygon = calloc(1, sizeof(MacroPrimitivePolygon));
+		$macro_primitive_polygon->exposure = $exposure;
+		$macro_primitive_polygon->num_vertices = $[num_vertices];
+		$macro_primitive_polygon->center_x = $[center_x];
+		$macro_primitive_polygon->center_y = $[center_y];
+		$macro_primitive_polygon->diameter = $diameter;
+		$macro_primitive_polygon->rotation = $rotation;
+	}
+
+macro_primitive_moire:
+	APERTURE_PRIMITIVE_TYPE_MOIRE AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[outer_diameter] AM_DELIM arithmetic_expression[ring_thickness] AM_DELIM arithmetic_expression[ring_gap] AM_DELIM arithmetic_expression[max_rings] AM_DELIM arithmetic_expression[crosshair_thickness] AM_DELIM arithmetic_expression[crosshair_length] AM_DELIM arithmetic_expression[rotation] {
+		$macro_primitive_moire = calloc(1, sizeof(MacroPrimitiveMoire));
+		$macro_primitive_moire->center_x = $[center_x];
+		$macro_primitive_moire->center_y = $[center_y];
+		$macro_primitive_moire->outer_diameter = $[outer_diameter];
+		$macro_primitive_moire->ring_thickness = $[ring_thickness];
+		$macro_primitive_moire->ring_gap = $[ring_gap];
+		$macro_primitive_moire->max_rings = $[max_rings];
+		$macro_primitive_moire->crosshair_thickness = $[crosshair_thickness];
+		$macro_primitive_moire->crosshair_length = $[crosshair_length];
+		$macro_primitive_moire->rotation = $rotation;
+	}
+
+macro_primitive_thermal:
+	APERTURE_PRIMITIVE_TYPE_THERMAL AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[outer_diameter] AM_DELIM arithmetic_expression[inner_diameter] AM_DELIM arithmetic_expression[gap_thickness] AM_DELIM arithmetic_expression[rotation] {
+		$macro_primitive_thermal = calloc(1, sizeof(MacroPrimitiveThermal));
+		$macro_primitive_thermal->center_x = $[center_x];
+		$macro_primitive_thermal->center_y = $[center_y];
+		$macro_primitive_thermal->outer_diameter = $[outer_diameter];
+		$macro_primitive_thermal->inner_diameter = $[inner_diameter];
+		$macro_primitive_thermal->gap_thickness = $[gap_thickness];
+		$macro_primitive_thermal->rotation = $rotation;
+	}
+
+expression_coord_list[result]:
+	expression_coord_list[list] expression_coord[new_elem] {
+		$list->tail->next = $[new_elem];
+		$list->tail = $[new_elem];
+		$result = $list;
+	}
+|	expression_coord[new_elem] {
+		$result = calloc(1, sizeof(ExpressionCoordList));
+		$result->head = $[new_elem];
+		$result->tail = $[new_elem];
+	}
+
+expression_coord:
+	AM_DELIM arithmetic_expression[coord_x] AM_DELIM arithmetic_expression[coord_y] {
+		$expression_coord = calloc(1, sizeof(ExpressionCoord));
+		$expression_coord->coord_x = $[coord_x];
+		$expression_coord->coord_y = $[coord_y];
+		$expression_coord->next = NULL;
+	}
 
 variable_definition:
 	VARIABLE_DEFINITION arithmetic_expression END_OF_DATA_BLOCK {
@@ -156,6 +322,15 @@ arithmetic_expression[result]:
 		$result->left = $left;
 		$result->right = $right;
 	}
+|	ARITHMETIC_SUB expression[right] %prec UNARY_MINUS {
+		$result = calloc(1, sizeof(ArithmeticExpressionTreeElement));
+		$result->type = EXPRESSION_ELEMENT_TYPE_OPERATOR;
+		$result->element.op = OPERATOR_SUB;
+		$result->left = calloc(1, sizeof(ArithmeticExpressionTreeElement));
+		$result->left->type = EXPRESSION_ELEMENT_TYPE_CONSTANT;
+		$result->left->element.constant = 0.0;
+		$result->right = $right;
+	}
 |	arithmetic_expression[left] ARITHMETIC_MULT arithmetic_expression[right] {
 		$result = calloc(1, sizeof(ArithmeticExpressionTreeElement));
 		$result->type = EXPRESSION_ELEMENT_TYPE_OPERATOR;
@@ -170,10 +345,13 @@ arithmetic_expression[result]:
 		$result->left = $left;
 		$result->right = $right;
 	}
+|	ARITHMETIC_LEFT_PAREN arithmetic_expression[mid] ARITHMETIC_RIGHT_PAREN {
+		$result = $mid;
+	}
 
 %%
 
-void yyerror(YYLTYPE* locp, char const* s)
+void yyerror(YYLTYPE* locp, ApertureMacro** result, char const* s)
 {
 	fprintf(stderr, "%s\n", s);
 }

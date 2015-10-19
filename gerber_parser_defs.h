@@ -1,6 +1,3 @@
-#define STARTING_NUM_VARIABLE_DEFS 2
-#define STARTING_NUM_PRIMITIVES 2
-
 typedef enum {
 	OPERATOR_ADD,
 	OPERATOR_SUB,
@@ -25,6 +22,11 @@ typedef enum {
 	EXPRESSION_ELEMENT_TYPE_OPERATOR
 } ArithmeticExpressionElementType;
 
+typedef enum {
+	MACRO_CONTENT_VAR_DEF,
+	MACRO_CONTENT_PRIMITIVE
+} MacroContentType;
+
 typedef union {
 	double constant;
 	int variable;
@@ -46,18 +48,18 @@ typedef struct {
 typedef struct {
 	ArithmeticExpressionTreeElement* exposure;
 	ArithmeticExpressionTreeElement* diameter;
-	ArithmeticExpressionTreeElement* x_coord;
-	ArithmeticExpressionTreeElement* y_coord;
+	ArithmeticExpressionTreeElement* center_x;
+	ArithmeticExpressionTreeElement* center_y;
 	ArithmeticExpressionTreeElement* rotation;
 } MacroPrimitiveCircle;
 
 typedef struct {
 	ArithmeticExpressionTreeElement* exposure;
 	ArithmeticExpressionTreeElement* line_width;
-	ArithmeticExpressionTreeElement* x_start;
-	ArithmeticExpressionTreeElement* y_start;
-	ArithmeticExpressionTreeElement* x_end;
-	ArithmeticExpressionTreeElement* y_end;
+	ArithmeticExpressionTreeElement* start_x;
+	ArithmeticExpressionTreeElement* start_y;
+	ArithmeticExpressionTreeElement* end_x;
+	ArithmeticExpressionTreeElement* end_y;
 	ArithmeticExpressionTreeElement* rotation;
 } MacroPrimitiveVectorLine;
 
@@ -71,10 +73,20 @@ typedef struct {
 } MacroPrimitiveCenterLine;
 
 typedef struct {
+	ExpressionCoord* next;
+	ArithmeticExpressionTreeElement* coord_x;
+	ArithmeticExpressionTreeElement* coord_y;
+} ExpressionCoord;
+
+typedef struct {
+	ExpressionCoord* head;
+	ExpressionCoord* tail;
+} ExpressionCoordList;
+
+typedef struct {
 	ArithmeticExpressionTreeElement* exposure;
 	ArithmeticExpressionTreeElement* num_points;
-	ArithmeticExpressionTreeElement** x_coords; // Array of expressions
-	ArithmeticExpressionTreeElement** y_coords; // Array of expressions
+	ExpressionCoordList* coords;
 	ArithmeticExpressionTreeElement* rotation;
 } MacroPrimitiveOutline;
 
@@ -109,13 +121,13 @@ typedef struct {
 } MacroPrimitiveThermal;
 
 typedef union {
-	MacroPrimitiveCircle circle;
-	MacroPrimitiveVectorLine vector_line;
-	MacroPrimitiveCenterLine center_line;
-	MacroPrimitiveOutline outline;
-	MacroPrimitivePolygon polygon;
-	MacroPrimitiveMoire moire;
-	MacroPrimitiveThermal thermal;
+	MacroPrimitiveCircle* circle;
+	MacroPrimitiveVectorLine* vector_line;
+	MacroPrimitiveCenterLine* center_line;
+	MacroPrimitiveOutline* outline;
+	MacroPrimitivePolygon* polygon;
+	MacroPrimitiveMoire* moire;
+	MacroPrimitiveThermal* thermal;
 	const char* comment;
 } MacroPrimitiveContents;
 
@@ -124,24 +136,23 @@ typedef struct {
 	MacroPrimitiveContents primitive;
 } MacroPrimitive;
 
-typedef struct {
-	int capacity;
-	int length;
-	VariableDefinition* defs;
-} VariableDefinitionList;
-
-typedef struct {
-	int capacity;
-	int length;
-	MacroPrimitive* primitives;
-} MacroPrimitiveList;
-
-typedef struct {
-	VariableDefinitionList variable_defs;
-	MacroPrimitiveList primitives;
+typedef union {
+	VariableDefinition* var_def;
+	MacroPrimitive* primitive;
 } MacroContent;
 
 typedef struct {
-	const char* name;
+	MacroContentElement* next;
+	MacroContentType type;
 	MacroContent content;
+} MacroContentElement;
+
+typedef struct {
+	MacroContentElement* head;
+	MacroContentElement* tail;
+} MacroContentList;
+
+typedef struct {
+	const char* name;
+	MacroContentList content_list;
 } ApertureMacro;
