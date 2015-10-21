@@ -1,6 +1,8 @@
 #ifndef GERBER_PARSER_DEFS_H
 #define GERBER_PARSER_DEFS_H
 
+#include <stdbool.h>
+
 typedef enum {
 	OPERATOR_ADD,
 	OPERATOR_SUB,
@@ -29,6 +31,53 @@ typedef enum {
 	MACRO_CONTENT_VAR_DEF,
 	MACRO_CONTENT_PRIMITIVE
 } MacroContentType;
+
+typedef enum {
+	D_CODE_INTERPOLATE,
+	D_CODE_MOVE,
+	D_CODE_FLASH
+} DCodeType;
+
+typedef enum {
+	G_CODE_LINEAR_INTERP_MODE,
+	G_CODE_CW_CIRCULAR_INTERP_MODE,
+	G_CODE_CCW_CIRCULAR_INTERP_MODE,
+	G_CODE_SINGLE_QUADRANT_MODE,
+	G_CODE_MULTI_QUADRANT_MODE,
+	G_CODE_REGION_MODE_ON,
+	G_CODE_REGION_MODE_OFF
+} GCodeType;
+
+typedef enum {
+	COMMAND_TYPE_D_CODE,
+	COMMAND_TYPE_SELECT_APERTURE,
+	COMMAND_TYPE_G_CODE,
+	COMMAND_TYPE_COMMENT,
+	COMMAND_TYPE_END_OF_FILE,
+	COMMAND_TYPE_FORMAT_SPECIFIER,
+	COMMAND_TYPE_UNITS,
+	COMMAND_TYPE_APERTURE_DEFINITION,
+	COMMAND_TYPE_APERTURE_MACRO,
+	COMMAND_TYPE_STEP_AND_REPEAT,
+	COMMAND_TYPE_LEVEL_POLARITY
+} CommandType;
+
+typedef enum {
+	UNIT_TYPE_IN,
+	UNIT_TYPE_MM
+} UnitType;
+
+typedef enum {
+	LEVEL_POLARITY_CLEAR,
+	LEVEL_POLARITY_DARK
+} LevelPolarity;
+
+typedef enum {
+	STANDARD_APERTURE_TYPE_CIRCLE,
+	STANDARD_APERTURE_TYPE_RECTANGLE,
+	STANDARD_APERTURE_TYPE_OBROUND,
+	STANDARD_APERTURE_TYPE_POLYGON
+} StandardApertureType;
 
 typedef union {
 	double constant;
@@ -159,5 +208,98 @@ typedef struct {
 	const char* name;
 	MacroContentList* content_list;
 } ApertureMacro;
+
+typedef struct {
+	int x;
+	int y;
+	int i;
+	int j;
+	bool x_valid;
+	bool y_valid;
+	bool i_valid;
+	bool j_valid;
+} CoordinateData;
+
+typedef struct {
+	DCodeType type;
+	CoordinateData coord_date;
+} DCommand;
+
+typedef struct {
+	int num_int_positions;
+	int num_dec_positions;
+} FormatSpecifier;
+
+typedef struct {
+	int x_num_repeats;
+	int y_num_repeats;
+	int x_step_distance;
+	int y_step_distance;
+} StepAndRepeat;
+
+typedef struct {
+	double diameter;
+	double hole_diameter;
+	bool has_hole;
+} StandardApertureCircle;
+
+typedef struct {
+	double x_size;
+	double y_size;
+	double hole_diameter;
+	bool has_hole;
+} StandardApertureRectangle;
+
+typedef struct {
+	double x_size;
+	double y_size;
+	double hole_diameter;
+	bool has_hole;
+} StandardApertureObround;
+
+typedef struct {
+	double diameter;
+	double num_vertices;
+	double rotation;
+	double hole_diameter;
+	bool has_rotation;
+	bool has_hole;
+} StandardAperturePolygon;
+
+typedef union {
+	StandardApertureCircle* circle;
+	StandardApertureRectangle* rectangle;
+	StandardApertureObround* obround;
+	StandardAperturePolygon* polygon;
+} StandardApertureContents;
+
+typedef struct {
+	StandardApertureType type;
+	StandardApertureContents contents;
+} StandardAperture;
+
+typedef union {
+	DCommand* d_command;
+	int aperture;
+	GCodeType g_command;
+	const char* comment;
+	FormatSpecifier* format_specifier;
+	UnitType unit_type;
+	StandardAperture* standard_aperture;
+	ApertureMacro* aperture_macro;
+	StepAndRepeat* step_and_repeat;
+	LevelPolarity level_polarity;
+} CommandContents;
+
+typedef struct _Command {
+	CommandType type;
+	CommandContents contents;
+	struct _Command* next;
+} Command;
+
+typedef struct {
+	Command* head;
+	Command* tail;
+} CommandList;
 
 #endif // GERBER_PARSER_DEFS_H
