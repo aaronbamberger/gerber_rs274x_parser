@@ -18,6 +18,19 @@ void pretty_print_moire_primitive(MacroPrimitiveMoire* moire);
 void pretty_print_thermal_primitive(MacroPrimitiveThermal* thermal);
 void pretty_print_expression_coord_list(ExpressionCoordList* coord_list);
 void pretty_print_arithmetic_expression(ArithmeticExpressionTreeElement* root);
+void pretty_print_command_list(CommandList* command_list);
+void pretty_print_command(Command* command);
+void pretty_print_d_command(DCommand* d_command);
+void pretty_print_coordinate_data(CoordinateData* coord_data);
+void pretty_print_g_command(GCodeType g_code);
+void pretty_print_format_specifier(FormatSpecifier* format_specifier);
+void pretty_print_step_and_repeat(StepAndRepeat* step_and_repeat);
+void pretty_print_standard_aperture_circle(StandardApertureCircle* circle);
+void pretty_print_standard_aperture_rectangle(StandardApertureRectangle* rectangle);
+void pretty_print_standard_aperture_obround(StandardApertureObround* obround);
+void pretty_print_standard_aperture_polygon(StandardAperturePolygon* polygon);
+void pretty_print_standard_aperture(StandardAperture* aperture);
+void pretty_print_aperture_definition(ApertureDefinition* aperture_definition);
 
 int main(int argc, char** argv)
 {
@@ -58,15 +71,274 @@ int main(int argc, char** argv)
 	int parse_result = yyparse(&result, scanner);
 	printf("Parser returned result %d\n", parse_result);
 
-	/*
-	printf("Parsed Macro Primitive:\n");
-	pretty_print_aperture_macro(result);
-	*/
+	printf("Parsed Gerber File.  Stream of Commands:\n");
+	pretty_print_command_list(result);
 	
 	yylex_destroy(scanner);
 	fclose(gerber_file);
 	
 	return 0;
+}
+
+void pretty_print_command_list(CommandList* command_list)
+{
+	Command* command;
+	for (command = command_list->head; command != NULL; command = command->next) {
+		pretty_print_command(command);
+	}
+}
+
+void pretty_print_command(Command* command)
+{
+	switch (command->type) {
+		case COMMAND_TYPE_D_CODE:
+			pretty_print_d_command(command->contents.d_command);
+			break;
+
+		case COMMAND_TYPE_SELECT_APERTURE:
+			printf("Select aperture: %d\n", command->contents.aperture);
+			break;
+
+		case COMMAND_TYPE_G_CODE:
+			pretty_print_g_command(command->contents.g_command);
+			break;
+
+		case COMMAND_TYPE_COMMENT:
+			printf("Comment: %s\n", command->contents.comment);
+			break;
+
+		case COMMAND_TYPE_END_OF_FILE:
+			printf("End of File\n");
+			break;
+
+		case COMMAND_TYPE_FORMAT_SPECIFIER:
+			pretty_print_format_specifier(command->contents.format_specifier);
+			break;
+
+		case COMMAND_TYPE_UNITS:
+			printf("Units: ");
+			switch (command->contents.units) {
+				case UNIT_TYPE_IN:
+					printf("Inches\n");
+					break;
+
+				case UNIT_TYPE_MM:
+					printf("Millimeters\n");
+					break;
+			}
+			break;
+
+		case COMMAND_TYPE_APERTURE_DEFINITION:
+			pretty_print_aperture_definition(command->contents.aperture_definition);
+			break;
+
+		case COMMAND_TYPE_APERTURE_MACRO:
+			printf("Aperture Macro:\n");
+			pretty_print_aperture_macro(command->contents.aperture_macro);
+			break;
+
+		case COMMAND_TYPE_STEP_AND_REPEAT:
+			pretty_print_step_and_repeat(command->contents.step_and_repeat);
+			break;
+
+		case COMMAND_TYPE_LEVEL_POLARITY:
+			printf("Level polarity: ");
+			switch (command->contents.level_polarity) {
+				case LEVEL_POLARITY_DARK:
+					printf("Dark\n");
+					break;
+
+				case LEVEL_POLARITY_CLEAR:
+					printf("Clear\n");
+					break;
+			}
+			break;
+	}
+}
+
+void pretty_print_aperture_definition(ApertureDefinition* aperture_definition)
+{
+	printf("Aperture Definition: %d\n", aperture_definition->aperture_number);
+	switch (aperture_definition->type) {
+		case APERTURE_DEFINITION_TYPE_STANDARD:
+			pretty_print_standard_aperture(aperture_definition->aperture.standard);
+			break;
+
+		case APERTURE_DEFINITION_TYPE_CUSTOM:
+			printf("Custom aperture: %s\n", aperture_definition->aperture.custom_name);
+			break;
+	}
+}
+
+void pretty_print_standard_aperture(StandardAperture* aperture)
+{
+	switch (aperture->type) {
+		case STANDARD_APERTURE_CIRCLE:
+			pretty_print_standard_aperture_circle(aperture->contents.circle);
+			break;
+
+		case STANDARD_APERTURE_RECTANGLE:
+			pretty_print_standard_aperture_rectangle(aperture->contents.rectangle);
+			break;
+
+		case STANDARD_APERTURE_OBROUND:
+			pretty_print_standard_aperture_obround(aperture->contents.obround);
+			break;
+
+		case STANDARD_APERTURE_POLYGON:
+			pretty_print_standard_aperture_polygon(aperture->contents.polygon);
+			break;
+	}
+}
+
+void pretty_print_standard_aperture_circle(StandardApertureCircle* circle)
+{
+	printf("Standard Aperture: Circle\n");
+	printf("  Diameter: %f\n", circle->diameter);
+	printf("  Has Hole: %s\n", circle->has_hole ? "True" : "False");
+	if (circle->has_hole) {
+		printf("  Hole Diameter: %f\n", circle->hole_diameter);
+	}
+}
+
+void pretty_print_standard_aperture_rectangle(StandardApertureRectangle* rectangle)
+{
+	printf("Standard Aperture: Rectangle\n");
+	printf("  X Size: %f\n", rectangle->x_size);
+	printf("  Y Size: %f\n", rectangle->y_size);
+	printf("  Has Hole: %s\n", rectangle->has_hole ? "True" : "False");
+	if (rectangle->has_hole) {
+		printf("  Hole Diameter: %f\n", rectangle->hole_diameter);
+	}
+}
+
+void pretty_print_standard_aperture_obround(StandardApertureObround* obround)
+{
+	printf("Standard Aperture: Obround\n");
+	printf("  X Size: %f\n", obround->x_size);
+	printf("  Y Size: %f\n", obround->y_size);
+	printf("  Has Hole: %s\n", obround->has_hole ? "True" : "False");
+	if (obround->has_hole) {
+		printf("  Hole Diameter: %f\n", obround->hole_diameter);
+	}
+}
+
+void pretty_print_standard_aperture_polygon(StandardAperturePolygon* polygon)
+{
+	printf("Standard Aperture: Polygon\n");
+	printf("  Diameter: %f\n", polygon->diameter);
+	printf("  Number of Vertices: %f\n", polygon->num_vertices);
+	printf("  Has Rotation: %s\n", polygon->has_rotation ? "True" : "False");
+	if (polygon->has_rotation) {
+		printf("  Rotation: %f\n", polygon->rotation);
+	}
+	printf("  Has Hole: %s\n", polygon->has_hole ? "True" : "False");
+	if (polygon->has_hole) {
+		printf("  Hole Diameter: %f\n", polygon->hole_diameter);
+	}
+}
+
+void pretty_print_step_and_repeat(StepAndRepeat* step_and_repeat)
+{
+	printf("Step and Repeat\n");
+	printf("  Number of repeats in the X dimension: %d\n", step_and_repeat->x_num_repeats);
+	printf("  Number of repeats in the Y dimension: %d\n", step_and_repeat->y_num_repeats);
+	printf("  Step distance in the X dimension: %f\n", step_and_repeat->x_step_distance);
+	printf("  Step distance in the Y dimension: %f\n", step_and_repeat->y_step_distance);
+}
+
+void pretty_print_format_specifier(FormatSpecifier* format_specifier)
+{
+	printf("Format Specifier:\n");
+	printf("  Number of Integer Places: %d\n", format_specifier->num_int_positions);
+	printf("  Number of Decimal Places: %d\n", format_specifier->num_dec_positions);
+}
+
+void pretty_print_d_command(DCommand* d_command)
+{
+	printf("D Command: ");
+	switch (d_command->type) {
+		case D_CODE_INTERPOLATE:
+			printf("Interpolate\n");
+			break;
+
+		case D_CODE_MOVE:
+			printf("Move\n");
+			break;
+
+		case D_CODE_FLASH:
+			printf("Flash\n");
+			break;
+	}
+
+	if (d_command->coord_data != NULL) {
+		pretty_print_coordinate_data(d_command->coord_data);
+	} else {
+		printf("  No coordinate data\n");
+	}
+}
+
+void pretty_print_coordinate_data(CoordinateData* coord_data)
+{
+	printf("  Coordinate Data:\n");
+
+	if (coord_data->x_valid) {
+		printf("    X: %d\n", coord_data->x);
+	} else {
+		printf("    X: None\n");
+	}
+
+	if (coord_data->y_valid) {
+		printf("    Y: %d\n", coord_data->y);
+	} else {
+		printf("    Y: None\n");
+	}
+
+	if (coord_data->i_valid) {
+		printf("    I: %d\n", coord_data->i);
+	} else {
+		printf("    I: None\n");
+	}
+
+	if (coord_data->j_valid) {
+		printf("    J: %d\n", coord_data->j);
+	} else {
+		printf("    J: None\n");
+	}
+}
+
+void pretty_print_g_command(GCodeType g_code)
+{
+	printf("G Code: ");
+	switch (g_code) {
+		case G_CODE_LINEAR_INTERP_MODE:
+			printf("Linear interpolation mode\n");
+			break;
+
+		case G_CODE_CW_CIRCULAR_INTERP_MODE:
+			printf("Clockwise circular interpolation mode\n");
+			break;
+
+		case G_CODE_CCW_CIRCULAR_INTERP_MODE:
+			printf("Counter-Clockwise circular interpolation mode\n");
+			break;
+
+		case G_CODE_SINGLE_QUADRANT_MODE:
+			printf("Single-Quadrant mode\n");
+			break;
+
+		case G_CODE_MULTI_QUADRANT_MODE:
+			printf("Multi-Quadrant mode\n");
+			break;
+
+		case G_CODE_REGION_MODE_ON:
+			printf("Region mode on\n");
+			break;
+
+		case G_CODE_REGION_MODE_OFF:
+			printf("Region mode off\n");
+			break;
+	}
 }
 
 void pretty_print_aperture_macro(ApertureMacro* macro)
