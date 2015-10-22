@@ -73,11 +73,16 @@ typedef enum {
 } LevelPolarity;
 
 typedef enum {
-	STANDARD_APERTURE_TYPE_CIRCLE,
-	STANDARD_APERTURE_TYPE_RECTANGLE,
-	STANDARD_APERTURE_TYPE_OBROUND,
-	STANDARD_APERTURE_TYPE_POLYGON
+	STANDARD_APERTURE_CIRCLE,
+	STANDARD_APERTURE_RECTANGLE,
+	STANDARD_APERTURE_OBROUND,
+	STANDARD_APERTURE_POLYGON
 } StandardApertureType;
+
+typedef enum {
+	APERTURE_DEFINITION_TYPE_STANDARD,
+	APERTURE_DEFINITION_TYPE_CUSTOM
+} ApertureDefinitionType;
 
 typedef union {
 	double constant;
@@ -222,7 +227,7 @@ typedef struct {
 
 typedef struct {
 	DCodeType type;
-	CoordinateData coord_date;
+	CoordinateData* coord_data;
 } DCommand;
 
 typedef struct {
@@ -233,8 +238,8 @@ typedef struct {
 typedef struct {
 	int x_num_repeats;
 	int y_num_repeats;
-	int x_step_distance;
-	int y_step_distance;
+	double x_step_distance;
+	double y_step_distance;
 } StepAndRepeat;
 
 typedef struct {
@@ -279,13 +284,24 @@ typedef struct {
 } StandardAperture;
 
 typedef union {
+	StandardAperture* standard;
+	const char* custom_name;
+} ApertureDefinitionContents;
+
+typedef struct {
+	ApertureDefinitionType type;
+	int aperture_number;
+	ApertureDefinitionContents aperture;
+} ApertureDefinition;
+
+typedef union {
 	DCommand* d_command;
 	int aperture;
 	GCodeType g_command;
 	const char* comment;
 	FormatSpecifier* format_specifier;
-	UnitType unit_type;
-	StandardAperture* standard_aperture;
+	UnitType units;
+	ApertureDefinition* aperture_definition; 
 	ApertureMacro* aperture_macro;
 	StepAndRepeat* step_and_repeat;
 	LevelPolarity level_polarity;

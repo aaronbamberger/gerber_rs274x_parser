@@ -50,16 +50,18 @@ int main(int argc, char** argv)
 		} else {
 			pretty_print_token(token_type, &semantic_value);
 		}
-	}void pretty_print_center_line_primitive(MacroPrimitiveCenterLine* center_line)
+	}
 	*/
 
 	yydebug = 1;
-	ApertureMacro* result;
+	CommandList* result;
 	int parse_result = yyparse(&result, scanner);
 	printf("Parser returned result %d\n", parse_result);
 
+	/*
 	printf("Parsed Macro Primitive:\n");
 	pretty_print_aperture_macro(result);
+	*/
 	
 	yylex_destroy(scanner);
 	fclose(gerber_file);
