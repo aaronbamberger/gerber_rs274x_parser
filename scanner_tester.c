@@ -1,10 +1,15 @@
 #include "gerber_scanner_defs.h"
 #include "gerber_parser_defs.h"
-#include "gerber_scanner.yy.h"
+#include "gerber_scanner.yy.hh"
 #include "gerber_parser.yy.h"
+#include "gerber_rs274x_scanner.hh"
 
 #include <stdio.h>
 #include <stdbool.h>
+
+#include <iostream>
+#include <fstream>
+#include <ios>
 
 void pretty_print_token(int token_type, YYSTYPE* semantic_value);
 void pretty_print_arithmetic_expression_tree(ArithmeticExpressionTreeElement* root, int level);
@@ -39,16 +44,25 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	
+	/*
 	FILE* gerber_file = fopen(argv[1], "r");
 	if (gerber_file == NULL) {
 		printf("Error opening file %s\n", argv[1]);
 		return 2;
 	}
+	*/
+
+	std::ifstream gerber_file;
+	gerber_file.open(argv[1], std::ios::in);
+
+	GerberRS274XScanner scanner(&gerber_file, &std::cout);
 	
+	/*
 	yyscan_t scanner;
 	yylex_init(&scanner);
 	
 	yyset_in(gerber_file, scanner);
+	*/
 	
 	/*
 	YYSTYPE semantic_value;
@@ -74,8 +88,12 @@ int main(int argc, char** argv)
 	printf("Parsed Gerber File.  Stream of Commands:\n");
 	pretty_print_command_list(result);
 	
+	gerber_file.close();
+
+	/*
 	yylex_destroy(scanner);
 	fclose(gerber_file);
+	*/
 	
 	return 0;
 }

@@ -1,10 +1,9 @@
 %top{
 	#include "gerber_parser.yy.h"
+	#include "gerber_rs274x_scanner.hh"
 }
 
 %{
-	#include "gerber_scanner_defs.h"
-
 	#include <stdlib.h>
 	#include <string.h>
 
@@ -13,15 +12,16 @@
 	#define YY_USER_INIT return_state = INITIAL;
 %}
 
-%option header-file="gerber_scanner.yy.h"
-%option outfile="gerber_scanner.yy.c"
+%option header-file="gerber_scanner.yy.hh"
+%option outfile="gerber_scanner.yy.cc"
 %option 8bit
 %option default
 %option never-interactive
 %option noyywrap
-%option bison-bridge
-%option bison-locations
-%option reentrant
+%option nounput
+%option noinput
+%option c++
+%option yyclass="GerberRS274XScanner"
 
 %x PARSING_COORD_FORMAT
 %x PARSING_COMMENT_STRING
@@ -237,7 +237,7 @@ J{INT_W_SIGN}										{
 											}
 										
 <PARSING_COMMENT_STRING>{COMMENT_STRING}	{
-												yylval->comment_string = malloc(yyleng + 1);
+												yylval->comment_string = (char*)malloc(yyleng + 1);
 												strncpy(yylval->comment_string, yytext, yyleng);
 												yylval->comment_string[yyleng] = '\0';
 												return COMMENT_STRING;
@@ -278,7 +278,7 @@ J{INT_W_SIGN}										{
 
 <PARSING_APERTURE_TEMPLATE>{NAME}				{
 													BEGIN(PARSING_APERTURE_MODIFIERS);
-													yylval->custom_aperture_name = malloc(yyleng + 1);
+													yylval->custom_aperture_name = (char*)malloc(yyleng + 1);
 													strncpy(yylval->custom_aperture_name, yytext, yyleng);
 													yylval->custom_aperture_name[yyleng] = '\0';
 													return CUSTOM_APERTURE_NAME;
@@ -297,7 +297,7 @@ J{INT_W_SIGN}										{
 
 <PARSING_APERTURE_MACRO_NAME>{NAME}				{
 
-													yylval->custom_aperture_name = malloc(yyleng + 1);
+													yylval->custom_aperture_name = (char*)malloc(yyleng + 1);
 													strncpy(yylval->custom_aperture_name, yytext, yyleng);
 													yylval->custom_aperture_name[yyleng] = '\0';
 													return CUSTOM_APERTURE_NAME;
@@ -353,7 +353,7 @@ J{INT_W_SIGN}										{
 																	}
 
 <PARSING_APERTURE_COMMENT>{COMMENT_STRING}							{
-																		yylval->aperture_comment = malloc(yyleng + 1);
+																		yylval->aperture_comment = (char*)malloc(yyleng + 1);
 																		strncpy(yylval->aperture_comment, yytext, yyleng);
 																		yylval->aperture_comment[yyleng] = '\0';
 																		return APERTURE_COMMENT_CONTENT;
