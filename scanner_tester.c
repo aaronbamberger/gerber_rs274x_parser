@@ -1,10 +1,10 @@
-#include "gerber_scanner_defs.h"
-#include "gerber_parser_defs.h"
-#include "gerber_scanner.yy.hh"
-#include "gerber_parser.yy.h"
+
 #include "gerber_rs274x_scanner.hh"
+#include "gerber_parser_defs.h"
+#include "gerber_parser.yy.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
 #include <iostream>
@@ -54,6 +54,10 @@ int main(int argc, char** argv)
 
 	std::ifstream gerber_file;
 	gerber_file.open(argv[1], std::ios::in);
+	if (!gerber_file.is_open()) {
+		printf("Error opening file\n");
+		return 2;
+	}
 
 	GerberRS274XScanner scanner(&gerber_file, &std::cout);
 	

@@ -1,8 +1,10 @@
 #include "gerber_rs274x_scanner.hh"
 
-GerberRS274XScanner::GerberRS274XScanner(std::istream* arg_yyin = 0, std::ostream* arg_yyout = 0)
+#include <stdio.h>
+
+GerberRS274XScanner::GerberRS274XScanner(std::istream* arg_yyin = 0, std::ostream* arg_yyout = 0) : yyFlexLexer(arg_yyin, arg_yyout)
 {
-	yyFlexLexer(arg_yyin, arg_yyout);
+	
 }
 
 int GerberRS274XScanner::yylex(YYSTYPE* semantic_value, YYLTYPE* location)

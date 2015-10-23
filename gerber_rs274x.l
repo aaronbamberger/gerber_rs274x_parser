@@ -1,9 +1,13 @@
 %top{
 	#include "gerber_parser.yy.h"
-	#include "gerber_rs274x_scanner.hh"
 }
 
 %{
+	// This include needs to be here, because we need the GerberRS274XScanner class
+	// to be defined before yylex is defined, but we need the include to be after
+	// FlexLexer.h is included, or else it is included twice
+	#include "gerber_rs274x_scanner.hh"
+
 	#include <stdlib.h>
 	#include <string.h>
 
@@ -12,7 +16,6 @@
 	#define YY_USER_INIT return_state = INITIAL;
 %}
 
-%option header-file="gerber_scanner.yy.hh"
 %option outfile="gerber_scanner.yy.cc"
 %option 8bit
 %option default
@@ -22,6 +25,7 @@
 %option noinput
 %option c++
 %option yyclass="GerberRS274XScanner"
+%option debug
 
 %x PARSING_COORD_FORMAT
 %x PARSING_COMMENT_STRING

@@ -6,7 +6,7 @@
 %code requires {
 	#include "gerber_parser_defs.h"
 
-	// Forward declare the scanner class
+	// Forward declare the scanner class so we can use it in the function prototypes
 	class GerberRS274XScanner;
 }
 
@@ -917,7 +917,7 @@ static int yylex(YYSTYPE* yylval, YYLTYPE* yyloc, GerberRS274XScanner& scanner)
 	return scanner.yylex(yylval, yyloc);
 }
 
-void yyerror(YYLTYPE* locp, CommandList** result, void* scanner, char const* s)
+void yyerror(YYLTYPE* locp, CommandList** result, GerberRS274XScanner& scanner, char const* s)
 {
 	fprintf(stderr, "%s\n", s);
 }

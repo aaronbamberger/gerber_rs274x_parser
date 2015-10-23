@@ -1,7 +1,15 @@
 #ifndef GERBER_RS274X_PARSER_DRIVER_H
 #define GERBER_RS274X_PARSER_DRIVER_H
 
-// Need to do this to prevent redefinition error from yyFlexLexer
+#include "gerber_parser.yy.h"
+
+// Because of some janky stuff that flex does to allow multiple c++ scanners in the same
+// executable, we need to provide our own include guard for FlexLexer.h that depends on
+// an internal #define set in FlexLexer.h.  This will probably break when flex is updated.
+// This file also must be included in the flex generated implementation file after the flex
+// generate implementation file itself includes FlexLexer.h, to prevent multiple definitions
+// of yyFlexLexer.  This is accomplished in the flex file by being careful where the include
+// for this file appears, see the flex file for more information
 #if !defined(yyFlexLexerOnce)
 #include <FlexLexer.h>
 #endif
