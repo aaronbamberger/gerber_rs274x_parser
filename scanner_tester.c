@@ -11,7 +11,7 @@
 #include <fstream>
 #include <ios>
 
-void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type semantic_value);
+void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type& semantic_value);
 void pretty_print_arithmetic_expression_tree(ArithmeticExpressionTreeElement* root, int level);
 void pretty_print_aperture_macro(ApertureMacro* macro);
 void pretty_print_circle_primitive(MacroPrimitiveCircle* circle);
@@ -40,7 +40,7 @@ void pretty_print_aperture_definition(ApertureDefinition* aperture_definition);
 int main(int argc, char** argv)
 {
 	if (argc != 2) {
-		printf("Usage: scanner_tester <gerber_file>\n");
+		std::cout << "Usage: scanner_tester <gerber_file>" << std::endl;
 		return 1;
 	}
 
@@ -54,23 +54,24 @@ int main(int argc, char** argv)
 	GerberRS274XScanner scanner(&gerber_file, &std::cout);
 	
 	/*
-	YYSTYPE semantic_value;
-	YYLTYPE location;
+	yy::GerberRS274XParser::semantic_type semantic_value;
+	yy::GerberRS274XParser::location_type location;
 	
 	bool done = false;
 	
 	while (!done) {
-		int token_type = yylex(&semantic_value, &location, scanner);
+		int token_type = scanner.yylex(&semantic_value, &location);
 		if (token_type == 0) {
 			done = true;
 		} else {
-			pretty_print_token(token_type, &semantic_value);
+			pretty_print_token(token_type, semantic_value);
 		}
 	}
 	*/
 
 	CommandList* result;
 	yy::GerberRS274XParser parser(&result, scanner);
+	parser.set_debug_level(1);
 	int parse_result = parser.parse();
 	printf("Parser returned result %d\n", parse_result);
 
@@ -78,11 +79,6 @@ int main(int argc, char** argv)
 	pretty_print_command_list(result);
 	
 	gerber_file.close();
-
-	/*
-	yylex_destroy(scanner);
-	fclose(gerber_file);
-	*/
 	
 	return 0;
 }
@@ -633,7 +629,7 @@ void pretty_print_arithmetic_expression_tree(ArithmeticExpressionTreeElement* ro
 	}
 }
 
-void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type semantic_value)
+void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type& semantic_value)
 {
 	switch (token_type) {
 		case yy::GerberRS274XParser::token::D_CMD_TYPE_INTERPOLATE:

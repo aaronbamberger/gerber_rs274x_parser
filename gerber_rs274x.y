@@ -122,8 +122,9 @@ top_level:
 
 command_list[result]:
 	command_list[list] command {
-		$result->tail->next = $command;
-		$result->tail = $command;
+		$list->tail->next = $command;
+		$list->tail = $command;
+		$result = $list;
 	}
 |	command {
 		$result = (CommandList*)calloc(1, sizeof(CommandList));
