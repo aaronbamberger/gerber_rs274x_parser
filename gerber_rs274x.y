@@ -11,72 +11,18 @@
 }
 
 %code {
-	static int yylex(YYSTYPE* yylval, YYLTYPE* yyloc, GerberRS274XScanner& scanner);
-	void yyerror(YYLTYPE* yylocp, CommandList** result, GerberRS274XScanner& scanner, char const* s);
+	static int yylex(yy::GerberRS274XParser::semantic_type* yylval, yy::GerberRS274XParser::location_type* yylloc, GerberRS274XScanner& scanner);
 }
 
-%defines "gerber_parser.yy.h"
-%output "gerber_parser.yy.c"
-%define api.pure full
+%defines "gerber_parser.yy.hh"
+%output "gerber_parser.yy.cc"
 %define parse.trace
-%language "C"
+%define api.value.type variant
+%define parser_class_name {GerberRS274XParser}
+%skeleton "lalr1.cc"
 %locations
 %parse-param {CommandList** result}
 %param {GerberRS274XScanner& scanner}
-
-%union {
-	UnitType unit_type;
-	LevelPolarity level_polarity;
-	int aperture_number;
-	char* comment_string;
-	char* custom_aperture_name;
-	char* aperture_comment;
-	int x_coordinate;
-	int y_coordinate;
-	int i_offset;
-	int j_offset;
-	int num_int_positions;
-	int num_dec_positions;
-	double aperture_definition_modifier;
-	int variable_definition;
-	double arithmetic_constant;
-	int arithmetic_var_reference;
-	int x_repeats;
-	int y_repeats;
-	double x_step_distance;
-	double y_step_distance;
-	ArithmeticExpressionTreeElement* arithmetic_expression_tree_element_t;
-	VariableDefinition* variable_definition_t;
-	MacroPrimitiveCircle* macro_primitive_circle_t;
-	MacroPrimitiveVectorLine* macro_primitive_vector_line_t;
-	MacroPrimitiveCenterLine* macro_primitive_center_line_t;
-	ExpressionCoord* expression_coord_t;
-	ExpressionCoordList* expression_coord_list_t;
-	MacroPrimitiveOutline* macro_primitive_outline_t;
-	MacroPrimitivePolygon* macro_primitive_polygon_t;
-	MacroPrimitiveMoire* macro_primitive_moire_t;
-	MacroPrimitiveThermal* macro_primitive_thermal_t;
-	MacroPrimitive* macro_primitive_t;
-	MacroContentElement* macro_content_element_t;
-	MacroContentList* macro_content_list_t;
-	ApertureMacro* aperture_macro_t;
-	CoordinateData* coordinate_data_t;
-	DCommand* d_command_t;
-	FormatSpecifier* format_specifier_t;
-	StepAndRepeat* step_and_repeat_t;
-	StandardApertureCircle* standard_aperture_circle_t;
-	StandardApertureRectangle* standard_aperture_rectangle_t;
-	StandardApertureObround* standard_aperture_obround_t;
-	StandardAperturePolygon* standard_aperture_polygon_t;
-	StandardAperture* standard_aperture_t;
-	ApertureDefinition* aperture_definition_t;
-	Command* command_t;
-	CommandList* command_list_t;
-}
-
-%destructor { free($$); } <comment_string>
-%destructor { free($$); } <custom_aperture_name>
-%destructor { free($$); } <aperture_comment>
 
 %token D_CMD_TYPE_INTERPOLATE
 %token D_CMD_TYPE_MOVE
@@ -89,36 +35,36 @@
 %token G_CMD_TYPE_REGION_MODE_ON
 %token G_CMD_TYPE_REGION_MODE_OFF
 %token COMMENT_START
-%token <comment_string> COMMENT_STRING
+%token <char*> COMMENT_STRING
 %token END_OF_FILE
-%token <x_coordinate> X_COORDINATE
-%token <y_coordinate> Y_COORDINATE
-%token <i_offset> I_OFFSET
-%token <j_offset> J_OFFSET
-%token <x_repeats> X_REPEATS
-%token <y_repeats> Y_REPEATS
-%token <x_step_distance> X_STEP_DISTANCE
-%token <y_step_distance> Y_STEP_DISTANCE
+%token <int> X_COORDINATE
+%token <int> Y_COORDINATE
+%token <int> I_OFFSET
+%token <int> J_OFFSET
+%token <int> X_REPEATS
+%token <int> Y_REPEATS
+%token <double> X_STEP_DISTANCE
+%token <double> Y_STEP_DISTANCE
 %token COORD_FORMAT
-%token <num_int_positions> COORD_FORMAT_NUM_INT_POSITIONS
-%token <num_dec_positions> COORD_FORMAT_NUM_DEC_POSITIONS
-%token <unit_type> UNIT_SPECIFIER
+%token <int> COORD_FORMAT_NUM_INT_POSITIONS
+%token <int> COORD_FORMAT_NUM_DEC_POSITIONS
+%token <UnitType> UNIT_SPECIFIER
 %token END_OF_DATA_BLOCK
 %token EXT_CMD_DELIMITER
 %token APERTURE_DEFINITION
-%token <aperture_number> APERTURE_NUMBER
+%token <int> APERTURE_NUMBER
 %token STANDARD_APERTURE_TYPE_CIRCLE
 %token STANDARD_APERTURE_TYPE_RECTANGLE
 %token STANDARD_APERTURE_TYPE_OBROUND
 %token STANDARD_APERTURE_TYPE_POLYGON
-%token <custom_aperture_name> CUSTOM_APERTURE_NAME
-%token <aperture_definition_modifier> APERTURE_DEFINITION_MODIFIER
+%token <char*> CUSTOM_APERTURE_NAME
+%token <double> APERTURE_DEFINITION_MODIFIER
 %token APERTURE_MACRO
-%token <variable_definition> VARIABLE_DEFINITION
+%token <int> VARIABLE_DEFINITION
 %token ARITHMETIC_LEFT_PAREN
 %token ARITHMETIC_RIGHT_PAREN
-%token <arithmetic_constant> ARITHMETIC_CONSTANT
-%token <arithmetic_var_reference> ARITHMETIC_VAR_REFERENCE
+%token <double> ARITHMETIC_CONSTANT
+%token <int> ARITHMETIC_VAR_REFERENCE
 %token APERTURE_PRIMITIVE_TYPE_CIRCLE
 %token APERTURE_PRIMITIVE_TYPE_VECTOR_LINE
 %token APERTURE_PRIMITIVE_TYPE_CENTER_LINE
@@ -128,44 +74,44 @@
 %token APERTURE_PRIMITIVE_TYPE_THERMAL
 %token AM_DELIM
 %token APERTURE_COMMENT_START
-%token <aperture_comment> APERTURE_COMMENT_CONTENT
+%token <char*> APERTURE_COMMENT_CONTENT
 %token STEP_AND_REPEAT_START
-%token <level_polarity> LEVEL_POLARITY
+%token <LevelPolarity> LEVEL_POLARITY
 
 %left ARITHMETIC_ADD ARITHMETIC_SUB
 %left ARITHMETIC_MULT ARITHMETIC_DIV
 %precedence UNARY_MINUS
 
-%type <aperture_macro_t> aperture_macro
-%type <macro_content_list_t> macro_content_list
-%type <macro_content_element_t> macro_content_element
-%type <macro_primitive_t> macro_primitive
-%type <aperture_comment> macro_primitive_comment
-%type <macro_primitive_circle_t> macro_primitive_circle
-%type <macro_primitive_vector_line_t> macro_primitive_vector_line
-%type <macro_primitive_center_line_t> macro_primitive_center_line
-%type <expression_coord_t> expression_coord
-%type <expression_coord_list_t> expression_coord_list
-%type <macro_primitive_outline_t> macro_primitive_outline
-%type <macro_primitive_polygon_t> macro_primitive_polygon
-%type <macro_primitive_moire_t> macro_primitive_moire
-%type <macro_primitive_thermal_t> macro_primitive_thermal
-%type <arithmetic_expression_tree_element_t> arithmetic_expression
-%type <variable_definition_t> variable_definition
-%type <coordinate_data_t> coordinate_data
-%type <d_command_t> interpolate_cmd
-%type <d_command_t> move_cmd
-%type <d_command_t> flash_cmd
-%type <format_specifier_t> format_specifier
-%type <step_and_repeat_t> step_and_repeat
-%type <standard_aperture_circle_t> standard_aperture_circle
-%type <standard_aperture_rectangle_t> standard_aperture_rectangle
-%type <standard_aperture_obround_t> standard_aperture_obround
-%type <standard_aperture_polygon_t> standard_aperture_polygon
-%type <standard_aperture_t> standard_aperture
-%type <aperture_definition_t> aperture_definition
-%type <command_t> command
-%type <command_list_t> command_list
+%type <ApertureMacro*> aperture_macro
+%type <MacroContentList*> macro_content_list
+%type <MacroContentElement*> macro_content_element
+%type <MacroPrimitive*> macro_primitive
+%type <char*> macro_primitive_comment
+%type <MacroPrimitiveCircle*> macro_primitive_circle
+%type <MacroPrimitiveVectorLine*> macro_primitive_vector_line
+%type <MacroPrimitiveCenterLine*> macro_primitive_center_line
+%type <ExpressionCoord*> expression_coord
+%type <ExpressionCoordList*> expression_coord_list
+%type <MacroPrimitiveOutline*> macro_primitive_outline
+%type <MacroPrimitivePolygon*> macro_primitive_polygon
+%type <MacroPrimitiveMoire*> macro_primitive_moire
+%type <MacroPrimitiveThermal*> macro_primitive_thermal
+%type <ArithmeticExpressionTreeElement*> arithmetic_expression
+%type <VariableDefinition*> variable_definition
+%type <CoordinateData*> coordinate_data
+%type <DCommand*> interpolate_cmd
+%type <DCommand*> move_cmd
+%type <DCommand*> flash_cmd
+%type <FormatSpecifier*> format_specifier
+%type <StepAndRepeat*> step_and_repeat
+%type <StandardApertureCircle*> standard_aperture_circle
+%type <StandardApertureRectangle*> standard_aperture_rectangle
+%type <StandardApertureObround*> standard_aperture_obround
+%type <StandardAperturePolygon*> standard_aperture_polygon
+%type <StandardAperture*> standard_aperture
+%type <ApertureDefinition*> aperture_definition
+%type <Command*> command
+%type <CommandList*> command_list
 
 %%
 
@@ -912,12 +858,12 @@ arithmetic_expression[result]:
 
 #include "gerber_rs274x_scanner.hh"
 
-static int yylex(YYSTYPE* yylval, YYLTYPE* yyloc, GerberRS274XScanner& scanner)
+static int yylex(yy::GerberRS274XParser::semantic_type* yylval, yy::GerberRS274XParser::location_type* yylloc, GerberRS274XScanner& scanner)
 {
-	return scanner.yylex(yylval, yyloc);
+	return scanner.yylex(yylval, yylloc);
 }
 
-void yyerror(YYLTYPE* locp, CommandList** result, GerberRS274XScanner& scanner, char const* s)
+void yy::GerberRS274XParser::error(yy::location const& error_loc, std::string const& message)
 {
-	fprintf(stderr, "%s\n", s);
+	std::cerr << message;
 }

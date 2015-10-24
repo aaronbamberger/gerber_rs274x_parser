@@ -2,5 +2,8 @@
 *.gbr
 *.pdf
 *.yy.*
+location.hh
+position.hh
+stack.hh
 scanner_tester
 Code Examples/

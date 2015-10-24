@@ -1,7 +1,7 @@
 #ifndef GERBER_RS274X_PARSER_DRIVER_H
 #define GERBER_RS274X_PARSER_DRIVER_H
 
-#include "gerber_parser.yy.h"
+#include "gerber_parser.yy.hh"
 
 // Because of some janky stuff that flex does to allow multiple c++ scanners in the same
 // executable, we need to provide our own include guard for FlexLexer.h that depends on
@@ -21,7 +21,7 @@ public:
 	GerberRS274XScanner(std::istream *arg_yyin, std::ostream *arg_yyout);
 
 	// This is the overloaded scanning function that bison will call
-	int yylex(YYSTYPE* semantic_value, YYLTYPE* location);
+	int yylex(yy::GerberRS274XParser::semantic_type* yylval, yy::GerberRS274XParser::location_type* yyloc);
 
 private:
 	// This is the scanning function created by flex.  We make this private and define our
@@ -31,11 +31,11 @@ private:
 
 	// Pointer to semantic value passed by bison
 	// that we can use in the flex actions
-	YYSTYPE* yylval;
+	yy::GerberRS274XParser::semantic_type* yylval;
 
 	// Pointer to location value passed by bison
 	// that we can use in the flex actions
-	YYLTYPE* yyloc;
+	yy::GerberRS274XParser::location_type* yylloc;
 };
 
 #endif // GERBER_RS274X_PARSER_DRIVER_H

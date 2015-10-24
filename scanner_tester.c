@@ -1,7 +1,7 @@
 
 #include "gerber_rs274x_scanner.hh"
 #include "gerber_parser_defs.h"
-#include "gerber_parser.yy.h"
+#include "gerber_parser.yy.hh"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,7 +11,7 @@
 #include <fstream>
 #include <ios>
 
-void pretty_print_token(int token_type, YYSTYPE* semantic_value);
+void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type semantic_value);
 void pretty_print_arithmetic_expression_tree(ArithmeticExpressionTreeElement* root, int level);
 void pretty_print_aperture_macro(ApertureMacro* macro);
 void pretty_print_circle_primitive(MacroPrimitiveCircle* circle);
@@ -43,30 +43,15 @@ int main(int argc, char** argv)
 		printf("Usage: scanner_tester <gerber_file>\n");
 		return 1;
 	}
-	
-	/*
-	FILE* gerber_file = fopen(argv[1], "r");
-	if (gerber_file == NULL) {
-		printf("Error opening file %s\n", argv[1]);
-		return 2;
-	}
-	*/
 
 	std::ifstream gerber_file;
 	gerber_file.open(argv[1], std::ios::in);
 	if (!gerber_file.is_open()) {
-		printf("Error opening file\n");
+		std::cout << "Error opening file" << std::endl;
 		return 2;
 	}
 
 	GerberRS274XScanner scanner(&gerber_file, &std::cout);
-	
-	/*
-	yyscan_t scanner;
-	yylex_init(&scanner);
-	
-	yyset_in(gerber_file, scanner);
-	*/
 	
 	/*
 	YYSTYPE semantic_value;
@@ -84,9 +69,9 @@ int main(int argc, char** argv)
 	}
 	*/
 
-	yydebug = 1;
 	CommandList* result;
-	int parse_result = yyparse(&result, scanner);
+	yy::GerberRS274XParser parser(&result, scanner);
+	int parse_result = parser.parse();
 	printf("Parser returned result %d\n", parse_result);
 
 	printf("Parsed Gerber File.  Stream of Commands:\n");
@@ -648,243 +633,243 @@ void pretty_print_arithmetic_expression_tree(ArithmeticExpressionTreeElement* ro
 	}
 }
 
-void pretty_print_token(int token_type, YYSTYPE* semantic_value)
+void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type semantic_value)
 {
 	switch (token_type) {
-		case D_CMD_TYPE_INTERPOLATE:
+		case yy::GerberRS274XParser::token::D_CMD_TYPE_INTERPOLATE:
 			printf("D Command: Interpolate\n");
 			break;
 
-		case D_CMD_TYPE_MOVE:
+		case yy::GerberRS274XParser::token::D_CMD_TYPE_MOVE:
 			printf("D Command: Move\n");
 			break;
 
-		case D_CMD_TYPE_FLASH:
+		case yy::GerberRS274XParser::token::D_CMD_TYPE_FLASH:
 			printf("D Command: Flash\n");
 			break;
 
-		case G_CMD_TYPE_LINEAR_INTERP_MODE:
+		case yy::GerberRS274XParser::token::G_CMD_TYPE_LINEAR_INTERP_MODE:
 			printf("G Command: Linear Interpolation Mode\n");
 			break;
 
-		case G_CMD_TYPE_CW_CIRC_INTERP_MODE:
+		case yy::GerberRS274XParser::token::G_CMD_TYPE_CW_CIRC_INTERP_MODE:
 			printf("G Command: Clockwise Circular Interpolation Mode\n");
 			break;
 
-		case G_CMD_TYPE_CCW_CIRC_INTERP_MODE:
+		case yy::GerberRS274XParser::token::G_CMD_TYPE_CCW_CIRC_INTERP_MODE:
 			printf("G Command: Counter-Clockwise Circular Interpolation Mode\n");
 			break;
 
-		case G_CMD_TYPE_SINGLE_QUADRANT_MODE:
+		case yy::GerberRS274XParser::token::G_CMD_TYPE_SINGLE_QUADRANT_MODE:
 			printf("G Command: Single-Quadrant Mode\n");
 			break;
 
-		case G_CMD_TYPE_MULTI_QUADRANT_MODE:
+		case yy::GerberRS274XParser::token::G_CMD_TYPE_MULTI_QUADRANT_MODE:
 			printf("G Command: Multi-Quadrant Mode\n");
 			break;
 
-		case G_CMD_TYPE_REGION_MODE_ON:
+		case yy::GerberRS274XParser::token::G_CMD_TYPE_REGION_MODE_ON:
 			printf("G Command: Region Mode On\n");
 			break;
 
-		case G_CMD_TYPE_REGION_MODE_OFF:
+		case yy::GerberRS274XParser::token::G_CMD_TYPE_REGION_MODE_OFF:
 			printf("G Command: Region Mode Off\n");
 			break;
 			
-		case APERTURE_NUMBER:
-			printf("Aperture Number %d\n", semantic_value->aperture_number);
+		case yy::GerberRS274XParser::token::APERTURE_NUMBER:
+			printf("Aperture Number %d\n", semantic_value.as<int>());
 			break;
 			
-		case COMMENT_START:
+		case yy::GerberRS274XParser::token::COMMENT_START:
 			printf("Comment Start\n");
 			break;
 		
-		case COMMENT_STRING:
-			printf("Comment Content: %s\n", semantic_value->comment_string);
-			free(semantic_value->comment_string);
+		case yy::GerberRS274XParser::token::COMMENT_STRING:
+			printf("Comment Content: %s\n", semantic_value.as<char*>());
+			free(semantic_value.as<char*>());
 			break;
 			
-		case END_OF_FILE:
+		case yy::GerberRS274XParser::token::END_OF_FILE:
 			printf("End of file\n");
 			break;
 			
-		case X_COORDINATE:
-			printf("X Coordinate: %d\n", semantic_value->x_coordinate);
+		case yy::GerberRS274XParser::token::X_COORDINATE:
+			printf("X Coordinate: %d\n", semantic_value.as<int>());
 			break;
 			
-		case Y_COORDINATE:
-			printf("Y Coordinate: %d\n", semantic_value->y_coordinate);
+		case yy::GerberRS274XParser::token::Y_COORDINATE:
+			printf("Y Coordinate: %d\n", semantic_value.as<int>());
 			break;
 			
-		case I_OFFSET:
-			printf("I Offset: %d\n", semantic_value->i_offset);
+		case yy::GerberRS274XParser::token::I_OFFSET:
+			printf("I Offset: %d\n", semantic_value.as<int>());
 			break;
 			
-		case J_OFFSET:
-			printf("J Offset: %d\n", semantic_value->j_offset);
+		case yy::GerberRS274XParser::token::J_OFFSET:
+			printf("J Offset: %d\n", semantic_value.as<int>());
 			break;
 			
-		case COORD_FORMAT:
+		case yy::GerberRS274XParser::token::COORD_FORMAT:
 			printf("Coordinate Format\n");
 			break;
 			
-		case COORD_FORMAT_NUM_INT_POSITIONS:
-			printf("Coordinate Format Number of Integer Positions: %d\n", semantic_value->num_int_positions);
+		case yy::GerberRS274XParser::token::COORD_FORMAT_NUM_INT_POSITIONS:
+			printf("Coordinate Format Number of Integer Positions: %d\n", semantic_value.as<int>());
 			break;
 			
-		case COORD_FORMAT_NUM_DEC_POSITIONS:
-			printf("Coordinate Format Number of Decimal Positions: %d\n", semantic_value->num_dec_positions);			
+		case yy::GerberRS274XParser::token::COORD_FORMAT_NUM_DEC_POSITIONS:
+			printf("Coordinate Format Number of Decimal Positions: %d\n", semantic_value.as<int>());
 			break;
 			
-		case UNIT_SPECIFIER:
+		case yy::GerberRS274XParser::token::UNIT_SPECIFIER:
 			printf("Units: ");
-			if (semantic_value->unit_type == UNIT_TYPE_IN) {
+			if (semantic_value.as<UnitType>() == UNIT_TYPE_IN) {
 				printf("Inches\n");
 			} else {
 				printf("Millimeters\n");
 			}
 			break;
 			
-		case END_OF_DATA_BLOCK:
+		case yy::GerberRS274XParser::token::END_OF_DATA_BLOCK:
 			printf("End of Data Block\n");		
 			break;
 			
-		case EXT_CMD_DELIMITER:
+		case yy::GerberRS274XParser::token::EXT_CMD_DELIMITER:
 			printf("Extended Command Delimiter\n");
 			break;
 
-		case APERTURE_DEFINITION:
+		case yy::GerberRS274XParser::token::APERTURE_DEFINITION:
 			printf("Aperture Definition\n");
 			break;
 
-		case STANDARD_APERTURE_TYPE_CIRCLE:
+		case yy::GerberRS274XParser::token::STANDARD_APERTURE_TYPE_CIRCLE:
 			printf("Standard Aperture: Circle\n");
 			break;
 
-		case STANDARD_APERTURE_TYPE_RECTANGLE:
+		case yy::GerberRS274XParser::token::STANDARD_APERTURE_TYPE_RECTANGLE:
 			printf("Standard Aperture: Rectangle\n");
 			break;
 
-		case STANDARD_APERTURE_TYPE_OBROUND:
+		case yy::GerberRS274XParser::token::STANDARD_APERTURE_TYPE_OBROUND:
 			printf("Standard Aperture: Obround\n");
 			break;
 
-		case STANDARD_APERTURE_TYPE_POLYGON:
+		case yy::GerberRS274XParser::token::STANDARD_APERTURE_TYPE_POLYGON:
 			printf("Standard Aperture: Polygon\n");
 			break;
 
-		case CUSTOM_APERTURE_NAME:
-			printf("Custom Aperture Name: %s\n", semantic_value->custom_aperture_name);
-			free(semantic_value->custom_aperture_name);
+		case yy::GerberRS274XParser::token::CUSTOM_APERTURE_NAME:
+			printf("Custom Aperture Name: %s\n", semantic_value.as<char*>());
+			free(semantic_value.as<char*>());
 			break;
 
-		case APERTURE_DEFINITION_MODIFIER:
-			printf("Aperture Definition Modifier: %f\n", semantic_value->aperture_definition_modifier);
+		case yy::GerberRS274XParser::token::APERTURE_DEFINITION_MODIFIER:
+			printf("Aperture Definition Modifier: %f\n", semantic_value.as<double>());
 			break;
 
-		case APERTURE_MACRO:
+		case yy::GerberRS274XParser::token::APERTURE_MACRO:
 			printf("Aperture Macro\n");
 			break;
 
-		case VARIABLE_DEFINITION:
-			printf("Variable Definition: $%d\n", semantic_value->variable_definition);
+		case yy::GerberRS274XParser::token::VARIABLE_DEFINITION:
+			printf("Variable Definition: $%d\n", semantic_value.as<int>());
 			break;
 
-		case ARITHMETIC_ADD:
+		case yy::GerberRS274XParser::token::ARITHMETIC_ADD:
 			printf("Arithmetic Operator: +\n");
 			break;
 
-		case ARITHMETIC_SUB:
+		case yy::GerberRS274XParser::token::ARITHMETIC_SUB:
 			printf("Arithmetic Operator: -\n");
 			break;
 
-		case ARITHMETIC_MULT:
+		case yy::GerberRS274XParser::token::ARITHMETIC_MULT:
 			printf("Arithmetic Operator: *\n");
 			break;
 
-		case ARITHMETIC_DIV:
+		case yy::GerberRS274XParser::token::ARITHMETIC_DIV:
 			printf("Arithmetic Operator: /\n");
 			break;
 
-		case ARITHMETIC_LEFT_PAREN:
+		case yy::GerberRS274XParser::token::ARITHMETIC_LEFT_PAREN:
 			printf("Arithmetic Operator: (\n");
 			break;
 
-		case ARITHMETIC_RIGHT_PAREN:
+		case yy::GerberRS274XParser::token::ARITHMETIC_RIGHT_PAREN:
 			printf("Arithmetic Operator: )\n");
 			break;
 
-		case ARITHMETIC_CONSTANT:
-			printf("Arithmetic Constant: %f\n", semantic_value->arithmetic_constant);
+		case yy::GerberRS274XParser::token::ARITHMETIC_CONSTANT:
+			printf("Arithmetic Constant: %f\n", semantic_value.as<double>());
 			break;
 
-		case ARITHMETIC_VAR_REFERENCE:
-			printf("Arithmetic Variable Reference: $%d\n", semantic_value->arithmetic_var_reference);
+		case yy::GerberRS274XParser::token::ARITHMETIC_VAR_REFERENCE:
+			printf("Arithmetic Variable Reference: $%d\n", semantic_value.as<int>());
 			break;
 
-		case APERTURE_PRIMITIVE_TYPE_CIRCLE:
+		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_CIRCLE:
 			printf("Aperture Primitive: Circle\n");
 			break;
 
-		case APERTURE_PRIMITIVE_TYPE_VECTOR_LINE:
+		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_VECTOR_LINE:
 			printf("Aperture Primitive: Vector Line\n");
 			break;
 
-		case APERTURE_PRIMITIVE_TYPE_CENTER_LINE:
+		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_CENTER_LINE:
 			printf("Aperture Primitive: Center Line\n");
 			break;
 
-		case APERTURE_PRIMITIVE_TYPE_OUTLINE:
+		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_OUTLINE:
 			printf("Aperture Primitive: Outline\n");
 			break;
 
-		case APERTURE_PRIMITIVE_TYPE_POLYGON:
+		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_POLYGON:
 			printf("Aperture Primitive: Polygon\n");
 			break;
 
-		case APERTURE_PRIMITIVE_TYPE_MOIRE:
+		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_MOIRE:
 			printf("Aperture Primitive: Moire\n");
 			break;
 
-		case APERTURE_PRIMITIVE_TYPE_THERMAL:
+		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_THERMAL:
 			printf("Aperture Primitive: Thermal\n");
 			break;
 
-		case AM_DELIM:
+		case yy::GerberRS274XParser::token::AM_DELIM:
 			printf("Aperture Primitive Modifier Delimiter\n");
 			break;
 
-		case APERTURE_COMMENT_START:
+		case yy::GerberRS274XParser::token::APERTURE_COMMENT_START:
 			printf("Aperture Comment Start\n");
 			break;
 
-		case APERTURE_COMMENT_CONTENT:
-			printf("Aperture Comment: %s\n", semantic_value->aperture_comment);
-			free(semantic_value->aperture_comment);
+		case yy::GerberRS274XParser::token::APERTURE_COMMENT_CONTENT:
+			printf("Aperture Comment: %s\n", semantic_value.as<char*>());
+			free(semantic_value.as<char*>());
 			break;
 
-		case STEP_AND_REPEAT_START:
+		case yy::GerberRS274XParser::token::STEP_AND_REPEAT_START:
 			printf("Step and Repeat\n");
 			break;
 
-		case X_REPEATS:
-			printf("X Repeats: %d\n", semantic_value->x_repeats);
+		case yy::GerberRS274XParser::token::X_REPEATS:
+			printf("X Repeats: %d\n", semantic_value.as<int>());
 			break;
 
-		case Y_REPEATS:
-			printf("Y Repeats: %d\n", semantic_value->y_repeats);
+		case yy::GerberRS274XParser::token::Y_REPEATS:
+			printf("Y Repeats: %d\n", semantic_value.as<int>());
 			break;
 
-		case X_STEP_DISTANCE:
-			printf("X Step Distance: %f\n", semantic_value->x_step_distance);
+		case yy::GerberRS274XParser::token::X_STEP_DISTANCE:
+			printf("X Step Distance: %f\n", semantic_value.as<double>());
 			break;
 
-		case Y_STEP_DISTANCE:
-			printf("Y Step Distance: %f\n", semantic_value->y_step_distance);
+		case yy::GerberRS274XParser::token::Y_STEP_DISTANCE:
+			printf("Y Step Distance: %f\n", semantic_value.as<double>());
 			break;
 
-		case LEVEL_POLARITY:
-			switch (semantic_value->level_polarity) {
+		case yy::GerberRS274XParser::token::LEVEL_POLARITY:
+			switch (semantic_value.as<LevelPolarity>()) {
 				case LEVEL_POLARITY_CLEAR:
 					printf("Level Polarity Clear\n");
 					break;

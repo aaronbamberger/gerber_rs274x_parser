@@ -1,5 +1,5 @@
 %top{
-	#include "gerber_parser.yy.h"
+	#include "gerber_parser.yy.hh"
 }
 
 %{
@@ -14,6 +14,8 @@
 	int return_state;
 
 	#define YY_USER_INIT return_state = INITIAL;
+
+	yy::GerberRS274XParser::location_type scan_location;
 %}
 
 %option outfile="gerber_scanner.yy.cc"
@@ -94,311 +96,315 @@ APERTURE_PRIMITIVE_MODIFIER_DELIMITER ","
 {LEVEL_POLARITY}									{
 														// Third character in matched text should be either C or D
 														// for Clear and Dark
-														if (yytext[2] == 'C') {
-															yylval->level_polarity = LEVEL_POLARITY_CLEAR;
-														} else if (yytext[2] == 'D') {
-															yylval->level_polarity = LEVEL_POLARITY_DARK;
+														if (YYText()[2] == 'C') {
+															yylval->build(LEVEL_POLARITY_CLEAR);
+														} else if (YYText()[2] == 'D') {
+															yylval->build(LEVEL_POLARITY_DARK);
 														}
-														return LEVEL_POLARITY;
+														return yy::GerberRS274XParser::token::LEVEL_POLARITY;
 													}
 
 X{INT_W_SIGN}										{
-														yylval->x_coordinate = atoi(&(yytext[1])); // Skip X
-														return X_COORDINATE;
+														yylval->build(atoi(&(YYText()[1]))); // Skip X
+														return yy::GerberRS274XParser::token::X_COORDINATE;
 													}
 				
 Y{INT_W_SIGN}										{
-														yylval->y_coordinate = atoi(&(yytext[1])); // Skip Y
-														return Y_COORDINATE;
+														yylval->build(atoi(&(YYText()[1]))); // Skip Y
+														return yy::GerberRS274XParser::token::Y_COORDINATE;
 													}
 				
 I{INT_W_SIGN}										{
-														yylval->i_offset = atoi(&(yytext[1])); // Skip I
-														return I_OFFSET;
+														yylval->build(atoi(&(YYText()[1]))); // Skip I
+														return yy::GerberRS274XParser::token::I_OFFSET;
 													}
 				
 J{INT_W_SIGN}										{
-														yylval->j_offset = atoi(&(yytext[1])); // Skip J
-														return J_OFFSET;
+														yylval->build(atoi(&(YYText()[1]))); // Skip J
+														return yy::GerberRS274XParser::token::J_OFFSET;
 													}
 
 {STEP_AND_REPEAT_START}								{
 														return_state = INITIAL;
 														BEGIN(PARSING_STEP_AND_REPEAT);
-														return STEP_AND_REPEAT_START;
+														return yy::GerberRS274XParser::token::STEP_AND_REPEAT_START;
 													}
 
 <PARSING_STEP_AND_REPEAT>X{INT_WO_SIGN}				{
-														yylval->x_repeats = atoi(&(yytext[1])); // Skip X
-														return X_REPEATS;
+														yylval->build(atoi(&(YYText()[1]))); // Skip X
+														return yy::GerberRS274XParser::token::X_REPEATS;
 													}
 
 <PARSING_STEP_AND_REPEAT>Y{INT_WO_SIGN}				{
-														yylval->y_repeats = atoi(&(yytext[1])); // Skip Y
-														return Y_REPEATS;
+														yylval->build(atoi(&(YYText()[1]))); // Skip Y
+														return yy::GerberRS274XParser::token::Y_REPEATS;
 													}
 
 <PARSING_STEP_AND_REPEAT>I{DECIMAL}					{
-														yylval->x_step_distance = atoi(&(yytext[1])); // Skip I
-														return X_STEP_DISTANCE;
+														yylval->build(strtod(&(YYText()[1]), NULL)); // Skip I
+														return yy::GerberRS274XParser::token::X_STEP_DISTANCE;
 													}
 
 <PARSING_STEP_AND_REPEAT>J{DECIMAL}					{
-														yylval->y_step_distance = atoi(&(yytext[1])); // Skip J
-														return Y_STEP_DISTANCE;
+														yylval->build(strtod(&(YYText()[1]), NULL)); // Skip J
+														return yy::GerberRS274XParser::token::Y_STEP_DISTANCE;
 													}
 				
 <*>{END_OF_DATA_BLOCK}						{
 												BEGIN(return_state);
-												return END_OF_DATA_BLOCK;
+												return yy::GerberRS274XParser::token::END_OF_DATA_BLOCK;
 											}
 					
 <*>{EXT_CMD_DELIMITER}							{
 												// An extended command delimiter always sets us back to the initial state
 												BEGIN(INITIAL);
 												return_state = INITIAL;
-												return EXT_CMD_DELIMITER;
+												return yy::GerberRS274XParser::token::EXT_CMD_DELIMITER;
 											}
 					
 {INTERPOLATE_CMD}							{
-												return D_CMD_TYPE_INTERPOLATE;
+												return yy::GerberRS274XParser::token::D_CMD_TYPE_INTERPOLATE;
 											}
 
 {MOVE_CMD}									{
-												return D_CMD_TYPE_MOVE;
+												return yy::GerberRS274XParser::token::D_CMD_TYPE_MOVE;
 											}
 					
 {FLASH_CMD}									{
-												return D_CMD_TYPE_FLASH;
+												return yy::GerberRS274XParser::token::D_CMD_TYPE_FLASH;
 											}
 					
 {APERTURE_NUMBER}							{
-												yylval->aperture_number = atoi(&(yytext[1])); // Skip D
-												return APERTURE_NUMBER;
+												yylval->build(atoi(&(YYText()[1]))); // Skip D
+												return yy::GerberRS274XParser::token::APERTURE_NUMBER;
 											}
 
 {LINEAR_INTERP_MODE}						{
-												return G_CMD_TYPE_LINEAR_INTERP_MODE;
+												return yy::GerberRS274XParser::token::G_CMD_TYPE_LINEAR_INTERP_MODE;
 											}
 
 {CW_CIRC_INTERP_MODE}						{
-												return G_CMD_TYPE_CW_CIRC_INTERP_MODE;
+												return yy::GerberRS274XParser::token::G_CMD_TYPE_CW_CIRC_INTERP_MODE;
 											}
 
 {CCW_CIRC_INTERP_MODE}						{
-												return G_CMD_TYPE_CCW_CIRC_INTERP_MODE;
+												return yy::GerberRS274XParser::token::G_CMD_TYPE_CCW_CIRC_INTERP_MODE;
 											}
 						
 {REGION_MODE_ON}							{
-												return G_CMD_TYPE_REGION_MODE_ON;
+												return yy::GerberRS274XParser::token::G_CMD_TYPE_REGION_MODE_ON;
 											}
 
 {REGION_MODE_OFF}							{
-												return G_CMD_TYPE_REGION_MODE_OFF;
+												return yy::GerberRS274XParser::token::G_CMD_TYPE_REGION_MODE_OFF;
 											}
 						
 {SINGLE_QUADRANT_MODE}						{
-												return G_CMD_TYPE_SINGLE_QUADRANT_MODE;
+												return yy::GerberRS274XParser::token::G_CMD_TYPE_SINGLE_QUADRANT_MODE;
 											}
 						
 {MULTI_QUADRANT_MODE}						{
-												return G_CMD_TYPE_MULTI_QUADRANT_MODE;
+												return yy::GerberRS274XParser::token::G_CMD_TYPE_MULTI_QUADRANT_MODE;
 											}
 						
 {END_OF_FILE}								{
-												return END_OF_FILE;
+												return yy::GerberRS274XParser::token::END_OF_FILE;
 											}
 						
 {COORD_FORMAT}								{
 												return_state = INITIAL;
 												BEGIN(PARSING_COORD_FORMAT);
-												return COORD_FORMAT;
+												return yy::GerberRS274XParser::token::COORD_FORMAT;
 											}
 
 <PARSING_COORD_FORMAT>X{INT_WO_SIGN}		{
-												yylval->num_int_positions = atoi(&(yytext[1])); // Skip X
-												return COORD_FORMAT_NUM_INT_POSITIONS;
+												yylval->build(atoi(&(YYText()[1]))); // Skip X
+												return yy::GerberRS274XParser::token::COORD_FORMAT_NUM_INT_POSITIONS;
 											}
 										
 <PARSING_COORD_FORMAT>Y{INT_WO_SIGN}		{
-												yylval->num_dec_positions = atoi(&(yytext[1])); // Skip Y
-												return COORD_FORMAT_NUM_DEC_POSITIONS;
+												yylval->build(atoi(&(YYText()[1]))); // Skip Y
+												return yy::GerberRS274XParser::token::COORD_FORMAT_NUM_DEC_POSITIONS;
 											}
 										
 {UNIT_SPECIFIER}							{
-												if (strncmp(&(yytext[2]), "IN", 2) == 0) {
-													yylval->unit_type = UNIT_TYPE_IN;
+												if (strncmp(&(YYText()[2]), "IN", 2) == 0) {
+													yylval->build(UNIT_TYPE_IN);
 												} else {
-													yylval->unit_type = UNIT_TYPE_MM;
+													yylval->build(UNIT_TYPE_MM);
 												}
-												return UNIT_SPECIFIER;
+												return yy::GerberRS274XParser::token::UNIT_SPECIFIER;
 											}
 										
 {COMMENT_START}								{
 												return_state = INITIAL;
 												BEGIN(PARSING_COMMENT_STRING);
-												return COMMENT_START;
+												return yy::GerberRS274XParser::token::COMMENT_START;
 											}
 										
 <PARSING_COMMENT_STRING>{COMMENT_STRING}	{
-												yylval->comment_string = (char*)malloc(yyleng + 1);
-												strncpy(yylval->comment_string, yytext, yyleng);
-												yylval->comment_string[yyleng] = '\0';
-												return COMMENT_STRING;
+												char* comment_string = (char*)malloc(YYLeng() + 1);
+												strncpy(comment_string, YYText(), YYLeng());
+												comment_string[YYLeng()] = '\0';
+												yylval->build(comment_string);
+												return yy::GerberRS274XParser::token::COMMENT_STRING;
 											}
 
 {APERTURE_DEFINITION}						{
 												return_state = INITIAL;
 												BEGIN(PARSING_APERTURE_NUMBER);
-												return APERTURE_DEFINITION;
+												return yy::GerberRS274XParser::token::APERTURE_DEFINITION;
 											}
 
 <PARSING_APERTURE_NUMBER>{APERTURE_NUMBER}		{
 													BEGIN(PARSING_APERTURE_TEMPLATE);
-													yylval->aperture_number = atoi(&(yytext[1])); // Skip D
-													return APERTURE_NUMBER;
+													yylval->build(atoi(&(YYText()[1]))); // Skip D
+													return yy::GerberRS274XParser::token::APERTURE_NUMBER;
 												}
 
 <PARSING_APERTURE_TEMPLATE>C					{
 													BEGIN(PARSING_APERTURE_MODIFIERS);
-													return STANDARD_APERTURE_TYPE_CIRCLE;
+													return yy::GerberRS274XParser::token::STANDARD_APERTURE_TYPE_CIRCLE;
 												}
 
 <PARSING_APERTURE_TEMPLATE>R					{
 													BEGIN(PARSING_APERTURE_MODIFIERS);
-													return STANDARD_APERTURE_TYPE_RECTANGLE;
+													return yy::GerberRS274XParser::token::STANDARD_APERTURE_TYPE_RECTANGLE;
 												}
 
 <PARSING_APERTURE_TEMPLATE>O					{
 													BEGIN(PARSING_APERTURE_MODIFIERS);
-													return STANDARD_APERTURE_TYPE_OBROUND;
+													return yy::GerberRS274XParser::token::STANDARD_APERTURE_TYPE_OBROUND;
 												}
 
 <PARSING_APERTURE_TEMPLATE>P					{
 													BEGIN(PARSING_APERTURE_MODIFIERS);
-													return STANDARD_APERTURE_TYPE_POLYGON;
+													return yy::GerberRS274XParser::token::STANDARD_APERTURE_TYPE_POLYGON;
 												}
 
 
 <PARSING_APERTURE_TEMPLATE>{NAME}				{
 													BEGIN(PARSING_APERTURE_MODIFIERS);
-													yylval->custom_aperture_name = (char*)malloc(yyleng + 1);
-													strncpy(yylval->custom_aperture_name, yytext, yyleng);
-													yylval->custom_aperture_name[yyleng] = '\0';
-													return CUSTOM_APERTURE_NAME;
+													char* custom_aperture_name = (char*)malloc(YYLeng() + 1);
+													strncpy(custom_aperture_name, YYText(), YYLeng());
+													custom_aperture_name[YYLeng()] = '\0';
+													yylval->build(custom_aperture_name);
+													return yy::GerberRS274XParser::token::CUSTOM_APERTURE_NAME;
 												}
 
 <PARSING_APERTURE_MODIFIERS>[,X]{DECIMAL}		{
-													yylval->aperture_definition_modifier = strtod(&(yytext[1]), NULL); // Skip , or X
-													return APERTURE_DEFINITION_MODIFIER;
+													yylval->build(strtod(&(YYText()[1]), NULL)); // Skip , or X
+													return yy::GerberRS274XParser::token::APERTURE_DEFINITION_MODIFIER;
 												}
 
 {APERTURE_MACRO}								{
 													return_state = PARSING_APERTURE_MACRO_CONTENT;
 													BEGIN(PARSING_APERTURE_MACRO_NAME);
-													return APERTURE_MACRO;
+													return yy::GerberRS274XParser::token::APERTURE_MACRO;
 												}
 
 <PARSING_APERTURE_MACRO_NAME>{NAME}				{
 
-													yylval->custom_aperture_name = (char*)malloc(yyleng + 1);
-													strncpy(yylval->custom_aperture_name, yytext, yyleng);
-													yylval->custom_aperture_name[yyleng] = '\0';
-													return CUSTOM_APERTURE_NAME;
+													char* custom_aperture_name = (char*)malloc(YYLeng() + 1);
+													strncpy(custom_aperture_name, YYText(), YYLeng());
+													custom_aperture_name[YYLeng()] = '\0';
+													yylval->build(custom_aperture_name);
+													return yy::GerberRS274XParser::token::CUSTOM_APERTURE_NAME;
 												}
 
 <PARSING_APERTURE_MACRO_CONTENT>{VARIABLE_DEFINITION}	{
 															BEGIN(PARSING_ARITHMETIC_EXPRESSION);
-															char temp_buffer[yyleng - 1]; // We're chopping off two characters, adding one extra for the terminating null
-															strncpy(temp_buffer, &(yytext[1]), yyleng - 2); // Copy the variable number, less the preceding $ and the following =
-															temp_buffer[yyleng - 2] = '\0';
-															yylval->variable_definition = atoi(temp_buffer);
-															return VARIABLE_DEFINITION;
+															char temp_buffer[YYLeng() - 1]; // We're chopping off two characters, adding one extra for the terminating null
+															strncpy(temp_buffer, &(YYText()[1]), YYLeng() - 2); // Copy the variable number, less the preceding $ and the following =
+															temp_buffer[YYLeng() - 2] = '\0';
+															yylval->build(atoi(temp_buffer));
+															return yy::GerberRS274XParser::token::VARIABLE_DEFINITION;
 														}
 
 <PARSING_APERTURE_MACRO_CONTENT>{APERTURE_COMMENT_START}			{
 																		BEGIN(PARSING_APERTURE_COMMENT);
-																		return APERTURE_COMMENT_START;
+																		return yy::GerberRS274XParser::token::APERTURE_COMMENT_START;
 																	}
 
 <PARSING_APERTURE_MACRO_CONTENT>{APERTURE_PRIMITIVE_CIRCLE}			{
 																		BEGIN(PARSING_APERTURE_PRIMITIVE);
-																		return APERTURE_PRIMITIVE_TYPE_CIRCLE;
+																		return yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_CIRCLE;
 																	}
 
 <PARSING_APERTURE_MACRO_CONTENT>{APERTURE_PRIMITIVE_VECTOR_LINE}	{
 																		BEGIN(PARSING_APERTURE_PRIMITIVE);
-																		return APERTURE_PRIMITIVE_TYPE_VECTOR_LINE;
+																		return yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_VECTOR_LINE;
 																	}
 
 <PARSING_APERTURE_MACRO_CONTENT>{APERTURE_PRIMITIVE_CENTER_LINE}	{
 																		BEGIN(PARSING_APERTURE_PRIMITIVE);
-																		return APERTURE_PRIMITIVE_TYPE_CENTER_LINE;
+																		return yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_CENTER_LINE;
 																	}
 
 <PARSING_APERTURE_MACRO_CONTENT>{APERTURE_PRIMITIVE_OUTLINE}		{
 																		BEGIN(PARSING_APERTURE_PRIMITIVE);
-																		return APERTURE_PRIMITIVE_TYPE_OUTLINE;
+																		return yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_OUTLINE;
 																	}
 
 <PARSING_APERTURE_MACRO_CONTENT>{APERTURE_PRIMITIVE_POLYGON}		{
 																		BEGIN(PARSING_APERTURE_PRIMITIVE);
-																		return APERTURE_PRIMITIVE_TYPE_POLYGON;
+																		return yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_POLYGON;
 																	}
 
 <PARSING_APERTURE_MACRO_CONTENT>{APERTURE_PRIMITIVE_MOIRE}			{
 																		BEGIN(PARSING_APERTURE_PRIMITIVE);
-																		return APERTURE_PRIMITIVE_TYPE_MOIRE;
+																		return yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_MOIRE;
 																	}
 
 <PARSING_APERTURE_MACRO_CONTENT>{APERTURE_PRIMITIVE_THERMAL}		{
 																		BEGIN(PARSING_APERTURE_PRIMITIVE);
-																		return APERTURE_PRIMITIVE_TYPE_THERMAL;
+																		return yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_THERMAL;
 																	}
 
 <PARSING_APERTURE_COMMENT>{COMMENT_STRING}							{
-																		yylval->aperture_comment = (char*)malloc(yyleng + 1);
-																		strncpy(yylval->aperture_comment, yytext, yyleng);
-																		yylval->aperture_comment[yyleng] = '\0';
-																		return APERTURE_COMMENT_CONTENT;
+																		char* aperture_comment = (char*)malloc(YYLeng() + 1);
+																		strncpy(aperture_comment, YYText(), YYLeng());
+																		aperture_comment[YYLeng()] = '\0';
+																		yylval->build(aperture_comment);
+																		return yy::GerberRS274XParser::token::APERTURE_COMMENT_CONTENT;
 																	}
 
 <PARSING_APERTURE_PRIMITIVE>{APERTURE_PRIMITIVE_MODIFIER_DELIMITER}	{
-																		return AM_DELIM;
+																		return yy::GerberRS274XParser::token::AM_DELIM;
 																	}
 
 <PARSING_ARITHMETIC_EXPRESSION,PARSING_APERTURE_PRIMITIVE>{ARITHMETIC_ADD}				{
-																							return ARITHMETIC_ADD;
+																							return yy::GerberRS274XParser::token::ARITHMETIC_ADD;
 																						}
 
 <PARSING_ARITHMETIC_EXPRESSION,PARSING_APERTURE_PRIMITIVE>{ARITHMETIC_SUB}				{
-																							return ARITHMETIC_SUB;
+																							return yy::GerberRS274XParser::token::ARITHMETIC_SUB;
 																						}
 
 <PARSING_ARITHMETIC_EXPRESSION,PARSING_APERTURE_PRIMITIVE>{ARITHMETIC_MULT}				{
-																							return ARITHMETIC_MULT;
+																							return yy::GerberRS274XParser::token::ARITHMETIC_MULT;
 																						}
 
 <PARSING_ARITHMETIC_EXPRESSION,PARSING_APERTURE_PRIMITIVE>{ARITHMETIC_DIV}				{
-																							return ARITHMETIC_DIV;
+																							return yy::GerberRS274XParser::token::ARITHMETIC_DIV;
 																						}
 
 <PARSING_ARITHMETIC_EXPRESSION,PARSING_APERTURE_PRIMITIVE>{ARITHMETIC_LEFT_PAREN}		{
-																							return ARITHMETIC_LEFT_PAREN;
+																							return yy::GerberRS274XParser::token::ARITHMETIC_LEFT_PAREN;
 																						}
 
 <PARSING_ARITHMETIC_EXPRESSION,PARSING_APERTURE_PRIMITIVE>{ARITHMETIC_RIGHT_PAREN}		{
-																							return ARITHMETIC_RIGHT_PAREN;
+																							return yy::GerberRS274XParser::token::ARITHMETIC_RIGHT_PAREN;
 																						}
 
 <PARSING_ARITHMETIC_EXPRESSION,PARSING_APERTURE_PRIMITIVE>{ARITHMETIC_VAR_REFERENCE}	{
-																							yylval->arithmetic_var_reference = atoi(&(yytext[1])); // Skip $
-																							return ARITHMETIC_VAR_REFERENCE;
+																							yylval->build(atoi(&(YYText()[1]))); // Skip $
+																							return yy::GerberRS274XParser::token::ARITHMETIC_VAR_REFERENCE;
 																						}
 
 <PARSING_ARITHMETIC_EXPRESSION,PARSING_APERTURE_PRIMITIVE>{DECIMAL}						{
-																							yylval->arithmetic_constant = strtod(yytext, NULL);
-																							return ARITHMETIC_CONSTANT;
+																							yylval->build(strtod(YYText(), NULL));
+																							return yy::GerberRS274XParser::token::ARITHMETIC_CONSTANT;
 																						}
 %%
 
