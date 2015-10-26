@@ -85,14 +85,17 @@ int main(int argc, char** argv)
 
 void pretty_print_command_list(CommandList* command_list)
 {
+	/*
 	Command* command;
 	for (command = command_list->head; command != NULL; command = command->next) {
 		pretty_print_command(command);
 	}
+	*/
 }
 
 void pretty_print_command(Command* command)
 {
+	/*
 	switch (command->type) {
 		case COMMAND_TYPE_D_CODE:
 			pretty_print_d_command(command->contents.d_command);
@@ -157,6 +160,7 @@ void pretty_print_command(Command* command)
 			}
 			break;
 	}
+	*/
 }
 
 void pretty_print_aperture_definition(ApertureDefinition* aperture_definition)
@@ -259,6 +263,7 @@ void pretty_print_format_specifier(FormatSpecifier* format_specifier)
 
 void pretty_print_d_command(DCommand* d_command)
 {
+	/*
 	printf("D Command: ");
 	switch (d_command->type) {
 		case D_CODE_INTERPOLATE:
@@ -279,10 +284,12 @@ void pretty_print_d_command(DCommand* d_command)
 	} else {
 		printf("  No coordinate data\n");
 	}
+	*/
 }
 
 void pretty_print_coordinate_data(CoordinateData* coord_data)
 {
+	/*
 	printf("  Coordinate Data:\n");
 
 	if (coord_data->x_valid) {
@@ -308,6 +315,7 @@ void pretty_print_coordinate_data(CoordinateData* coord_data)
 	} else {
 		printf("    J: None\n");
 	}
+	*/
 }
 
 void pretty_print_g_command(GCodeType g_code)

@@ -214,6 +214,7 @@ typedef struct {
 	MacroContentList* content_list;
 } ApertureMacro;
 
+/*
 typedef struct {
 	int x;
 	int y;
@@ -229,6 +230,7 @@ typedef struct {
 	DCodeType type;
 	CoordinateData* coord_data;
 } DCommand;
+*/
 
 typedef struct {
 	int num_int_positions;
@@ -294,6 +296,7 @@ typedef struct {
 	ApertureDefinitionContents aperture;
 } ApertureDefinition;
 
+/*
 typedef union {
 	DCommand* d_command;
 	int aperture;
@@ -306,7 +309,9 @@ typedef union {
 	StepAndRepeat* step_and_repeat;
 	LevelPolarity level_polarity;
 } CommandContents;
+*/
 
+/*
 typedef struct _Command {
 	CommandType type;
 	CommandContents contents;
@@ -317,5 +322,6 @@ typedef struct {
 	Command* head;
 	Command* tail;
 } CommandList;
+*/
 
 #endif // GERBER_PARSER_DEFS_H

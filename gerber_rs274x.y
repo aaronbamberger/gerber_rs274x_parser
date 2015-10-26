@@ -5,6 +5,12 @@
 
 %code requires {
 	#include "gerber_parser_defs.h"
+	#include "GerberClasses/CommandList.hh"
+	#include "GerberClasses/Command.hh"
+	#include "GerberClasses/DCommand.hh"
+	#include "GerberClasses/CoordinateData.hh"
+
+	#include <memory.h>
 
 	// Forward declare the scanner class so we can use it in the function prototypes
 	class GerberRS274XScanner;
@@ -21,7 +27,7 @@
 %define parser_class_name {GerberRS274XParser}
 %skeleton "lalr1.cc"
 %locations
-%parse-param {CommandList** result}
+%parse-param {std::unique_ptr<CommandList>& result}
 %param {GerberRS274XScanner& scanner}
 
 %token D_CMD_TYPE_INTERPOLATE
@@ -98,10 +104,10 @@
 %type <MacroPrimitiveThermal*> macro_primitive_thermal
 %type <ArithmeticExpressionTreeElement*> arithmetic_expression
 %type <VariableDefinition*> variable_definition
-%type <CoordinateData*> coordinate_data
-%type <DCommand*> interpolate_cmd
-%type <DCommand*> move_cmd
-%type <DCommand*> flash_cmd
+%type <std::unique_ptr<CoordinateData>> coordinate_data
+%type <std::unique_ptr<Command>> interpolate_cmd
+%type <std::unique_ptr<Command>> move_cmd
+%type <std::unique_ptr<Command>> flash_cmd
 %type <FormatSpecifier*> format_specifier
 %type <StepAndRepeat*> step_and_repeat
 %type <StandardApertureCircle*> standard_aperture_circle
@@ -110,47 +116,38 @@
 %type <StandardAperturePolygon*> standard_aperture_polygon
 %type <StandardAperture*> standard_aperture
 %type <ApertureDefinition*> aperture_definition
-%type <Command*> command
-%type <CommandList*> command_list
+%type <std::unique_ptr<Command>> command
+%type <std::unique_ptr<CommandList>> command_list
 
 %%
 
 top_level:
 	command_list {
-		*result = $[command_list];
+		result = std::move($[command_list]);
 	}
 
 command_list[result]:
 	command_list[list] command {
-		$list->tail->next = $command;
-		$list->tail = $command;
-		$result = $list;
+		$list->add_command(std::move($command));
+		$result = std::move($list);
 	}
 |	command {
-		$result = (CommandList*)calloc(1, sizeof(CommandList));
-		$result->head = $command;
-		$result->tail = $command;
+		std::unique_ptr<CommandList> new_list(new CommandList);
+		new_list->add_command(std::move($command));
+		$result = std::move(new_list);
 	}
 
 command:
 	interpolate_cmd {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_D_CODE;
-		$command->contents.d_command = $[interpolate_cmd];
+		$command = std::move($[interpolate_cmd]);
 	}
 |	move_cmd {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_D_CODE;
-		$command->contents.d_command = $[move_cmd];
+		$command = std::move($[move_cmd]);
 	}
 |	flash_cmd {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_D_CODE;
-		$command->contents.d_command = $[flash_cmd];
+		$command = std::move($[flash_cmd]);
 	}
+/*
 |	APERTURE_NUMBER END_OF_DATA_BLOCK {
 		$command = (Command*)calloc(1, sizeof(Command));
 		$command->next = NULL;
@@ -246,6 +243,7 @@ command:
 		$command->type = COMMAND_TYPE_LEVEL_POLARITY;
 		$command->contents.level_polarity = $[LEVEL_POLARITY];
 	}
+*/
 
 aperture_definition:
 	EXT_CMD_DELIMITER APERTURE_DEFINITION APERTURE_NUMBER standard_aperture END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
@@ -377,177 +375,73 @@ format_specifier:
 
 interpolate_cmd:
 	coordinate_data D_CMD_TYPE_INTERPOLATE END_OF_DATA_BLOCK {
-		$[interpolate_cmd] = (DCommand*)calloc(1, sizeof(DCommand));
-		$[interpolate_cmd]->type = D_CODE_INTERPOLATE;
-		$[interpolate_cmd]->coord_data = $[coordinate_data];
+		$[interpolate_cmd] = std::move(std::unique_ptr<Command>(new DCommand(DCommand::DCommandType::D_COMMAND_INTERPOLATE, std::move($[coordinate_data]))));
 	}
 |	D_CMD_TYPE_INTERPOLATE END_OF_DATA_BLOCK {
-		$[interpolate_cmd] = (DCommand*)calloc(1, sizeof(DCommand));
-		$[interpolate_cmd]->type = D_CODE_INTERPOLATE;
-		$[interpolate_cmd]->coord_data = NULL;
+		$[interpolate_cmd] = std::move(std::unique_ptr<Command>(new DCommand(DCommand::DCommandType::D_COMMAND_INTERPOLATE)));
 	}
 
 move_cmd:
 	coordinate_data D_CMD_TYPE_MOVE END_OF_DATA_BLOCK {
-		$[move_cmd] = (DCommand*)calloc(1, sizeof(DCommand));
-		$[move_cmd]->type = D_CODE_MOVE;
-		$[move_cmd]->coord_data = $[coordinate_data];
+		$[move_cmd] = std::move(std::unique_ptr<Command>(new DCommand(DCommand::DCommandType::D_COMMAND_MOVE, std::move($[coordinate_data]))));
 	}
 |	D_CMD_TYPE_MOVE END_OF_DATA_BLOCK {
-		$[move_cmd] = (DCommand*)calloc(1, sizeof(DCommand));
-		$[move_cmd]->type = D_CODE_MOVE;
-		$[move_cmd]->coord_data = NULL;
+		$[move_cmd] = std::move(std::unique_ptr<Command>(new DCommand(DCommand::DCommandType::D_COMMAND_MOVE)));
 	}
 
 flash_cmd:
 	coordinate_data D_CMD_TYPE_FLASH END_OF_DATA_BLOCK {
-		$[flash_cmd] = (DCommand*)calloc(1, sizeof(DCommand));
-		$[flash_cmd]->type = D_CODE_FLASH;
-		$[flash_cmd]->coord_data = $[coordinate_data];
+		$[flash_cmd] = std::move(std::unique_ptr<Command>(new DCommand(DCommand::DCommandType::D_COMMAND_FLASH, std::move($[coordinate_data]))));
 	}
 |	D_CMD_TYPE_FLASH END_OF_DATA_BLOCK {
-		$[flash_cmd] = (DCommand*)calloc(1, sizeof(DCommand));
-		$[flash_cmd]->type = D_CODE_FLASH;
-		$[flash_cmd]->coord_data = NULL;
+		$[flash_cmd] = std::move(std::unique_ptr<Command>(new DCommand(DCommand::DCommandType::D_COMMAND_FLASH)));
 	}
 
 coordinate_data:
 	X_COORDINATE {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->x = $[X_COORDINATE];
-		$[coordinate_data]->x_valid = true;
-		$[coordinate_data]->y_valid = false;
-		$[coordinate_data]->i_valid = false;
-		$[coordinate_data]->j_valid = false;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData($[X_COORDINATE], 0, 0, 0, true, false, false, false)));
 	}
 |	Y_COORDINATE {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->y = $[Y_COORDINATE];
-		$[coordinate_data]->x_valid = false;
-		$[coordinate_data]->y_valid = true;
-		$[coordinate_data]->i_valid = false;
-		$[coordinate_data]->j_valid = false;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData(0, $[Y_COORDINATE], 0, 0, false, true, false, false)));
 	}
 |	X_COORDINATE Y_COORDINATE {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->x = $[X_COORDINATE];
-		$[coordinate_data]->y = $[Y_COORDINATE];
-		$[coordinate_data]->x_valid = true;
-		$[coordinate_data]->y_valid = true;
-		$[coordinate_data]->i_valid = false;
-		$[coordinate_data]->j_valid = false;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData($[X_COORDINATE], $[Y_COORDINATE], 0, 0, true, true, false, false)));
 	}
 |	I_OFFSET {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->i = $[I_OFFSET];
-		$[coordinate_data]->x_valid = false;
-		$[coordinate_data]->y_valid = false;
-		$[coordinate_data]->i_valid = true;
-		$[coordinate_data]->j_valid = false;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData(0, 0, $[I_OFFSET], 0, false, false, true, false)));
 	}
 |	X_COORDINATE I_OFFSET {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->x = $[X_COORDINATE];
-		$[coordinate_data]->i = $[I_OFFSET];
-		$[coordinate_data]->x_valid = true;
-		$[coordinate_data]->y_valid = false;
-		$[coordinate_data]->i_valid = true;
-		$[coordinate_data]->j_valid = false;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData($[X_COORDINATE], 0, $[I_OFFSET], 0, true, false, true, false)));
 	}
 |	Y_COORDINATE I_OFFSET {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->y = $[Y_COORDINATE];
-		$[coordinate_data]->i = $[I_OFFSET];
-		$[coordinate_data]->x_valid = false;
-		$[coordinate_data]->y_valid = true;
-		$[coordinate_data]->i_valid = true;
-		$[coordinate_data]->j_valid = false;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData(0, $[Y_COORDINATE], $[I_OFFSET], 0, false, true, true, false)));
 	}
 |	X_COORDINATE Y_COORDINATE I_OFFSET {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->x = $[X_COORDINATE];
-		$[coordinate_data]->y = $[Y_COORDINATE];
-		$[coordinate_data]->i = $[I_OFFSET];
-		$[coordinate_data]->x_valid = true;
-		$[coordinate_data]->y_valid = true;
-		$[coordinate_data]->i_valid = true;
-		$[coordinate_data]->j_valid = false;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData($[X_COORDINATE], $[Y_COORDINATE], $[I_OFFSET], 0, true, true, true, false)));
 	}
 |	J_OFFSET {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->j = $[J_OFFSET];
-		$[coordinate_data]->x_valid = false;
-		$[coordinate_data]->y_valid = false;
-		$[coordinate_data]->i_valid = false;
-		$[coordinate_data]->j_valid = true;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData(0, 0, 0, $[J_OFFSET], false, false, false, true)));
 	}
 |	X_COORDINATE J_OFFSET {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->x = $[X_COORDINATE];
-		$[coordinate_data]->j = $[J_OFFSET];
-		$[coordinate_data]->x_valid = true;
-		$[coordinate_data]->y_valid = false;
-		$[coordinate_data]->i_valid = false;
-		$[coordinate_data]->j_valid = true;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData($[X_COORDINATE], 0, 0, $[J_OFFSET], true, false, false, true)));
 	}
 |	Y_COORDINATE J_OFFSET {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->y = $[Y_COORDINATE];
-		$[coordinate_data]->j = $[J_OFFSET];
-		$[coordinate_data]->x_valid = false;
-		$[coordinate_data]->y_valid = true;
-		$[coordinate_data]->i_valid = false;
-		$[coordinate_data]->j_valid = true;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData(0, $[Y_COORDINATE], 0, $[J_OFFSET], false, true, false, true)));
 	}
 |	X_COORDINATE Y_COORDINATE J_OFFSET {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->x = $[X_COORDINATE];
-		$[coordinate_data]->y = $[Y_COORDINATE];
-		$[coordinate_data]->j = $[J_OFFSET];
-		$[coordinate_data]->x_valid = true;
-		$[coordinate_data]->y_valid = true;
-		$[coordinate_data]->i_valid = false;
-		$[coordinate_data]->j_valid = true;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData($[X_COORDINATE], $[Y_COORDINATE], 0, $[J_OFFSET], true, true, false, true)));
 	}
 |	I_OFFSET J_OFFSET {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->i = $[I_OFFSET];
-		$[coordinate_data]->j = $[J_OFFSET];
-		$[coordinate_data]->x_valid = false;
-		$[coordinate_data]->y_valid = false;
-		$[coordinate_data]->i_valid = true;
-		$[coordinate_data]->j_valid = true;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData(0, 0, $[I_OFFSET], $[J_OFFSET], false, false, true, true)));
 	}
 |	X_COORDINATE I_OFFSET J_OFFSET {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->x = $[X_COORDINATE];
-		$[coordinate_data]->i = $[I_OFFSET];
-		$[coordinate_data]->j = $[J_OFFSET];
-		$[coordinate_data]->x_valid = true;
-		$[coordinate_data]->y_valid = false;
-		$[coordinate_data]->i_valid = true;
-		$[coordinate_data]->j_valid = true;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData($[X_COORDINATE], 0, $[I_OFFSET], $[J_OFFSET], true, false, true, true)));
 	}
 |	Y_COORDINATE I_OFFSET J_OFFSET {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->y = $[Y_COORDINATE];
-		$[coordinate_data]->i = $[I_OFFSET];
-		$[coordinate_data]->j = $[J_OFFSET];
-		$[coordinate_data]->x_valid = false;
-		$[coordinate_data]->y_valid = true;
-		$[coordinate_data]->i_valid = true;
-		$[coordinate_data]->j_valid = true;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData(0, $[Y_COORDINATE], $[I_OFFSET], $[J_OFFSET], false, true, true, true)));
 	}
 |	X_COORDINATE Y_COORDINATE I_OFFSET J_OFFSET {
-		$[coordinate_data] = (CoordinateData*)calloc(1, sizeof(CoordinateData));
-		$[coordinate_data]->x = $[X_COORDINATE];
-		$[coordinate_data]->y = $[Y_COORDINATE];
-		$[coordinate_data]->i = $[I_OFFSET];
-		$[coordinate_data]->j = $[J_OFFSET];
-		$[coordinate_data]->x_valid = true;
-		$[coordinate_data]->y_valid = true;
-		$[coordinate_data]->i_valid = true;
-		$[coordinate_data]->j_valid = true;
+		$[coordinate_data] = std::move(std::unique_ptr<CoordinateData>(new CoordinateData($[X_COORDINATE], $[Y_COORDINATE], $[I_OFFSET], $[J_OFFSET], true, true, true, true)));
 	}
 
 aperture_macro:
