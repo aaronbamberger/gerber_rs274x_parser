@@ -16,7 +16,7 @@ public:
 	};
 
 	DCommand(DCommandType type);
-	DCommand(DCommandType type, std::unique_ptr<CoordinateData> coord_data);
+	DCommand(DCommandType type, std::shared_ptr<CoordinateData> coord_data);
 	virtual ~DCommand();
 
 protected:
@@ -26,7 +26,7 @@ private:
 	virtual std::ostream& do_print(std::ostream& os) const;
 
 	DCommandType m_type;
-	std::unique_ptr<CoordinateData> m_coord_data;
+	std::shared_ptr<CoordinateData> m_coord_data;
 };
 
 #endif // _D_COMMAND_H

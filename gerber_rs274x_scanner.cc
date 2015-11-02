@@ -2,14 +2,14 @@
 
 #include <stdio.h>
 
-GerberRS274XScanner::GerberRS274XScanner(std::istream* arg_yyin = 0, std::ostream* arg_yyout = 0) : yyFlexLexer(arg_yyin, arg_yyout)
+GerberRS274XScanner::GerberRS274XScanner(std::istream* arg_yyin, std::ostream* arg_yyout) : yyFlexLexer(arg_yyin, arg_yyout)
 {
 	this->set_debug(1);
 }
 
-int GerberRS274XScanner::yylex(yy::GerberRS274XParser::semantic_type* yylval, yy::GerberRS274XParser::location_type* yyloc)
+int GerberRS274XScanner::yylex(yy::GerberRS274XParser::semantic_type* yylval_in, yy::GerberRS274XParser::location_type* yylloc_in)
 {
-	this->yylval = yylval;
-	this->yylloc = yylloc;
+	this->yylval = yylval_in;
+	this->yylloc = yylloc_in;
 	return this->yylex();
 }

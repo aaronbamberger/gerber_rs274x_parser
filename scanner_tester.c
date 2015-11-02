@@ -10,6 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <ios>
+#include <memory>
 
 void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type& semantic_value);
 void pretty_print_arithmetic_expression_tree(ArithmeticExpressionTreeElement* root, int level);
@@ -23,7 +24,7 @@ void pretty_print_moire_primitive(MacroPrimitiveMoire* moire);
 void pretty_print_thermal_primitive(MacroPrimitiveThermal* thermal);
 void pretty_print_expression_coord_list(ExpressionCoordList* coord_list);
 void pretty_print_arithmetic_expression(ArithmeticExpressionTreeElement* root);
-void pretty_print_command_list(CommandList* command_list);
+void pretty_print_command_list(std::shared_ptr<CommandList>& command_list);
 void pretty_print_command(Command* command);
 void pretty_print_d_command(DCommand* d_command);
 void pretty_print_coordinate_data(CoordinateData* coord_data);
@@ -69,7 +70,7 @@ int main(int argc, char** argv)
 	}
 	*/
 
-	CommandList* result;
+	std::shared_ptr<CommandList> result;
 	yy::GerberRS274XParser parser(&result, scanner);
 	parser.set_debug_level(1);
 	int parse_result = parser.parse();
@@ -83,14 +84,9 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-void pretty_print_command_list(CommandList* command_list)
+void pretty_print_command_list(std::shared_ptr<CommandList>& command_list)
 {
-	/*
-	Command* command;
-	for (command = command_list->head; command != NULL; command = command->next) {
-		pretty_print_command(command);
-	}
-	*/
+	std::cout << *command_list;
 }
 
 void pretty_print_command(Command* command)

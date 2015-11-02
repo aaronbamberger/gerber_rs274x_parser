@@ -18,10 +18,10 @@
 
 class GerberRS274XScanner : public yyFlexLexer {
 public:
-	GerberRS274XScanner(std::istream *arg_yyin, std::ostream *arg_yyout);
+	GerberRS274XScanner(std::istream *arg_yyin = 0, std::ostream *arg_yyout = 0);
 
 	// This is the overloaded scanning function that bison will call
-	int yylex(yy::GerberRS274XParser::semantic_type* yylval, yy::GerberRS274XParser::location_type* yyloc);
+	int yylex(yy::GerberRS274XParser::semantic_type* yylval_in, yy::GerberRS274XParser::location_type* yylloc_in);
 
 private:
 	// This is the scanning function created by flex.  We make this private and define our

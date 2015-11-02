@@ -5,15 +5,14 @@
 DCommand::DCommand(DCommandType type) : m_type(type)
 {}
 
-DCommand::DCommand(DCommandType type, std::unique_ptr<CoordinateData> coord_data) :m_type(type)
-{
-	// Take ownership of the coordinate data pointer
-	m_coord_data = std::move(coord_data);
-}
+DCommand::DCommand(DCommandType type, std::shared_ptr<CoordinateData> coord_data) : 
+	m_type(type),
+	m_coord_data(coord_data)
+{}
 
 DCommand::~DCommand()
 {
-	std::cout << "D command destroyed" << std::endl;
+	//std::cout << "D command destroyed" << std::endl;
 }
 
 bool DCommand::do_check_semantic_validity(std::string& error_msg)

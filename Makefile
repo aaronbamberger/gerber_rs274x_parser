@@ -1,5 +1,5 @@
-CC = gcc
-CXX = g++
+CC = clang
+CXX = clang++
 CXXFLAGS = -std=c++11
 BISON = bison
 BISONFLAGS = --warnings=none
@@ -13,7 +13,7 @@ clean:
 	$(MAKE) -C GerberClasses/ clean
 
 scanner_tester: scanner_tester.o gerber_scanner.yy.o gerber_parser.yy.o gerber_rs274x_scanner.o gerber_classes
-	$(CXX) $(CXXFLAGS) -g -o scanner_tester scanner_tester.o gerber_scanner.yy.o gerber_parser.yy.o gerber_rs274x_scanner.o
+	$(CXX) $(CXXFLAGS) -g -o scanner_tester scanner_tester.o gerber_scanner.yy.o gerber_parser.yy.o gerber_rs274x_scanner.o GerberClasses/*.o
 	
 scanner_tester.o: scanner_tester.c gerber_scanner.yy.hh gerber_parser.yy.hh gerber_rs274x_scanner.hh
 	$(CXX) $(CXXFLAGS) -g -c scanner_tester.c
