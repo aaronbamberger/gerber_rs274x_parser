@@ -8,7 +8,10 @@
 	#include "GerberClasses/CommandList.hh"
 	#include "GerberClasses/Command.hh"
 	#include "GerberClasses/DCommand.hh"
+	#include "GerberClasses/GCommand.hh"
 	#include "GerberClasses/CoordinateData.hh"
+	#include "GerberClasses/SelectApertureCommand.hh"
+	#include "GerberClasses/ConstantArithmeticExpressionElement.hh"
 
 	#include <memory>
 
@@ -103,7 +106,9 @@
 %type <MacroPrimitivePolygon*> macro_primitive_polygon
 %type <MacroPrimitiveMoire*> macro_primitive_moire
 %type <MacroPrimitiveThermal*> macro_primitive_thermal
-%type <ArithmeticExpressionTreeElement*> arithmetic_expression
+*/
+%type <std::shared_ptr<ArithmeticExpressionElement>> arithmetic_expression
+/*
 %type <VariableDefinition*> variable_definition
 */
 %type <std::shared_ptr<CoordinateData>> coordinate_data
@@ -150,55 +155,31 @@ command:
 |	flash_cmd {
 		$command = $[flash_cmd];
 	}
-/*
 |	APERTURE_NUMBER END_OF_DATA_BLOCK {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_SELECT_APERTURE;
-		$command->contents.aperture = $[APERTURE_NUMBER];
+		$command = std::make_shared<SelectApertureCommand>($[APERTURE_NUMBER]);
 	}
 |	G_CMD_TYPE_LINEAR_INTERP_MODE END_OF_DATA_BLOCK {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_G_CODE;
-		$command->contents.g_command = G_CODE_LINEAR_INTERP_MODE;
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_LINEAR_INTERP_MODE);
 	}
 |	G_CMD_TYPE_CW_CIRC_INTERP_MODE END_OF_DATA_BLOCK {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_G_CODE;
-		$command->contents.g_command = G_CODE_CW_CIRCULAR_INTERP_MODE;
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_CW_CIRCULAR_INTERP_MODE);
 	}
 |	G_CMD_TYPE_CCW_CIRC_INTERP_MODE END_OF_DATA_BLOCK {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_G_CODE;
-		$command->contents.g_command = G_CODE_CCW_CIRCULAR_INTERP_MODE;
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_CCW_CIRCULAR_INTERP_MODE);
 	}
 |	G_CMD_TYPE_REGION_MODE_ON END_OF_DATA_BLOCK {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_G_CODE;
-		$command->contents.g_command = G_CODE_REGION_MODE_ON;
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_REGION_MODE_ON);
 	}
 |	G_CMD_TYPE_REGION_MODE_OFF END_OF_DATA_BLOCK {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_G_CODE;
-		$command->contents.g_command = G_CODE_REGION_MODE_OFF;
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_REGION_MODE_OFF);
 	}
 |	G_CMD_TYPE_MULTI_QUADRANT_MODE END_OF_DATA_BLOCK {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_G_CODE;
-		$command->contents.g_command = G_CODE_MULTI_QUADRANT_MODE;
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_MULTI_QUADRANT_MODE);
 	}
 |	G_CMD_TYPE_SINGLE_QUADRANT_MODE END_OF_DATA_BLOCK {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_G_CODE;
-		$command->contents.g_command = G_CODE_SINGLE_QUADRANT_MODE;
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_SINGLE_QUADRANT_MODE);
 	}
+/*
 |	COMMENT_START COMMENT_STRING END_OF_DATA_BLOCK {
 		$command = (Command*)calloc(1, sizeof(Command));
 		$command->next = NULL;
@@ -702,15 +683,13 @@ variable_definition:
 		$variable_definition->variable_number = $VARIABLE_DEFINITION;
 		$variable_definition->expression = $arithmetic_expression;
 	}
+*/
 
 arithmetic_expression[result]:
 	ARITHMETIC_CONSTANT {
-		$result = (ArithmeticExpressionTreeElement*)calloc(1, sizeof(ArithmeticExpressionTreeElement));
-		$result->type = EXPRESSION_ELEMENT_TYPE_CONSTANT;
-		$result->element.constant = $ARITHMETIC_CONSTANT;
-		$result->left = NULL;
-		$result->right = NULL;
+		$result = make_shared<ConstantAritmeticExpressionElement>($[ARITHMETIC_CONSTANT]);
 	}
+/*
 |	ARITHMETIC_VAR_REFERENCE {
 		$result = (ArithmeticExpressionTreeElement*)calloc(1, sizeof(ArithmeticExpressionTreeElement));
 		$result->type = EXPRESSION_ELEMENT_TYPE_VARIABLE;

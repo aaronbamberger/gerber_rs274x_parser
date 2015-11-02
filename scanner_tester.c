@@ -12,6 +12,7 @@
 #include <ios>
 #include <memory>
 
+/*
 void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type& semantic_value);
 void pretty_print_arithmetic_expression_tree(ArithmeticExpressionTreeElement* root, int level);
 void pretty_print_aperture_macro(ApertureMacro* macro);
@@ -24,7 +25,6 @@ void pretty_print_moire_primitive(MacroPrimitiveMoire* moire);
 void pretty_print_thermal_primitive(MacroPrimitiveThermal* thermal);
 void pretty_print_expression_coord_list(ExpressionCoordList* coord_list);
 void pretty_print_arithmetic_expression(ArithmeticExpressionTreeElement* root);
-void pretty_print_command_list(std::shared_ptr<CommandList>& command_list);
 void pretty_print_command(Command* command);
 void pretty_print_d_command(DCommand* d_command);
 void pretty_print_coordinate_data(CoordinateData* coord_data);
@@ -37,6 +37,8 @@ void pretty_print_standard_aperture_obround(StandardApertureObround* obround);
 void pretty_print_standard_aperture_polygon(StandardAperturePolygon* polygon);
 void pretty_print_standard_aperture(StandardAperture* aperture);
 void pretty_print_aperture_definition(ApertureDefinition* aperture_definition);
+*/
+void pretty_print_command_list(std::shared_ptr<CommandList>& command_list);
 
 int main(int argc, char** argv)
 {
@@ -89,9 +91,9 @@ void pretty_print_command_list(std::shared_ptr<CommandList>& command_list)
 	std::cout << *command_list;
 }
 
+/*
 void pretty_print_command(Command* command)
 {
-	/*
 	switch (command->type) {
 		case COMMAND_TYPE_D_CODE:
 			pretty_print_d_command(command->contents.d_command);
@@ -156,7 +158,6 @@ void pretty_print_command(Command* command)
 			}
 			break;
 	}
-	*/
 }
 
 void pretty_print_aperture_definition(ApertureDefinition* aperture_definition)
@@ -259,7 +260,6 @@ void pretty_print_format_specifier(FormatSpecifier* format_specifier)
 
 void pretty_print_d_command(DCommand* d_command)
 {
-	/*
 	printf("D Command: ");
 	switch (d_command->type) {
 		case D_CODE_INTERPOLATE:
@@ -280,12 +280,10 @@ void pretty_print_d_command(DCommand* d_command)
 	} else {
 		printf("  No coordinate data\n");
 	}
-	*/
 }
 
 void pretty_print_coordinate_data(CoordinateData* coord_data)
 {
-	/*
 	printf("  Coordinate Data:\n");
 
 	if (coord_data->x_valid) {
@@ -311,7 +309,6 @@ void pretty_print_coordinate_data(CoordinateData* coord_data)
 	} else {
 		printf("    J: None\n");
 	}
-	*/
 }
 
 void pretty_print_g_command(GCodeType g_code)
@@ -881,3 +878,4 @@ void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type& s
 			break;
 	}
 }
+*/

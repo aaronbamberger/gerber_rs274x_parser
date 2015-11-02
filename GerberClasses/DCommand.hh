@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <memory>
+#include <string>
 
 class DCommand : public Command {
 public:
@@ -19,10 +20,8 @@ public:
 	DCommand(DCommandType type, std::shared_ptr<CoordinateData> coord_data);
 	virtual ~DCommand();
 
-protected:
-	virtual bool do_check_semantic_validity(std::string& error_msg);
-
 private:
+	virtual bool do_check_semantic_validity(std::string& error_msg);
 	virtual std::ostream& do_print(std::ostream& os) const;
 
 	DCommandType m_type;

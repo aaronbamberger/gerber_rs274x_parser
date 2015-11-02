@@ -32,6 +32,7 @@ typedef enum {
 	MACRO_CONTENT_PRIMITIVE
 } MacroContentType;
 
+/*
 typedef enum {
 	D_CODE_INTERPOLATE,
 	D_CODE_MOVE,
@@ -47,6 +48,7 @@ typedef enum {
 	G_CODE_REGION_MODE_ON,
 	G_CODE_REGION_MODE_OFF
 } GCodeType;
+*/
 
 typedef enum {
 	COMMAND_TYPE_D_CODE,
@@ -84,6 +86,7 @@ typedef enum {
 	APERTURE_DEFINITION_TYPE_CUSTOM
 } ApertureDefinitionType;
 
+/*
 typedef union {
 	double constant;
 	int variable;
@@ -213,6 +216,7 @@ typedef struct {
 	const char* name;
 	MacroContentList* content_list;
 } ApertureMacro;
+*/
 
 /*
 typedef struct {
