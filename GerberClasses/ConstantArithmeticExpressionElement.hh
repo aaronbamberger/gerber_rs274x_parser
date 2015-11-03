@@ -2,7 +2,6 @@
 #define _CONSTANT_ARITHMETIC_EXPRESSION_ELEMENT_H
 
 #include "ArithmeticExpressionElement.hh"
-#include "../GraphicsState.hh"
 
 #include <iostream>
 
@@ -12,7 +11,7 @@ public:
 	virtual ~ConstantArithmeticExpressionElement();
 
 private:
-	virtual double eval(const GraphicsState& graphics_state);
+	virtual double do_eval();
 	virtual std::ostream& do_print(std::ostream& os) const;
 
 	double m_constant;

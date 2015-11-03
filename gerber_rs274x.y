@@ -12,6 +12,8 @@
 	#include "GerberClasses/CoordinateData.hh"
 	#include "GerberClasses/SelectApertureCommand.hh"
 	#include "GerberClasses/ConstantArithmeticExpressionElement.hh"
+	#include "GerberClasses/VariableReferenceArithmeticExpressionElement.hh"
+	#include "GerberClasses/BinaryOperationArithmeticExpressionElement.hh"
 
 	#include <memory>
 
@@ -687,57 +689,30 @@ variable_definition:
 
 arithmetic_expression[result]:
 	ARITHMETIC_CONSTANT {
-		$result = make_shared<ConstantAritmeticExpressionElement>($[ARITHMETIC_CONSTANT]);
+		$result = std::make_shared<ConstantArithmeticExpressionElement>($[ARITHMETIC_CONSTANT]);
 	}
-/*
 |	ARITHMETIC_VAR_REFERENCE {
-		$result = (ArithmeticExpressionTreeElement*)calloc(1, sizeof(ArithmeticExpressionTreeElement));
-		$result->type = EXPRESSION_ELEMENT_TYPE_VARIABLE;
-		$result->element.variable = $ARITHMETIC_VAR_REFERENCE;
-		$result->left = NULL;
-		$result->right = NULL;
+		$result = std::make_shared<VariableReferenceArithmeticExpressionElement>($[ARITHMETIC_VAR_REFERENCE]);
 	}
 |	arithmetic_expression[left] ARITHMETIC_ADD arithmetic_expression[right] {
-		$result = (ArithmeticExpressionTreeElement*)calloc(1, sizeof(ArithmeticExpressionTreeElement));
-		$result->type = EXPRESSION_ELEMENT_TYPE_OPERATOR;
-		$result->element.op = OPERATOR_ADD;
-		$result->left = $left;
-		$result->right = $right;
+		$result = std::make_shared<BinaryOperationArithmeticExpressionElement>(BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_ADD, $left, $right);
 	}
 |	arithmetic_expression[left] ARITHMETIC_SUB arithmetic_expression[right] {
-		$result = (ArithmeticExpressionTreeElement*)calloc(1, sizeof(ArithmeticExpressionTreeElement));
-		$result->type = EXPRESSION_ELEMENT_TYPE_OPERATOR;
-		$result->element.op = OPERATOR_SUB;
-		$result->left = $left;
-		$result->right = $right;
+		$result = std::make_shared<BinaryOperationArithmeticExpressionElement>(BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_SUB, $left, $right);
 	}
 |	ARITHMETIC_SUB arithmetic_expression[right] %prec UNARY_MINUS {
-		$result = (ArithmeticExpressionTreeElement*)calloc(1, sizeof(ArithmeticExpressionTreeElement));
-		$result->type = EXPRESSION_ELEMENT_TYPE_OPERATOR;
-		$result->element.op = OPERATOR_SUB;
-		$result->left = (ArithmeticExpressionTreeElement*)calloc(1, sizeof(ArithmeticExpressionTreeElement));
-		$result->left->type = EXPRESSION_ELEMENT_TYPE_CONSTANT;
-		$result->left->element.constant = 0.0;
-		$result->right = $right;
+		auto left = std::make_shared<ConstantArithmeticExpressionElement>(0.0);
+		$result = std::make_shared<BinaryOperationArithmeticExpressionElement>(BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_SUB, left, $right);
 	}
 |	arithmetic_expression[left] ARITHMETIC_MULT arithmetic_expression[right] {
-		$result = (ArithmeticExpressionTreeElement*)calloc(1, sizeof(ArithmeticExpressionTreeElement));
-		$result->type = EXPRESSION_ELEMENT_TYPE_OPERATOR;
-		$result->element.op = OPERATOR_MULT;
-		$result->left = $left;
-		$result->right = $right;
+		$result = std::make_shared<BinaryOperationArithmeticExpressionElement>(BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_MULT, $left, $right);
 	}
 |	arithmetic_expression[left] ARITHMETIC_DIV arithmetic_expression[right] {
-		$result = (ArithmeticExpressionTreeElement*)calloc(1, sizeof(ArithmeticExpressionTreeElement));
-		$result->type = EXPRESSION_ELEMENT_TYPE_OPERATOR;
-		$result->element.op = OPERATOR_DIV;
-		$result->left = $left;
-		$result->right = $right;
+		$result = std::make_shared<BinaryOperationArithmeticExpressionElement>(BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_DIV, $left, $right);
 	}
 |	ARITHMETIC_LEFT_PAREN arithmetic_expression[mid] ARITHMETIC_RIGHT_PAREN {
 		$result = $mid;
 	}
-*/
 
 %%
 

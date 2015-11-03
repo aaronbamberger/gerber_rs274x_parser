@@ -1,5 +1,6 @@
 #include "ConstantArithmeticExpressionElement.hh"
-#include "../GraphicsState.hh"
+
+#include <iostream>
 
 ConstantArithmeticExpressionElement::ConstantArithmeticExpressionElement(double constant) : m_constant(constant)
 {}
@@ -7,7 +8,7 @@ ConstantArithmeticExpressionElement::ConstantArithmeticExpressionElement(double 
 ConstantArithmeticExpressionElement::~ConstantArithmeticExpressionElement()
 {}
 
-double ConstantArithmeticExpressionElement::eval(const GraphicsState& graphics_state)
+double ConstantArithmeticExpressionElement::do_eval()
 {
 	return m_constant;
 }
