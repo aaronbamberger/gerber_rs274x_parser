@@ -14,6 +14,10 @@
 	#include "GerberClasses/ConstantArithmeticExpressionElement.hh"
 	#include "GerberClasses/VariableReferenceArithmeticExpressionElement.hh"
 	#include "GerberClasses/BinaryOperationArithmeticExpressionElement.hh"
+	#include "GerberClasses/ApertureMacroPrimitive.hh"
+	#include "GerberClasses/ApertureMacroPrimitiveCircle.hh"
+	#include "GerberClasses/ApertureMacroPrimitiveVectorLine.hh"
+	#include "GerberClasses/ApertureMacroPrimitiveCenterLine.hh"
 
 	#include <memory>
 
@@ -99,9 +103,6 @@
 %type <MacroContentElement*> macro_content_element
 %type <MacroPrimitive*> macro_primitive
 %type <char*> macro_primitive_comment
-%type <MacroPrimitiveCircle*> macro_primitive_circle
-%type <MacroPrimitiveVectorLine*> macro_primitive_vector_line
-%type <MacroPrimitiveCenterLine*> macro_primitive_center_line
 %type <ExpressionCoord*> expression_coord
 %type <ExpressionCoordList*> expression_coord_list
 %type <MacroPrimitiveOutline*> macro_primitive_outline
@@ -109,6 +110,9 @@
 %type <MacroPrimitiveMoire*> macro_primitive_moire
 %type <MacroPrimitiveThermal*> macro_primitive_thermal
 */
+%type <std::shared_ptr<ApertureMacroPrimitiveCenterLine>> macro_primitive_center_line
+%type <std::shared_ptr<ApertureMacroPrimitiveCircle>> macro_primitive_circle
+%type <std::shared_ptr<ApertureMacroPrimitiveVectorLine>> macro_primitive_vector_line
 %type <std::shared_ptr<ArithmeticExpressionElement>> arithmetic_expression
 /*
 %type <VariableDefinition*> variable_definition
@@ -516,67 +520,33 @@ macro_primitive_comment:
 	APERTURE_COMMENT_START APERTURE_COMMENT_CONTENT {
 		$macro_primitive_comment = $APERTURE_COMMENT_CONTENT;
 	}
+*/
 
 macro_primitive_circle:
 	APERTURE_PRIMITIVE_TYPE_CIRCLE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[diameter] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[rotation] {
-		$macro_primitive_circle = (MacroPrimitiveCircle*)calloc(1, sizeof(MacroPrimitiveCircle));
-		$macro_primitive_circle->exposure = $exposure;
-		$macro_primitive_circle->diameter = $diameter;
-		$macro_primitive_circle->center_x = $[center_x];
-		$macro_primitive_circle->center_y = $[center_y];
-		$macro_primitive_circle->rotation = $rotation;
+		$[macro_primitive_circle] = std::make_shared<ApertureMacroPrimitiveCircle>($exposure, $diameter, $[center_x], $[center_y], $rotation);
 	}
 |	APERTURE_PRIMITIVE_TYPE_CIRCLE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[diameter] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] {
-		$macro_primitive_circle = (MacroPrimitiveCircle*)calloc(1, sizeof(MacroPrimitiveCircle));
-		$macro_primitive_circle->exposure = $exposure;
-		$macro_primitive_circle->diameter = $diameter;
-		$macro_primitive_circle->center_x = $[center_x];
-		$macro_primitive_circle->center_y = $[center_y];
-		$macro_primitive_circle->rotation = NULL;
+		$[macro_primitive_circle] = std::make_shared<ApertureMacroPrimitiveCircle>($exposure, $diameter, $[center_x], $[center_y]);
 	}
 
 macro_primitive_vector_line:
 	APERTURE_PRIMITIVE_TYPE_VECTOR_LINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[line_width] AM_DELIM arithmetic_expression[start_x] AM_DELIM arithmetic_expression[start_y] AM_DELIM arithmetic_expression[end_x] AM_DELIM arithmetic_expression[end_y] AM_DELIM arithmetic_expression[rotation] {
-		$macro_primitive_vector_line = (MacroPrimitiveVectorLine*)calloc(1, sizeof(MacroPrimitiveVectorLine));
-		$macro_primitive_vector_line->exposure = $exposure;
-		$macro_primitive_vector_line->line_width = $[line_width];
-		$macro_primitive_vector_line->start_x = $[start_x];
-		$macro_primitive_vector_line->start_y = $[start_y];
-		$macro_primitive_vector_line->end_x = $[end_x];
-		$macro_primitive_vector_line->end_y = $[end_y];
-		$macro_primitive_vector_line->rotation = $rotation;
+		$[macro_primitive_vector_line] = std::make_shared<ApertureMacroPrimitiveVectorLine>($exposure, $[line_width], $[start_x], $[start_y], $[end_x], $[end_y], $rotation);
 	}
 |	APERTURE_PRIMITIVE_TYPE_VECTOR_LINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[line_width] AM_DELIM arithmetic_expression[start_x] AM_DELIM arithmetic_expression[start_y] AM_DELIM arithmetic_expression[end_x] AM_DELIM arithmetic_expression[end_y] {
-		$macro_primitive_vector_line = (MacroPrimitiveVectorLine*)calloc(1, sizeof(MacroPrimitiveVectorLine));
-		$macro_primitive_vector_line->exposure = $exposure;
-		$macro_primitive_vector_line->line_width = $[line_width];
-		$macro_primitive_vector_line->start_x = $[start_x];
-		$macro_primitive_vector_line->start_y = $[start_y];
-		$macro_primitive_vector_line->end_x = $[end_x];
-		$macro_primitive_vector_line->end_y = $[end_y];
-		$macro_primitive_vector_line->rotation = NULL;
+		$[macro_primitive_vector_line] = std::make_shared<ApertureMacroPrimitiveVectorLine>($exposure, $[line_width], $[start_x], $[start_y], $[end_x], $[end_y]);
 	}
 
 macro_primitive_center_line:
 	APERTURE_PRIMITIVE_TYPE_CENTER_LINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[rect_width] AM_DELIM arithmetic_expression[rect_height] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[rotation] {
-		$macro_primitive_center_line = (MacroPrimitiveCenterLine*)calloc(1, sizeof(MacroPrimitiveCenterLine));
-		$macro_primitive_center_line->exposure = $exposure;
-		$macro_primitive_center_line->rect_width = $[rect_width];
-		$macro_primitive_center_line->rect_height = $[rect_height];
-		$macro_primitive_center_line->center_x = $[center_x];
-		$macro_primitive_center_line->center_y = $[center_y];
-		$macro_primitive_center_line->rotation = $rotation;
+		$[macro_primitive_center_line] = std::make_shared<ApertureMacroPrimitiveCenterLine>($exposure, $[rect_width], $[rect_height], $[center_x], $[center_y], $rotation);
 	}
 |	APERTURE_PRIMITIVE_TYPE_CENTER_LINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[rect_width] AM_DELIM arithmetic_expression[rect_height] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] {
-		$macro_primitive_center_line = (MacroPrimitiveCenterLine*)calloc(1, sizeof(MacroPrimitiveCenterLine));
-		$macro_primitive_center_line->exposure = $exposure;
-		$macro_primitive_center_line->rect_width = $[rect_width];
-		$macro_primitive_center_line->rect_height = $[rect_height];
-		$macro_primitive_center_line->center_x = $[center_x];
-		$macro_primitive_center_line->center_y = $[center_y];
-		$macro_primitive_center_line->rotation = NULL;
+		$[macro_primitive_center_line] = std::make_shared<ApertureMacroPrimitiveCenterLine>($exposure, $[rect_width], $[rect_height], $[center_x], $[center_y]);
 	}
 
+/*
 macro_primitive_outline:
 	APERTURE_PRIMITIVE_TYPE_OUTLINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[num_points] expression_coord_list[coords] AM_DELIM arithmetic_expression[rotation] {
 		$macro_primitive_outline = (MacroPrimitiveOutline*)calloc(1, sizeof(MacroPrimitiveOutline));
