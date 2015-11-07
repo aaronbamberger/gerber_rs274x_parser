@@ -4,7 +4,7 @@
 
 GerberRS274XScanner::GerberRS274XScanner(std::istream* arg_yyin, std::ostream* arg_yyout) : yyFlexLexer(arg_yyin, arg_yyout)
 {
-	this->set_debug(1);
+	this->set_debug(0);
 }
 
 int GerberRS274XScanner::yylex(yy::GerberRS274XParser::semantic_type* yylval_in, yy::GerberRS274XParser::location_type* yylloc_in)

@@ -4,7 +4,6 @@
 }
 
 %code requires {
-	#include "gerber_parser_defs.h"
 	#include "GerberClasses/CommandList.hh"
 	#include "GerberClasses/Command.hh"
 	#include "GerberClasses/DCommand.hh"
@@ -26,6 +25,20 @@
 	#include "GerberClasses/ApertureMacroPrimitiveMoire.hh"
 	#include "GerberClasses/ApertureMacroPrimitiveThermal.hh"
 	#include "GerberClasses/ApertureMacroPrimitiveComment.hh"
+	#include "GerberClasses/StandardAperture.hh"
+	#include "GerberClasses/StandardApertureCircle.hh"
+	#include "GerberClasses/StandardApertureRectangle.hh"
+	#include "GerberClasses/StandardApertureObround.hh"
+	#include "GerberClasses/StandardAperturePolygon.hh"
+	#include "GerberClasses/ApertureDefinition.hh"
+	#include "GerberClasses/ApertureDefinitionStandard.hh"
+	#include "GerberClasses/ApertureDefinitionCustom.hh"
+	#include "GerberClasses/LevelPolarity.hh"
+	#include "GerberClasses/UnitSpecifier.hh"
+	#include "GerberClasses/StepAndRepeat.hh"
+	#include "GerberClasses/FormatSpecifier.hh"
+	#include "GerberClasses/Comment.hh"
+	#include "GerberClasses/EndOfFile.hh"
 
 	#include <memory>
 	#include <utility>
@@ -73,7 +86,7 @@
 %token COORD_FORMAT
 %token <int> COORD_FORMAT_NUM_INT_POSITIONS
 %token <int> COORD_FORMAT_NUM_DEC_POSITIONS
-%token <UnitType> UNIT_SPECIFIER
+%token <UnitSpecifier::UnitType> UNIT_SPECIFIER
 %token END_OF_DATA_BLOCK
 %token EXT_CMD_DELIMITER
 %token APERTURE_DEFINITION
@@ -101,7 +114,7 @@
 %token APERTURE_COMMENT_START
 %token <char*> APERTURE_COMMENT_CONTENT
 %token STEP_AND_REPEAT_START
-%token <LevelPolarity> LEVEL_POLARITY
+%token <LevelPolarity::LevelPolarityType> LEVEL_POLARITY
 
 %left ARITHMETIC_ADD ARITHMETIC_SUB
 %left ARITHMETIC_MULT ARITHMETIC_DIV
@@ -127,16 +140,15 @@
 %type <std::shared_ptr<Command> > interpolate_cmd
 %type <std::shared_ptr<Command> > move_cmd
 %type <std::shared_ptr<Command> > flash_cmd
-/*
-%type <FormatSpecifier*> format_specifier
-%type <StepAndRepeat*> step_and_repeat
-%type <StandardApertureCircle*> standard_aperture_circle
-%type <StandardApertureRectangle*> standard_aperture_rectangle
-%type <StandardApertureObround*> standard_aperture_obround
-%type <StandardAperturePolygon*> standard_aperture_polygon
-%type <StandardAperture*> standard_aperture
-%type <ApertureDefinition*> aperture_definition
-*/
+%type <std::shared_ptr<StandardAperture> > standard_aperture
+%type <std::shared_ptr<StandardApertureCircle> > standard_aperture_circle
+%type <std::shared_ptr<StandardApertureRectangle> > standard_aperture_rectangle
+%type <std::shared_ptr<StandardApertureObround> > standard_aperture_obround
+%type <std::shared_ptr<StandardAperturePolygon> > standard_aperture_polygon
+%type <std::shared_ptr<ApertureDefinition> > aperture_definition
+%type <std::shared_ptr<std::list<double> > > aperture_definition_modifier_list
+%type <std::shared_ptr<FormatSpecifier> > format_specifier
+%type <std::shared_ptr<StepAndRepeat> > step_and_repeat
 %type <std::shared_ptr<Command> > command
 %type <std::shared_ptr<CommandList> > command_list
 
@@ -191,182 +203,113 @@ command:
 |	G_CMD_TYPE_SINGLE_QUADRANT_MODE END_OF_DATA_BLOCK {
 		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_SINGLE_QUADRANT_MODE);
 	}
-/*
 |	COMMENT_START COMMENT_STRING END_OF_DATA_BLOCK {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_COMMENT;
-		$command->contents.comment = $[COMMENT_STRING];
+		$command = std::make_shared<Comment>($[COMMENT_STRING]);
 	}
 |	END_OF_FILE END_OF_DATA_BLOCK {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_END_OF_FILE;
+		$command = std::make_shared<EndOfFile>();
 	}
 |	format_specifier {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_FORMAT_SPECIFIER;
-		$command->contents.format_specifier = $[format_specifier];
+		$command = $[format_specifier];
 	}
 |	EXT_CMD_DELIMITER UNIT_SPECIFIER END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_UNITS;
-		$command->contents.units = $[UNIT_SPECIFIER];
+		$command = std::make_shared<UnitSpecifier>($[UNIT_SPECIFIER]);
 	}
 |	aperture_definition {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_APERTURE_DEFINITION;
-		$command->contents.aperture_definition = $[aperture_definition];
+		$command = $[aperture_definition];
 	}
-*/
 |	aperture_macro {
 		$command = $[aperture_macro];
 	}
-/*
 |	step_and_repeat {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_STEP_AND_REPEAT;
-		$command->contents.step_and_repeat = $[step_and_repeat];
+		$command = $[step_and_repeat];
 	}
 | 	EXT_CMD_DELIMITER LEVEL_POLARITY END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_LEVEL_POLARITY;
-		$command->contents.level_polarity = $[LEVEL_POLARITY];
+		$command = std::make_shared<LevelPolarity>($[LEVEL_POLARITY]);
 	}
 
 aperture_definition:
 	EXT_CMD_DELIMITER APERTURE_DEFINITION APERTURE_NUMBER standard_aperture END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$[aperture_definition] = (ApertureDefinition*)calloc(1, sizeof(ApertureDefinition));
-		$[aperture_definition]->type = APERTURE_DEFINITION_TYPE_STANDARD;
-		$[aperture_definition]->aperture_number = $[APERTURE_NUMBER];
-		$[aperture_definition]->aperture.standard = $[standard_aperture];
+		$[aperture_definition] = std::make_shared<ApertureDefinitionStandard>($[APERTURE_NUMBER], $[standard_aperture]);
+	}
+|	EXT_CMD_DELIMITER APERTURE_DEFINITION APERTURE_NUMBER CUSTOM_APERTURE_NAME aperture_definition_modifier_list END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
+		$[aperture_definition] = std::make_shared<ApertureDefinitionCustom>($[APERTURE_NUMBER], $[CUSTOM_APERTURE_NAME], $[aperture_definition_modifier_list]);
 	}
 |	EXT_CMD_DELIMITER APERTURE_DEFINITION APERTURE_NUMBER CUSTOM_APERTURE_NAME END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$[aperture_definition] = (ApertureDefinition*)calloc(1, sizeof(ApertureDefinition));
-		$[aperture_definition]->type = APERTURE_DEFINITION_TYPE_CUSTOM;
-		$[aperture_definition]->aperture_number = $[APERTURE_NUMBER];
-		$[aperture_definition]->aperture.custom_name = $[CUSTOM_APERTURE_NAME];
+		$[aperture_definition] = std::make_shared<ApertureDefinitionCustom>($[APERTURE_NUMBER], $[CUSTOM_APERTURE_NAME]);
+	}
+
+aperture_definition_modifier_list[result]:
+	aperture_definition_modifier_list[list] APERTURE_DEFINITION_MODIFIER[new_elem] {
+		$list->push_back($[new_elem]);
+		$result = $list;
+	}
+|	APERTURE_DEFINITION_MODIFIER[new_elem] {
+		$result = std::make_shared<std::list<double> >();
+		$result->push_back($[new_elem]);
 	}
 
 standard_aperture:
 	standard_aperture_circle {
-		$[standard_aperture] = (StandardAperture*)calloc(1, sizeof(StandardAperture));
-		$[standard_aperture]->type = STANDARD_APERTURE_CIRCLE;
-		$[standard_aperture]->contents.circle = $[standard_aperture_circle];
+		$[standard_aperture] = $[standard_aperture_circle];
 	}
 |	standard_aperture_rectangle {
-		$[standard_aperture] = (StandardAperture*)calloc(1, sizeof(StandardAperture));
-		$[standard_aperture]->type = STANDARD_APERTURE_RECTANGLE;
-		$[standard_aperture]->contents.rectangle = $[standard_aperture_rectangle];
+		$[standard_aperture] = $[standard_aperture_rectangle];
 	}
 |	standard_aperture_obround {
-		$[standard_aperture] = (StandardAperture*)calloc(1, sizeof(StandardAperture));
-		$[standard_aperture]->type = STANDARD_APERTURE_OBROUND;
-		$[standard_aperture]->contents.obround = $[standard_aperture_obround];
+		$[standard_aperture] = $[standard_aperture_obround];
 	}
 |	standard_aperture_polygon {
-		$[standard_aperture] = (StandardAperture*)calloc(1, sizeof(StandardAperture));
-		$[standard_aperture]->type = STANDARD_APERTURE_POLYGON;
-		$[standard_aperture]->contents.polygon = $[standard_aperture_polygon];
+		$[standard_aperture] = $[standard_aperture_polygon];
 	}
 
 standard_aperture_circle:
 	STANDARD_APERTURE_TYPE_CIRCLE APERTURE_DEFINITION_MODIFIER[diameter] APERTURE_DEFINITION_MODIFIER[hole_diameter] {
-		$[standard_aperture_circle] = (StandardApertureCircle*)calloc(1, sizeof(StandardApertureCircle));
-		$[standard_aperture_circle]->diameter = $diameter;
-		$[standard_aperture_circle]->hole_diameter = $[hole_diameter];
-		$[standard_aperture_circle]->has_hole = true;
+		$[standard_aperture_circle] = std::make_shared<StandardApertureCircle>($diameter, $[hole_diameter]);
 	}
 |	STANDARD_APERTURE_TYPE_CIRCLE APERTURE_DEFINITION_MODIFIER[diameter] {
-		$[standard_aperture_circle] = (StandardApertureCircle*)calloc(1, sizeof(StandardApertureCircle));
-		$[standard_aperture_circle]->diameter = $diameter;
-		$[standard_aperture_circle]->has_hole = false;
+		$[standard_aperture_circle] = std::make_shared<StandardApertureCircle>($diameter);
 	}
 
 standard_aperture_rectangle:
 	STANDARD_APERTURE_TYPE_RECTANGLE APERTURE_DEFINITION_MODIFIER[x_size] APERTURE_DEFINITION_MODIFIER[y_size] APERTURE_DEFINITION_MODIFIER[hole_diameter] {
-		$[standard_aperture_rectangle] = (StandardApertureRectangle*)calloc(1, sizeof(StandardApertureRectangle));
-		$[standard_aperture_rectangle]->x_size = $[x_size];
-		$[standard_aperture_rectangle]->y_size = $[y_size];
-		$[standard_aperture_rectangle]->hole_diameter = $[hole_diameter];
-		$[standard_aperture_rectangle]->has_hole = true;
+		$[standard_aperture_rectangle] = std::make_shared<StandardApertureRectangle>($[x_size], $[y_size], $[hole_diameter]);
 	}
 |	STANDARD_APERTURE_TYPE_RECTANGLE APERTURE_DEFINITION_MODIFIER[x_size] APERTURE_DEFINITION_MODIFIER[y_size] {
-		$[standard_aperture_rectangle] = (StandardApertureRectangle*)calloc(1, sizeof(StandardApertureRectangle));
-		$[standard_aperture_rectangle]->x_size = $[x_size];
-		$[standard_aperture_rectangle]->y_size = $[y_size];
-		$[standard_aperture_rectangle]->has_hole = false;
+		$[standard_aperture_rectangle] = std::make_shared<StandardApertureRectangle>($[x_size], $[y_size]);
 	}
 
 standard_aperture_obround:
 	STANDARD_APERTURE_TYPE_OBROUND APERTURE_DEFINITION_MODIFIER[x_size] APERTURE_DEFINITION_MODIFIER[y_size] APERTURE_DEFINITION_MODIFIER[hole_diameter] {
-		$[standard_aperture_obround] = (StandardApertureObround*)calloc(1, sizeof(StandardApertureObround));
-		$[standard_aperture_obround]->x_size = $[x_size];
-		$[standard_aperture_obround]->y_size = $[y_size];
-		$[standard_aperture_obround]->hole_diameter = $[hole_diameter];
-		$[standard_aperture_obround]->has_hole = true;
+		$[standard_aperture_obround] = std::make_shared<StandardApertureObround>($[x_size], $[y_size], $[hole_diameter]);
 	}
 |	STANDARD_APERTURE_TYPE_OBROUND APERTURE_DEFINITION_MODIFIER[x_size] APERTURE_DEFINITION_MODIFIER[y_size] {
-		$[standard_aperture_obround] = (StandardApertureObround*)calloc(1, sizeof(StandardApertureObround));
-		$[standard_aperture_obround]->x_size = $[x_size];
-		$[standard_aperture_obround]->y_size = $[y_size];
-		$[standard_aperture_obround]->has_hole = false;
+		$[standard_aperture_obround] = std::make_shared<StandardApertureObround>($[x_size], $[y_size]);
 	}
 
 standard_aperture_polygon:
 	STANDARD_APERTURE_TYPE_POLYGON APERTURE_DEFINITION_MODIFIER[diameter] APERTURE_DEFINITION_MODIFIER[num_vertices] APERTURE_DEFINITION_MODIFIER[rotation] APERTURE_DEFINITION_MODIFIER[hole_diameter] {
-		$[standard_aperture_polygon] = (StandardAperturePolygon*)calloc(1, sizeof(StandardAperturePolygon));
-		$[standard_aperture_polygon]->diameter = $diameter;
-		$[standard_aperture_polygon]->num_vertices = $[num_vertices];
-		$[standard_aperture_polygon]->rotation = $rotation;
-		$[standard_aperture_polygon]->hole_diameter = $[hole_diameter];
-		$[standard_aperture_polygon]->has_rotation = true;
-		$[standard_aperture_polygon]->has_hole = true;
+		$[standard_aperture_polygon] = std::make_shared<StandardAperturePolygon>($diameter, $[num_vertices], $rotation, $[hole_diameter]);
 	}
 |	STANDARD_APERTURE_TYPE_POLYGON APERTURE_DEFINITION_MODIFIER[diameter] APERTURE_DEFINITION_MODIFIER[num_vertices] APERTURE_DEFINITION_MODIFIER[rotation] {
-		$[standard_aperture_polygon] = (StandardAperturePolygon*)calloc(1, sizeof(StandardAperturePolygon));
-		$[standard_aperture_polygon]->diameter = $diameter;
-		$[standard_aperture_polygon]->num_vertices = $[num_vertices];
-		$[standard_aperture_polygon]->rotation = $rotation;
-		$[standard_aperture_polygon]->has_rotation = true;
-		$[standard_aperture_polygon]->has_hole = false;
+		$[standard_aperture_polygon] = std::make_shared<StandardAperturePolygon>($diameter, $[num_vertices], $rotation);
 	}
 |	STANDARD_APERTURE_TYPE_POLYGON APERTURE_DEFINITION_MODIFIER[diameter] APERTURE_DEFINITION_MODIFIER[num_vertices] {
-		$[standard_aperture_polygon] = (StandardAperturePolygon*)calloc(1, sizeof(StandardAperturePolygon));
-		$[standard_aperture_polygon]->diameter = $diameter;
-		$[standard_aperture_polygon]->num_vertices = $[num_vertices];
-		$[standard_aperture_polygon]->has_rotation = false;
-		$[standard_aperture_polygon]->has_hole = false;
+		$[standard_aperture_polygon] = std::make_shared<StandardAperturePolygon>($diameter, $[num_vertices]);
 	}
 
 step_and_repeat:
 	EXT_CMD_DELIMITER STEP_AND_REPEAT_START X_REPEATS Y_REPEATS X_STEP_DISTANCE Y_STEP_DISTANCE END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$[step_and_repeat] = (StepAndRepeat*)calloc(1, sizeof(StepAndRepeat));
-		$[step_and_repeat]->x_num_repeats = $[X_REPEATS];
-		$[step_and_repeat]->y_num_repeats = $[Y_REPEATS];
-		$[step_and_repeat]->x_step_distance = $[X_STEP_DISTANCE];
-		$[step_and_repeat]->y_step_distance = $[Y_STEP_DISTANCE];
+		$[step_and_repeat] = std::make_shared<StepAndRepeat>($[X_REPEATS], $[Y_REPEATS], $[X_STEP_DISTANCE], $[Y_STEP_DISTANCE]);
 	}
 |	EXT_CMD_DELIMITER STEP_AND_REPEAT_START END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$[step_and_repeat] = (StepAndRepeat*)calloc(1, sizeof(StepAndRepeat));
-		$[step_and_repeat]->x_num_repeats = 1;
-		$[step_and_repeat]->y_num_repeats = 1;
-		$[step_and_repeat]->x_step_distance = 0.0;
-		$[step_and_repeat]->y_step_distance = 0.0;
+		$[step_and_repeat] = std::make_shared<StepAndRepeat>();
 	}
 
 format_specifier:
 	EXT_CMD_DELIMITER COORD_FORMAT COORD_FORMAT_NUM_INT_POSITIONS COORD_FORMAT_NUM_DEC_POSITIONS END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$[format_specifier] = (FormatSpecifier*)calloc(1, sizeof(FormatSpecifier));
-		$[format_specifier]->num_int_positions = $[COORD_FORMAT_NUM_INT_POSITIONS];
-		$[format_specifier]->num_dec_positions = $[COORD_FORMAT_NUM_DEC_POSITIONS];
+		$[format_specifier] = std::make_shared<FormatSpecifier>($[COORD_FORMAT_NUM_INT_POSITIONS], $[COORD_FORMAT_NUM_DEC_POSITIONS]);
 	}
-*/
 
 interpolate_cmd:
 	coordinate_data D_CMD_TYPE_INTERPOLATE END_OF_DATA_BLOCK {

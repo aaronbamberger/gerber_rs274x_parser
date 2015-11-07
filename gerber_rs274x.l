@@ -8,6 +8,10 @@
 	// FlexLexer.h is included, or else it is included twice
 	#include "gerber_rs274x_scanner.hh"
 
+	// Include these to get the proper enum types in scope
+	#include "GerberClasses/LevelPolarity.hh"
+	#include "GerberClasses/UnitSpecifier.hh"
+
 	#include <stdlib.h>
 	#include <string.h>
 
@@ -97,9 +101,9 @@ APERTURE_PRIMITIVE_MODIFIER_DELIMITER ","
 														// Third character in matched text should be either C or D
 														// for Clear and Dark
 														if (YYText()[2] == 'C') {
-															yylval->build(LEVEL_POLARITY_CLEAR);
+															yylval->build(LevelPolarity::LevelPolarityType::LEVEL_POLARITY_CLEAR);
 														} else if (YYText()[2] == 'D') {
-															yylval->build(LEVEL_POLARITY_DARK);
+															yylval->build(LevelPolarity::LevelPolarityType::LEVEL_POLARITY_DARK);
 														}
 														return yy::GerberRS274XParser::token::LEVEL_POLARITY;
 													}
@@ -229,9 +233,9 @@ J{INT_W_SIGN}										{
 										
 {UNIT_SPECIFIER}							{
 												if (strncmp(&(YYText()[2]), "IN", 2) == 0) {
-													yylval->build(UNIT_TYPE_IN);
+													yylval->build(UnitSpecifier::UnitType::UNIT_TYPE_IN);
 												} else {
-													yylval->build(UNIT_TYPE_MM);
+													yylval->build(UnitSpecifier::UnitType::UNIT_TYPE_MM);
 												}
 												return yy::GerberRS274XParser::token::UNIT_SPECIFIER;
 											}

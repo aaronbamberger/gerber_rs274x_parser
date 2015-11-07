@@ -21,7 +21,7 @@ scanner_tester.o: scanner_tester.c gerber_scanner.yy.hh gerber_parser.yy.hh gerb
 gerber_scanner.yy.o: gerber_scanner.yy.cc gerber_scanner.yy.hh gerber_parser.yy.hh
 	$(CXX) $(CXXFLAGS) -g -c gerber_scanner.yy.cc
 
-gerber_parser.yy.o: gerber_parser.yy.cc gerber_parser.yy.hh gerber_scanner.yy.hh gerber_parser_defs.h
+gerber_parser.yy.o: gerber_parser.yy.cc gerber_parser.yy.hh gerber_scanner.yy.hh
 	$(CXX) $(CXXFLAGS) -g -c gerber_parser.yy.cc
 
 gerber_rs274x_scanner.o: gerber_rs274x_scanner.cc gerber_rs274x_scanner.hh
