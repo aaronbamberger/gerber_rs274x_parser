@@ -27,21 +27,21 @@ ApertureMacroPrimitiveCircle::ApertureMacroPrimitiveCircle(std::shared_ptr<Arith
 ApertureMacroPrimitiveCircle::~ApertureMacroPrimitiveCircle()
 {}
 
-std::ostream& ApertureMacroPrimitiveCircle::do_print(std::ostream& os)
+std::ostream& ApertureMacroPrimitiveCircle::do_print(std::ostream& os) const
 {
 	os << "Macro Primitive: Circle" << std::endl;
 	os << "Exposure:" << std::endl;
-	os << m_exposure;
+	os << *m_exposure;
 	os << "Diamemter:" << std::endl;
-	os << m_diameter;
+	os << *m_diameter;
 	os << "Center (X):" << std::endl;
-	os << m_center_x;
+	os << *m_center_x;
 	os << "Center (Y):" << std::endl;
-	os << m_center_y;
+	os << *m_center_y;
 	os << "Rotation:";
 	if (m_rotation) {
 		os << std::endl;
-		os << m_rotation;
+		os << *m_rotation;
 	} else {
 		os << " None" << std::endl;
 	}

@@ -23,7 +23,7 @@ public:
 	virtual ~ApertureMacroPrimitiveCircle();
 
 private:
-	std::ostream& do_print(std::ostream& os);
+	std::ostream& do_print(std::ostream& os) const;
 
 	std::shared_ptr<ArithmeticExpressionElement> m_exposure;
 	std::shared_ptr<ArithmeticExpressionElement> m_diameter;

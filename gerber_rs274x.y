@@ -14,12 +14,22 @@
 	#include "GerberClasses/ConstantArithmeticExpressionElement.hh"
 	#include "GerberClasses/VariableReferenceArithmeticExpressionElement.hh"
 	#include "GerberClasses/BinaryOperationArithmeticExpressionElement.hh"
+	#include "GerberClasses/ApertureMacro.hh"
+	#include "GerberClasses/ApertureMacroContent.hh"
+	#include "GerberClasses/ApertureMacroVariableDefinition.hh"
 	#include "GerberClasses/ApertureMacroPrimitive.hh"
 	#include "GerberClasses/ApertureMacroPrimitiveCircle.hh"
 	#include "GerberClasses/ApertureMacroPrimitiveVectorLine.hh"
 	#include "GerberClasses/ApertureMacroPrimitiveCenterLine.hh"
+	#include "GerberClasses/ApertureMacroPrimitiveOutline.hh"
+	#include "GerberClasses/ApertureMacroPrimitivePolygon.hh"
+	#include "GerberClasses/ApertureMacroPrimitiveMoire.hh"
+	#include "GerberClasses/ApertureMacroPrimitiveThermal.hh"
+	#include "GerberClasses/ApertureMacroPrimitiveComment.hh"
 
 	#include <memory>
+	#include <utility>
+	#include <list>
 
 	// Forward declare the scanner class so we can use it in the function prototypes
 	class GerberRS274XScanner;
@@ -97,30 +107,26 @@
 %left ARITHMETIC_MULT ARITHMETIC_DIV
 %precedence UNARY_MINUS
 
-/*
-%type <ApertureMacro*> aperture_macro
-%type <MacroContentList*> macro_content_list
-%type <MacroContentElement*> macro_content_element
-%type <MacroPrimitive*> macro_primitive
-%type <char*> macro_primitive_comment
-%type <ExpressionCoord*> expression_coord
-%type <ExpressionCoordList*> expression_coord_list
-%type <MacroPrimitiveOutline*> macro_primitive_outline
-%type <MacroPrimitivePolygon*> macro_primitive_polygon
-%type <MacroPrimitiveMoire*> macro_primitive_moire
-%type <MacroPrimitiveThermal*> macro_primitive_thermal
-*/
-%type <std::shared_ptr<ApertureMacroPrimitiveCenterLine>> macro_primitive_center_line
-%type <std::shared_ptr<ApertureMacroPrimitiveCircle>> macro_primitive_circle
-%type <std::shared_ptr<ApertureMacroPrimitiveVectorLine>> macro_primitive_vector_line
-%type <std::shared_ptr<ArithmeticExpressionElement>> arithmetic_expression
-/*
-%type <VariableDefinition*> variable_definition
-*/
-%type <std::shared_ptr<CoordinateData>> coordinate_data
-%type <std::shared_ptr<Command>> interpolate_cmd
-%type <std::shared_ptr<Command>> move_cmd
-%type <std::shared_ptr<Command>> flash_cmd
+%type <std::shared_ptr<ApertureMacro> > aperture_macro
+%type <std::pair< std::shared_ptr<ArithmeticExpressionElement>, std::shared_ptr<ArithmeticExpressionElement> > > expression_coord
+%type <std::shared_ptr<std::list<std::pair<std::shared_ptr<ArithmeticExpressionElement>, std::shared_ptr<ArithmeticExpressionElement> > > > > expression_coord_list
+%type <std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > > macro_content_list
+%type <std::shared_ptr<ApertureMacroPrimitive> > macro_primitive
+%type <std::shared_ptr<ApertureMacroPrimitiveCircle> > macro_primitive_circle
+%type <std::shared_ptr<ApertureMacroPrimitiveVectorLine> > macro_primitive_vector_line
+%type <std::shared_ptr<ApertureMacroPrimitiveCenterLine> > macro_primitive_center_line
+%type <std::shared_ptr<ApertureMacroPrimitiveOutline> > macro_primitive_outline
+%type <std::shared_ptr<ApertureMacroPrimitivePolygon> > macro_primitive_polygon
+%type <std::shared_ptr<ApertureMacroPrimitiveMoire> > macro_primitive_moire
+%type <std::shared_ptr<ApertureMacroPrimitiveThermal> > macro_primitive_thermal
+%type <std::shared_ptr<ApertureMacroPrimitiveComment> > macro_primitive_comment
+%type <std::shared_ptr<ArithmeticExpressionElement> > arithmetic_expression
+%type <std::shared_ptr<ApertureMacroContent> > macro_content_element
+%type <std::shared_ptr<ApertureMacroVariableDefinition> > variable_definition
+%type <std::shared_ptr<CoordinateData> > coordinate_data
+%type <std::shared_ptr<Command> > interpolate_cmd
+%type <std::shared_ptr<Command> > move_cmd
+%type <std::shared_ptr<Command> > flash_cmd
 /*
 %type <FormatSpecifier*> format_specifier
 %type <StepAndRepeat*> step_and_repeat
@@ -131,8 +137,8 @@
 %type <StandardAperture*> standard_aperture
 %type <ApertureDefinition*> aperture_definition
 */
-%type <std::shared_ptr<Command>> command
-%type <std::shared_ptr<CommandList>> command_list
+%type <std::shared_ptr<Command> > command
+%type <std::shared_ptr<CommandList> > command_list
 
 %%
 
@@ -215,12 +221,11 @@ command:
 		$command->type = COMMAND_TYPE_APERTURE_DEFINITION;
 		$command->contents.aperture_definition = $[aperture_definition];
 	}
+*/
 |	aperture_macro {
-		$command = (Command*)calloc(1, sizeof(Command));
-		$command->next = NULL;
-		$command->type = COMMAND_TYPE_APERTURE_MACRO;
-		$command->contents.aperture_macro = $[aperture_macro];
+		$command = $[aperture_macro];
 	}
+/*
 |	step_and_repeat {
 		$command = (Command*)calloc(1, sizeof(Command));
 		$command->next = NULL;
@@ -366,31 +371,25 @@ format_specifier:
 interpolate_cmd:
 	coordinate_data D_CMD_TYPE_INTERPOLATE END_OF_DATA_BLOCK {
 		$[interpolate_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_INTERPOLATE, $[coordinate_data]);
-		//$[interpolate_cmd] = std::move(std::unique_ptr<Command>(new DCommand(DCommand::DCommandType::D_COMMAND_INTERPOLATE, std::move($[coordinate_data]))));
 	}
 |	D_CMD_TYPE_INTERPOLATE END_OF_DATA_BLOCK {
 		$[interpolate_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_INTERPOLATE);
-		//$[interpolate_cmd] = std::move(std::unique_ptr<Command>(new DCommand(DCommand::DCommandType::D_COMMAND_INTERPOLATE)));
 	}
 
 move_cmd:
 	coordinate_data D_CMD_TYPE_MOVE END_OF_DATA_BLOCK {
 		$[move_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_MOVE, $[coordinate_data]);
-		//$[move_cmd] = std::move(std::unique_ptr<Command>(new DCommand(DCommand::DCommandType::D_COMMAND_MOVE, std::move($[coordinate_data]))));
 	}
 |	D_CMD_TYPE_MOVE END_OF_DATA_BLOCK {
 		$[move_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_MOVE);
-		//$[move_cmd] = std::move(std::unique_ptr<Command>(new DCommand(DCommand::DCommandType::D_COMMAND_MOVE)));
 	}
 
 flash_cmd:
 	coordinate_data D_CMD_TYPE_FLASH END_OF_DATA_BLOCK {
 		$[flash_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_FLASH, $[coordinate_data]);
-		//$[flash_cmd] = std::move(std::unique_ptr<Command>(new DCommand(DCommand::DCommandType::D_COMMAND_FLASH, std::move($[coordinate_data]))));
 	}
 |	D_CMD_TYPE_FLASH END_OF_DATA_BLOCK {
 		$[flash_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_FLASH);
-		//$[flash_cmd] = std::move(std::unique_ptr<Command>(new DCommand(DCommand::DCommandType::D_COMMAND_FLASH)));
 	}
 
 coordinate_data:
@@ -440,87 +439,59 @@ coordinate_data:
 		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], $[Y_COORDINATE], $[I_OFFSET], $[J_OFFSET], true, true, true, true);
 	}
 
-/*
 aperture_macro:
 	EXT_CMD_DELIMITER APERTURE_MACRO CUSTOM_APERTURE_NAME END_OF_DATA_BLOCK macro_content_list EXT_CMD_DELIMITER {
-		$aperture_macro = (ApertureMacro*)calloc(1, sizeof(ApertureMacro));
-		$aperture_macro->name = $CUSTOM_APERTURE_NAME;
-		$aperture_macro->content_list = $macro_content_list;
+		$[aperture_macro] = std::make_shared<ApertureMacro>($[CUSTOM_APERTURE_NAME], $[macro_content_list]);
 	}
 
 macro_content_list[result]:
 	macro_content_list[list] macro_content_element[new_elem] {
-		$list->tail->next = $[new_elem];
-		$list->tail = $[new_elem];
+		$list->push_back($[new_elem]);
 		$result = $list;
 	}
 |	macro_content_element[new_elem] {
-		$result = (MacroContentList*)calloc(1, sizeof(MacroContentList));
-		$result->head = $[new_elem];
-		$result->tail = $[new_elem];
+		$result = std::make_shared<std::list<std::shared_ptr<ApertureMacroContent> > >();
+		$result->push_back($[new_elem]);
 	}
 
 macro_content_element:
 	variable_definition {
-		$macro_content_element = (MacroContentElement*)calloc(1, sizeof(MacroContentElement));
-		$macro_content_element->next = NULL;
-		$macro_content_element->type = MACRO_CONTENT_VAR_DEF;
-		$macro_content_element->content.var_def = $[variable_definition];
+		$[macro_content_element] = $[variable_definition];
 	}
 |	macro_primitive {
-		$macro_content_element = (MacroContentElement*)calloc(1, sizeof(MacroContentElement));
-		$macro_content_element->next = NULL;
-		$macro_content_element->type = MACRO_CONTENT_PRIMITIVE;
-		$macro_content_element->content.primitive = $[macro_primitive];
+		$[macro_content_element] = $[macro_primitive];
 	}
 
 macro_primitive:
 	macro_primitive_comment END_OF_DATA_BLOCK {
-		$macro_primitive = (MacroPrimitive*)calloc(1, sizeof(MacroPrimitive));
-		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_COMMENT;
-		$macro_primitive->primitive.comment = $macro_primitive_comment;
+		$[macro_primitive] = $[macro_primitive_comment];
 	}
 |	macro_primitive_circle END_OF_DATA_BLOCK {
-		$macro_primitive = (MacroPrimitive*)calloc(1, sizeof(MacroPrimitive));
-		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_CIRCLE;
-		$macro_primitive->primitive.circle = $macro_primitive_circle;
+		$[macro_primitive] = $[macro_primitive_circle];
 	}
 |	macro_primitive_vector_line END_OF_DATA_BLOCK {
-		$macro_primitive = (MacroPrimitive*)calloc(1, sizeof(MacroPrimitive));
-		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_VECTOR_LINE;
-		$macro_primitive->primitive.vector_line = $macro_primitive_vector_line;
+		$[macro_primitive] = $[macro_primitive_vector_line];
 	}
 |	macro_primitive_center_line END_OF_DATA_BLOCK {
-		$macro_primitive = (MacroPrimitive*)calloc(1, sizeof(MacroPrimitive));
-		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_CENTER_LINE;
-		$macro_primitive->primitive.center_line = $macro_primitive_center_line;
+		$[macro_primitive] = $[macro_primitive_center_line];
 	}
 |	macro_primitive_outline END_OF_DATA_BLOCK {
-		$macro_primitive = (MacroPrimitive*)calloc(1, sizeof(MacroPrimitive));
-		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_OUTLINE;
-		$macro_primitive->primitive.outline = $macro_primitive_outline;
+		$[macro_primitive] = $[macro_primitive_outline];
 	}
 |	macro_primitive_polygon END_OF_DATA_BLOCK {
-		$macro_primitive = (MacroPrimitive*)calloc(1, sizeof(MacroPrimitive));
-		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_POLYGON;
-		$macro_primitive->primitive.polygon = $macro_primitive_polygon;
+		$[macro_primitive] = $[macro_primitive_polygon];
 	}
 |	macro_primitive_moire END_OF_DATA_BLOCK {
-		$macro_primitive = (MacroPrimitive*)calloc(1, sizeof(MacroPrimitive));
-		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_MOIRE;
-		$macro_primitive->primitive.moire = $macro_primitive_moire;
+		$[macro_primitive] = $[macro_primitive_moire];
 	}
 |	macro_primitive_thermal END_OF_DATA_BLOCK {
-		$macro_primitive = (MacroPrimitive*)calloc(1, sizeof(MacroPrimitive));
-		$macro_primitive->type = MACRO_PRIMITIVE_TYPE_THERMAL;
-		$macro_primitive->primitive.thermal = $macro_primitive_thermal;
+		$[macro_primitive] = $[macro_primitive_thermal];
 	}
 
 macro_primitive_comment:
 	APERTURE_COMMENT_START APERTURE_COMMENT_CONTENT {
-		$macro_primitive_comment = $APERTURE_COMMENT_CONTENT;
+		$[macro_primitive_comment] = std::make_shared<ApertureMacroPrimitiveComment>($[APERTURE_COMMENT_CONTENT]);
 	}
-*/
 
 macro_primitive_circle:
 	APERTURE_PRIMITIVE_TYPE_CIRCLE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[diameter] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[rotation] {
@@ -546,116 +517,57 @@ macro_primitive_center_line:
 		$[macro_primitive_center_line] = std::make_shared<ApertureMacroPrimitiveCenterLine>($exposure, $[rect_width], $[rect_height], $[center_x], $[center_y]);
 	}
 
-/*
 macro_primitive_outline:
 	APERTURE_PRIMITIVE_TYPE_OUTLINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[num_points] expression_coord_list[coords] AM_DELIM arithmetic_expression[rotation] {
-		$macro_primitive_outline = (MacroPrimitiveOutline*)calloc(1, sizeof(MacroPrimitiveOutline));
-		$macro_primitive_outline->exposure = $exposure;
-		$macro_primitive_outline->num_points = $[num_points];
-		$macro_primitive_outline->coords = $coords;
-		$macro_primitive_outline->rotation = $rotation;
+		$[macro_primitive_outline] = std::make_shared<ApertureMacroPrimitiveOutline>($exposure, $[num_points], $coords, $rotation);
 	}
 |	APERTURE_PRIMITIVE_TYPE_OUTLINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[num_points] expression_coord_list[coords] {
-		$macro_primitive_outline = (MacroPrimitiveOutline*)calloc(1, sizeof(MacroPrimitiveOutline));
-		$macro_primitive_outline->exposure = $exposure;
-		$macro_primitive_outline->num_points = $[num_points];
-		$macro_primitive_outline->coords = $coords;
-		$macro_primitive_outline->rotation = NULL;
+		$[macro_primitive_outline] = std::make_shared<ApertureMacroPrimitiveOutline>($exposure, $[num_points], $coords);
 	}
 
 macro_primitive_polygon:
 	APERTURE_PRIMITIVE_TYPE_POLYGON AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[num_vertices] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[diameter] AM_DELIM arithmetic_expression[rotation] {
-		$macro_primitive_polygon = (MacroPrimitivePolygon*)calloc(1, sizeof(MacroPrimitivePolygon));
-		$macro_primitive_polygon->exposure = $exposure;
-		$macro_primitive_polygon->num_vertices = $[num_vertices];
-		$macro_primitive_polygon->center_x = $[center_x];
-		$macro_primitive_polygon->center_y = $[center_y];
-		$macro_primitive_polygon->diameter = $diameter;
-		$macro_primitive_polygon->rotation = $rotation;
+		$[macro_primitive_polygon] = std::make_shared<ApertureMacroPrimitivePolygon>($exposure, $[num_vertices], $[center_x], $[center_y], $diameter, $rotation);
 	}
 |	APERTURE_PRIMITIVE_TYPE_POLYGON AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[num_vertices] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[diameter] {
-		$macro_primitive_polygon = (MacroPrimitivePolygon*)calloc(1, sizeof(MacroPrimitivePolygon));
-		$macro_primitive_polygon->exposure = $exposure;
-		$macro_primitive_polygon->num_vertices = $[num_vertices];
-		$macro_primitive_polygon->center_x = $[center_x];
-		$macro_primitive_polygon->center_y = $[center_y];
-		$macro_primitive_polygon->diameter = $diameter;
-		$macro_primitive_polygon->rotation = NULL;
+		$[macro_primitive_polygon] = std::make_shared<ApertureMacroPrimitivePolygon>($exposure, $[num_vertices], $[center_x], $[center_y], $diameter);
 	}
 
 macro_primitive_moire:
 	APERTURE_PRIMITIVE_TYPE_MOIRE AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[outer_diameter] AM_DELIM arithmetic_expression[ring_thickness] AM_DELIM arithmetic_expression[ring_gap] AM_DELIM arithmetic_expression[max_rings] AM_DELIM arithmetic_expression[crosshair_thickness] AM_DELIM arithmetic_expression[crosshair_length] AM_DELIM arithmetic_expression[rotation] {
-		$macro_primitive_moire = (MacroPrimitiveMoire*)calloc(1, sizeof(MacroPrimitiveMoire));
-		$macro_primitive_moire->center_x = $[center_x];
-		$macro_primitive_moire->center_y = $[center_y];
-		$macro_primitive_moire->outer_diameter = $[outer_diameter];
-		$macro_primitive_moire->ring_thickness = $[ring_thickness];
-		$macro_primitive_moire->ring_gap = $[ring_gap];
-		$macro_primitive_moire->max_rings = $[max_rings];
-		$macro_primitive_moire->crosshair_thickness = $[crosshair_thickness];
-		$macro_primitive_moire->crosshair_length = $[crosshair_length];
-		$macro_primitive_moire->rotation = $rotation;
+		$[macro_primitive_moire] = std::make_shared<ApertureMacroPrimitiveMoire>($[center_x], $[center_y], $[outer_diameter], $[ring_thickness], $[ring_gap], $[max_rings], $[crosshair_thickness], $[crosshair_length], $rotation);
 	}
 |	APERTURE_PRIMITIVE_TYPE_MOIRE AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[outer_diameter] AM_DELIM arithmetic_expression[ring_thickness] AM_DELIM arithmetic_expression[ring_gap] AM_DELIM arithmetic_expression[max_rings] AM_DELIM arithmetic_expression[crosshair_thickness] AM_DELIM arithmetic_expression[crosshair_length] {
-		$macro_primitive_moire = (MacroPrimitiveMoire*)calloc(1, sizeof(MacroPrimitiveMoire));
-		$macro_primitive_moire->center_x = $[center_x];
-		$macro_primitive_moire->center_y = $[center_y];
-		$macro_primitive_moire->outer_diameter = $[outer_diameter];
-		$macro_primitive_moire->ring_thickness = $[ring_thickness];
-		$macro_primitive_moire->ring_gap = $[ring_gap];
-		$macro_primitive_moire->max_rings = $[max_rings];
-		$macro_primitive_moire->crosshair_thickness = $[crosshair_thickness];
-		$macro_primitive_moire->crosshair_length = $[crosshair_length];
-		$macro_primitive_moire->rotation = NULL;
+		$[macro_primitive_moire] = std::make_shared<ApertureMacroPrimitiveMoire>($[center_x], $[center_y], $[outer_diameter], $[ring_thickness], $[ring_gap], $[max_rings], $[crosshair_thickness], $[crosshair_length]);
 	}
 
 macro_primitive_thermal:
 	APERTURE_PRIMITIVE_TYPE_THERMAL AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[outer_diameter] AM_DELIM arithmetic_expression[inner_diameter] AM_DELIM arithmetic_expression[gap_thickness] AM_DELIM arithmetic_expression[rotation] {
-		$macro_primitive_thermal = (MacroPrimitiveThermal*)calloc(1, sizeof(MacroPrimitiveThermal));
-		$macro_primitive_thermal->center_x = $[center_x];
-		$macro_primitive_thermal->center_y = $[center_y];
-		$macro_primitive_thermal->outer_diameter = $[outer_diameter];
-		$macro_primitive_thermal->inner_diameter = $[inner_diameter];
-		$macro_primitive_thermal->gap_thickness = $[gap_thickness];
-		$macro_primitive_thermal->rotation = $rotation;
+		$[macro_primitive_thermal] = std::make_shared<ApertureMacroPrimitiveThermal>($[center_x], $[center_y], $[outer_diameter], $[inner_diameter], $[gap_thickness], $rotation);
 	}
 |	APERTURE_PRIMITIVE_TYPE_THERMAL AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[outer_diameter] AM_DELIM arithmetic_expression[inner_diameter] AM_DELIM arithmetic_expression[gap_thickness] {
-		$macro_primitive_thermal = (MacroPrimitiveThermal*)calloc(1, sizeof(MacroPrimitiveThermal));
-		$macro_primitive_thermal->center_x = $[center_x];
-		$macro_primitive_thermal->center_y = $[center_y];
-		$macro_primitive_thermal->outer_diameter = $[outer_diameter];
-		$macro_primitive_thermal->inner_diameter = $[inner_diameter];
-		$macro_primitive_thermal->gap_thickness = $[gap_thickness];
-		$macro_primitive_thermal->rotation = NULL;
+		$[macro_primitive_thermal] = std::make_shared<ApertureMacroPrimitiveThermal>($[center_x], $[center_y], $[outer_diameter], $[inner_diameter], $[gap_thickness]);
 	}
 
 expression_coord_list[result]:
 	expression_coord_list[list] expression_coord[new_elem] {
-		$list->tail->next = $[new_elem];
-		$list->tail = $[new_elem];
+		$list->push_back($[new_elem]);
 		$result = $list;
 	}
 |	expression_coord[new_elem] {
-		$result = (ExpressionCoordList*)calloc(1, sizeof(ExpressionCoordList));
-		$result->head = $[new_elem];
-		$result->tail = $[new_elem];
+		$result = std::make_shared<std::list<std::pair<std::shared_ptr<ArithmeticExpressionElement>, std::shared_ptr<ArithmeticExpressionElement> > > >();
+		$result->push_back($[new_elem]);
 	}
 
 expression_coord:
 	AM_DELIM arithmetic_expression[coord_x] AM_DELIM arithmetic_expression[coord_y] {
-		$expression_coord = (ExpressionCoord*)calloc(1, sizeof(ExpressionCoord));
-		$expression_coord->coord_x = $[coord_x];
-		$expression_coord->coord_y = $[coord_y];
-		$expression_coord->next = NULL;
+		$[expression_coord] = std::make_pair($[coord_x], $[coord_y]);
 	}
 
 variable_definition:
 	VARIABLE_DEFINITION arithmetic_expression END_OF_DATA_BLOCK {
-		$variable_definition = (VariableDefinition*)calloc(1, sizeof(VariableDefinition));
-		$variable_definition->variable_number = $VARIABLE_DEFINITION;
-		$variable_definition->expression = $arithmetic_expression;
+		$[variable_definition] = std::make_shared<ApertureMacroVariableDefinition>($[VARIABLE_DEFINITION], $[arithmetic_expression]);
 	}
-*/
 
 arithmetic_expression[result]:
 	ARITHMETIC_CONSTANT {

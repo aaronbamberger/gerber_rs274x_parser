@@ -1,14 +1,14 @@
 #ifndef _APERTURE_MACRO_PRIMITIVE_H
 #define _APERTURE_MACRO_PRIMITIVE_H
 
+#include "ApertureMacroContent.hh"
+
 #include <iostream>
 
-class ApertureMacroPrimitive {
+class ApertureMacroPrimitive : public ApertureMacroContent {
 public:
 	ApertureMacroPrimitive();
 	virtual ~ApertureMacroPrimitive();
-
-	friend std::ostream& operator<<(std::ostream& os, const ApertureMacroPrimitive& macro_primitive);
 
 private:
 	virtual std::ostream& do_print(std::ostream& os) const = 0;

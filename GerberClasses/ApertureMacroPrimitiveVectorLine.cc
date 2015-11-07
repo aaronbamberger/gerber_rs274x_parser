@@ -35,25 +35,25 @@ ApertureMacroPrimitiveVectorLine::ApertureMacroPrimitiveVectorLine(std::shared_p
 ApertureMacroPrimitiveVectorLine::~ApertureMacroPrimitiveVectorLine()
 {}
 
-std::ostream& ApertureMacroPrimitiveVectorLine::do_print(std::ostream& os)
+std::ostream& ApertureMacroPrimitiveVectorLine::do_print(std::ostream& os) const
 {
 	os << "Macro Primitive: Vector Line" << std::endl;
 	os << "Exposure:" << std::endl;
-	os << m_exposure;
+	os << *m_exposure;
 	os << "Line Width:" << std::endl;
-	os << m_line_width;
+	os << *m_line_width;
 	os << "Start (X):" << std::endl;
-	os << m_start_x;
+	os << *m_start_x;
 	os << "Start (Y):" << std::endl;
-	os << m_start_y;
+	os << *m_start_y;
 	os << "End (X):" << std::endl;
-	os << m_end_x;
+	os << *m_end_x;
 	os << "End (Y):" << std::endl;
-	os << m_end_y;
+	os << *m_end_y;
 	os << "Rotation:";
 	if (m_rotation) {
 		os << std::endl;
-		os << m_rotation;
+		os << *m_rotation;
 	} else {
 		os << " None" << std::endl;
 	}

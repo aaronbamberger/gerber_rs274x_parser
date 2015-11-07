@@ -31,23 +31,23 @@ ApertureMacroPrimitiveCenterLine::ApertureMacroPrimitiveCenterLine(std::shared_p
 ApertureMacroPrimitiveCenterLine::~ApertureMacroPrimitiveCenterLine()
 {}
 
-std::ostream& ApertureMacroPrimitiveCenterLine::do_print(std::ostream& os)
+std::ostream& ApertureMacroPrimitiveCenterLine::do_print(std::ostream& os) const
 {
 	os << "Macro Primitive: Center Line" << std::endl;
 	os << "Exposure:" << std::endl;
-	os << m_exposure;
+	os << *m_exposure;
 	os << "Rectangle Width:" << std::endl;
-	os << m_rect_width;
+	os << *m_rect_width;
 	os << "Rectangle Height:" << std::endl;
-	os << m_rect_height;
+	os << *m_rect_height;
 	os << "Center (X):" << std::endl;
-	os << m_center_x;
+	os << *m_center_x;
 	os << "Center (Y):" << std::endl;
-	os << m_center_y;
+	os << *m_center_y;
 	os << "Rotation:";
 	if (m_rotation) {
 		os << std::endl;
-		os << m_rotation;
+		os << *m_rotation;
 	} else {
 		os << " None" << std::endl;
 	}
