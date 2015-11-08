@@ -39,6 +39,8 @@
 	#include "GerberClasses/FormatSpecifier.hh"
 	#include "GerberClasses/Comment.hh"
 	#include "GerberClasses/EndOfFile.hh"
+	#include "GerberClasses/Point.hh"
+    #include "GerberClasses/GlobalDefs.hh"
 
 	#include <memory>
 	#include <utility>
@@ -86,7 +88,7 @@
 %token COORD_FORMAT
 %token <int> COORD_FORMAT_NUM_INT_POSITIONS
 %token <int> COORD_FORMAT_NUM_DEC_POSITIONS
-%token <UnitSpecifier::UnitType> UNIT_SPECIFIER
+%token <Gerber::UnitType> UNIT_SPECIFIER
 %token END_OF_DATA_BLOCK
 %token EXT_CMD_DELIMITER
 %token APERTURE_DEFINITION
@@ -114,15 +116,15 @@
 %token APERTURE_COMMENT_START
 %token <char*> APERTURE_COMMENT_CONTENT
 %token STEP_AND_REPEAT_START
-%token <LevelPolarity::LevelPolarityType> LEVEL_POLARITY
+%token <Gerber::LevelPolarityType> LEVEL_POLARITY
 
 %left ARITHMETIC_ADD ARITHMETIC_SUB
 %left ARITHMETIC_MULT ARITHMETIC_DIV
 %precedence UNARY_MINUS
 
 %type <std::shared_ptr<ApertureMacro> > aperture_macro
-%type <std::pair< std::shared_ptr<ArithmeticExpressionElement>, std::shared_ptr<ArithmeticExpressionElement> > > expression_coord
-%type <std::shared_ptr<std::list<std::pair<std::shared_ptr<ArithmeticExpressionElement>, std::shared_ptr<ArithmeticExpressionElement> > > > > expression_coord_list
+%type <Point<std::shared_ptr<ArithmeticExpressionElement> > > expression_coord
+%type <std::shared_ptr<std::list<Point<std::shared_ptr<ArithmeticExpressionElement> > > > > expression_coord_list
 %type <std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > > macro_content_list
 %type <std::shared_ptr<ApertureMacroPrimitive> > macro_primitive
 %type <std::shared_ptr<ApertureMacroPrimitiveCircle> > macro_primitive_circle
@@ -307,8 +309,8 @@ step_and_repeat:
 	}
 
 format_specifier:
-	EXT_CMD_DELIMITER COORD_FORMAT COORD_FORMAT_NUM_INT_POSITIONS COORD_FORMAT_NUM_DEC_POSITIONS END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$[format_specifier] = std::make_shared<FormatSpecifier>($[COORD_FORMAT_NUM_INT_POSITIONS], $[COORD_FORMAT_NUM_DEC_POSITIONS]);
+	EXT_CMD_DELIMITER COORD_FORMAT COORD_FORMAT_NUM_INT_POSITIONS[x_int_positions] COORD_FORMAT_NUM_DEC_POSITIONS[x_dec_positions] COORD_FORMAT_NUM_INT_POSITIONS[y_int_positions] COORD_FORMAT_NUM_DEC_POSITIONS[y_dec_positions] END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
+		$[format_specifier] = std::make_shared<FormatSpecifier>($[x_int_positions], $[x_dec_positions], $[y_int_positions], $[y_dec_positions]);
 	}
 
 interpolate_cmd:
@@ -498,13 +500,13 @@ expression_coord_list[result]:
 		$result = $list;
 	}
 |	expression_coord[new_elem] {
-		$result = std::make_shared<std::list<std::pair<std::shared_ptr<ArithmeticExpressionElement>, std::shared_ptr<ArithmeticExpressionElement> > > >();
+		$result = std::make_shared<std::list<Point<std::shared_ptr<ArithmeticExpressionElement> > > >();
 		$result->push_back($[new_elem]);
 	}
 
 expression_coord:
 	AM_DELIM arithmetic_expression[coord_x] AM_DELIM arithmetic_expression[coord_y] {
-		$[expression_coord] = std::make_pair($[coord_x], $[coord_y]);
+		$[expression_coord] = Point<std::shared_ptr<ArithmeticExpressionElement> >($[coord_x], $[coord_y]);
 	}
 
 variable_definition:

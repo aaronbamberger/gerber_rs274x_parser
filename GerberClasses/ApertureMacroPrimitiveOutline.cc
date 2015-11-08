@@ -1,12 +1,13 @@
 #include "ApertureMacroPrimitiveOutline.hh"
 #include "ArithmeticExpressionElement.hh"
+#include "Point.hh"
 
 #include <iostream>
 #include <memory>
 
 ApertureMacroPrimitiveOutline::ApertureMacroPrimitiveOutline(std::shared_ptr<ArithmeticExpressionElement> exposure,
 		std::shared_ptr<ArithmeticExpressionElement> num_points,
-		std::shared_ptr<std::list<std::pair<std::shared_ptr<ArithmeticExpressionElement>, std::shared_ptr<ArithmeticExpressionElement> > > > coords,
+		std::shared_ptr<std::list<Point<std::shared_ptr<ArithmeticExpressionElement> > > > coords,
 		std::shared_ptr<ArithmeticExpressionElement> rotation) : m_exposure(exposure),
 																	m_num_points(num_points),
 																	m_coords(coords),
@@ -15,7 +16,7 @@ ApertureMacroPrimitiveOutline::ApertureMacroPrimitiveOutline(std::shared_ptr<Ari
 
 ApertureMacroPrimitiveOutline::ApertureMacroPrimitiveOutline(std::shared_ptr<ArithmeticExpressionElement> exposure,
 		std::shared_ptr<ArithmeticExpressionElement> num_points,
-		std::shared_ptr<std::list<std::pair<std::shared_ptr<ArithmeticExpressionElement>, std::shared_ptr<ArithmeticExpressionElement> > > > coords) : m_exposure(exposure),
+		std::shared_ptr<std::list<Point<std::shared_ptr<ArithmeticExpressionElement> > > > coords) : m_exposure(exposure),
 																	m_num_points(num_points),
 																	m_coords(coords)
 {}
@@ -34,11 +35,11 @@ std::ostream& ApertureMacroPrimitiveOutline::do_print(std::ostream& os) const
 	int point_num = 0;
 	for (auto coord : *m_coords) {
 		os << "Point: " << point_num++ << std::endl;
-		// Type of coord should be std::pair<std::shared_ptr<ArithmeticExpressionElement>, std::shared_ptr<ArithmeticExpressionElement> >
+		// Type of coord should be Point<std::shared_ptr<ArithmeticExpressionElement> >
 		os << "X Coordinate:" << std::endl;
-		os << *(coord.first);
+		os << *(coord.x);
 		os << "Y Coordinate:" << std::endl;
-		os << *(coord.second);
+		os << *(coord.y);
 	}
 
 	os << "Rotation:";

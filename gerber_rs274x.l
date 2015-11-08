@@ -8,9 +8,7 @@
 	// FlexLexer.h is included, or else it is included twice
 	#include "gerber_rs274x_scanner.hh"
 
-	// Include these to get the proper enum types in scope
-	#include "GerberClasses/LevelPolarity.hh"
-	#include "GerberClasses/UnitSpecifier.hh"
+    #include "GerberClasses/GlobalDefs.hh"
 
 	#include <stdlib.h>
 	#include <string.h>
@@ -34,6 +32,8 @@
 %option debug
 
 %x PARSING_COORD_FORMAT
+%x PARSING_COORD_FORMAT_NUM_INT_POSITIONS
+%x PARSING_COORD_FORMAT_NUM_DEC_POSITIONS
 %x PARSING_COMMENT_STRING
 %x PARSING_APERTURE_NUMBER
 %x PARSING_APERTURE_TEMPLATE
@@ -101,9 +101,9 @@ APERTURE_PRIMITIVE_MODIFIER_DELIMITER ","
 														// Third character in matched text should be either C or D
 														// for Clear and Dark
 														if (YYText()[2] == 'C') {
-															yylval->build(LevelPolarity::LevelPolarityType::LEVEL_POLARITY_CLEAR);
+															yylval->build(Gerber::LevelPolarityType::LEVEL_POLARITY_CLEAR);
 														} else if (YYText()[2] == 'D') {
-															yylval->build(LevelPolarity::LevelPolarityType::LEVEL_POLARITY_DARK);
+															yylval->build(Gerber::LevelPolarityType::LEVEL_POLARITY_DARK);
 														}
 														return yy::GerberRS274XParser::token::LEVEL_POLARITY;
 													}
@@ -221,21 +221,30 @@ J{INT_W_SIGN}										{
 												return yy::GerberRS274XParser::token::COORD_FORMAT;
 											}
 
-<PARSING_COORD_FORMAT>X{INT_WO_SIGN}		{
-												yylval->build(atoi(&(YYText()[1]))); // Skip X
-												return yy::GerberRS274XParser::token::COORD_FORMAT_NUM_INT_POSITIONS;
+<PARSING_COORD_FORMAT>X 					{
+												BEGIN(PARSING_COORD_FORMAT_NUM_INT_POSITIONS);
 											}
-										
-<PARSING_COORD_FORMAT>Y{INT_WO_SIGN}		{
-												yylval->build(atoi(&(YYText()[1]))); // Skip Y
-												return yy::GerberRS274XParser::token::COORD_FORMAT_NUM_DEC_POSITIONS;
-											}
+
+<PARSING_COORD_FORMAT_NUM_INT_POSITIONS>[[:digit:]]	{
+														BEGIN(PARSING_COORD_FORMAT_NUM_DEC_POSITIONS);
+														yylval->build(atoi(YYText()));
+														return yy::GerberRS274XParser::token::COORD_FORMAT_NUM_INT_POSITIONS;
+													}
+
+<PARSING_COORD_FORMAT_NUM_DEC_POSITIONS>[[:digit:]]	{
+														yylval->build(atoi(YYText()));
+														return yy::GerberRS274XParser::token::COORD_FORMAT_NUM_DEC_POSITIONS;
+													}
+
+<PARSING_COORD_FORMAT_NUM_DEC_POSITIONS>Y			{
+														BEGIN(PARSING_COORD_FORMAT_NUM_INT_POSITIONS);
+													}
 										
 {UNIT_SPECIFIER}							{
 												if (strncmp(&(YYText()[2]), "IN", 2) == 0) {
-													yylval->build(UnitSpecifier::UnitType::UNIT_TYPE_IN);
+													yylval->build(Gerber::UnitType::UNIT_TYPE_IN);
 												} else {
-													yylval->build(UnitSpecifier::UnitType::UNIT_TYPE_MM);
+													yylval->build(Gerber::UnitType::UNIT_TYPE_MM);
 												}
 												return yy::GerberRS274XParser::token::UNIT_SPECIFIER;
 											}

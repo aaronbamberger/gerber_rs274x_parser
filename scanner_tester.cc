@@ -2,9 +2,7 @@
 #include "gerber_rs274x_scanner.hh"
 #include "gerber_parser.yy.hh"
 
-// To get the proper enumerations in scope
-#include "GerberClasses/LevelPolarity.hh"
-#include "GerberClasses/UnitSpecifier.hh"
+#include "GerberClasses/GlobalDefs.hh"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,6 +57,8 @@ int main(int argc, char** argv)
 	printf("Parsed Gerber File.  Stream of Commands:\n");
 	pretty_print_command_list(result);
 	
+	result->check_semantic_validity();
+
 	gerber_file.close();
 	
 	return 0;
@@ -159,14 +159,18 @@ void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type& s
 			
 		case yy::GerberRS274XParser::token::UNIT_SPECIFIER:
 			printf("Units: ");
-			switch (semantic_value.as<UnitSpecifier::UnitType>()) {
-				case UnitSpecifier::UnitType::UNIT_TYPE_IN:
+			switch (semantic_value.as<Gerber::UnitType>()) {
+				case Gerber::UnitType::UNIT_TYPE_IN:
 					printf("Inches\n");
 					break;
 
-				case UnitSpecifier::UnitType::UNIT_TYPE_MM:
+				case Gerber::UnitType::UNIT_TYPE_MM:
 					printf("Millimeters\n");
 					break;
+
+				case Gerber::UnitType::UNIT_TYPE_UNDEFINED:
+				    printf("Undefined\n");
+				    break;
 			}
 			break;
 			
@@ -309,12 +313,12 @@ void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type& s
 			break;
 
 		case yy::GerberRS274XParser::token::LEVEL_POLARITY:
-			switch (semantic_value.as<LevelPolarity::LevelPolarityType>()) {
-				case LevelPolarity::LevelPolarityType::LEVEL_POLARITY_CLEAR:
+			switch (semantic_value.as<Gerber::LevelPolarityType>()) {
+				case Gerber::LevelPolarityType::LEVEL_POLARITY_CLEAR:
 					printf("Level Polarity Clear\n");
 					break;
 
-				case LevelPolarity::LevelPolarityType::LEVEL_POLARITY_DARK:
+				case Gerber::LevelPolarityType::LEVEL_POLARITY_DARK:
 					printf("Level Polarity Dark\n");
 					break;
 			}

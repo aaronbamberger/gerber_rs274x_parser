@@ -10,8 +10,11 @@
 class CommandList {
 public:
 	CommandList();
+	~CommandList();
 
 	void add_command(std::shared_ptr<Command> command);
+
+	void check_semantic_validity();
 
 	friend std::ostream& operator<<(std::ostream& os, const CommandList& cmd_list);
 

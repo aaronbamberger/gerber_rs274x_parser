@@ -3,6 +3,8 @@
 
 #include "ApertureDefinition.hh"
 #include "StandardAperture.hh"
+#include "GlobalDefs.hh"
+#include "../GraphicsState.hh"
 
 #include <iostream>
 #include <memory>
@@ -14,7 +16,7 @@ public:
 	virtual ~ApertureDefinitionStandard();
 
 private:
-	virtual bool do_check_semantic_validity(std::string& error_msg);
+	virtual Gerber::SemanticValidity do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg);
 	virtual std::ostream& do_print(std::ostream& os) const;
 
 	std::shared_ptr<StandardAperture> m_standard_aperture;

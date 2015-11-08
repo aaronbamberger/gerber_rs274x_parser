@@ -2,6 +2,8 @@
 #define _APERTURE_DEFINITION_H
 
 #include "Command.hh"
+#include "GlobalDefs.hh"
+#include "../GraphicsState.hh"
 
 #include <iostream>
 #include <string>
@@ -15,7 +17,7 @@ protected:
 	int m_aperture_number;
 
 private:
-	virtual bool do_check_semantic_validity(std::string& error_msg) = 0;
+	virtual Gerber::SemanticValidity do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg) = 0;
 	virtual std::ostream& do_print(std::ostream& os) const = 0;
 };
 

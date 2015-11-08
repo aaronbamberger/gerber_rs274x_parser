@@ -11,6 +11,26 @@ CoordinateData::~CoordinateData()
 	//std::cout << "Coordinate data destroyed" << std::endl;
 }
 
+bool CoordinateData::x_valid()
+{
+    return m_x_valid;
+}
+
+bool CoordinateData::y_valid()
+{
+    return m_y_valid;
+}
+
+bool CoordinateData::i_valid()
+{
+    return m_i_valid;
+}
+
+bool CoordinateData::j_valid()
+{
+    return m_j_valid;
+}
+
 std::ostream& operator<<(std::ostream& os, const CoordinateData& coord_data)
 {
 	os << "Coordinate Data(";

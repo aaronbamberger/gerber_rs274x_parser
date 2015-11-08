@@ -8,6 +8,11 @@ public:
 	CoordinateData(int x, int y, int i, int j, bool x_valid, bool y_valid, bool i_valid, bool j_valid);
 	~CoordinateData();
 
+	bool x_valid();
+	bool y_valid();
+	bool i_valid();
+	bool j_valid();
+
 	friend std::ostream& operator<<(std::ostream& os, const CoordinateData& coord_data);
 
 private:

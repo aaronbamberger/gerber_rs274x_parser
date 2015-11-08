@@ -1,5 +1,7 @@
 #include "ApertureMacro.hh"
 #include "ApertureMacroContent.hh"
+#include "GlobalDefs.hh"
+#include "../GraphicsState.hh"
 
 #include <iostream>
 #include <memory>
@@ -12,9 +14,11 @@ ApertureMacro::ApertureMacro(char* macro_name, std::shared_ptr<std::list<std::sh
 ApertureMacro::~ApertureMacro()
 {}
 
-bool ApertureMacro::do_check_semantic_validity(std::string& error_msg)
+Gerber::SemanticValidity ApertureMacro::do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg)
 {
-	return false;
+    // TODO: Check semantic validity of aperture macro
+
+	return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
 }
 
 std::ostream& ApertureMacro::do_print(std::ostream& os) const

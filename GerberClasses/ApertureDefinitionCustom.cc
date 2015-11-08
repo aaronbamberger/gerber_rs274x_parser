@@ -1,4 +1,6 @@
 #include "ApertureDefinitionCustom.hh"
+#include "GlobalDefs.hh"
+#include "../GraphicsState.hh"
 
 #include <iostream>
 #include <memory>
@@ -17,9 +19,26 @@ ApertureDefinitionCustom::ApertureDefinitionCustom(int aperture_number, char* cu
 ApertureDefinitionCustom::~ApertureDefinitionCustom()
 {}
 
-bool ApertureDefinitionCustom::do_check_semantic_validity(std::string& error_msg)
+Gerber::SemanticValidity ApertureDefinitionCustom::do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg)
 {
-	return false;
+    // No commands are allowed after the end-of-file command has been encountered
+    if (graphics_state.file_complete()) {
+        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+    }
+
+    // TODO: Check that custom aperture macro name is in the aperture macros dictionary
+
+    // Attempt to add this aperture into the aperture dictionary of the graphics state
+    // If this fails, it means an aperture with this id has already been defined, which
+    // is a fatal error
+    auto aperture_def_copy = std::shared_ptr<ApertureDefinition>(new ApertureDefinitionCustom(*this));
+    if (!graphics_state.add_aperture_definition(m_aperture_number, aperture_def_copy)) {
+        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+    }
+
+    // We don't need to check the semantic validity of the custom macro this definition is based on,
+    // because this was already checked when the custom aperture macro was defined
+	return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
 }
 
 std::ostream& ApertureDefinitionCustom::do_print(std::ostream& os) const
