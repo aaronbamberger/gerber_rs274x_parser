@@ -14,9 +14,21 @@ ApertureMacro::ApertureMacro(char* macro_name, std::shared_ptr<std::list<std::sh
 ApertureMacro::~ApertureMacro()
 {}
 
+std::string& ApertureMacro::macro_name()
+{
+    return m_macro_name;
+}
+
 Gerber::SemanticValidity ApertureMacro::do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg)
 {
     // TODO: Check semantic validity of aperture macro
+
+    // After validating the macro itself, attempt to add it to the aperture template dictionary
+    // of the graphics state.  If this fails, it means that a macro with the same name has already
+    // been inserted into the template dictionary, which is a fatal error
+    if (!graphics_state.add_aperture_macro(std::shared_ptr<ApertureMacro>(new ApertureMacro(*this)))) {
+        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+    }
 
 	return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
 }

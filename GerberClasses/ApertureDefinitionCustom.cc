@@ -26,7 +26,12 @@ Gerber::SemanticValidity ApertureDefinitionCustom::do_check_semantic_validity(Gr
         return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
     }
 
-    // TODO: Check that custom aperture macro name is in the aperture macros dictionary
+    // Check to see if the aperture macro that this definition is referencing has been
+    // added to the aperture macro template dictionary in the graphics state.
+    // If it hasn't it's a fatal error
+    if (!graphics_state.check_aperture_macro(m_custom_aperture_name)) {
+        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+    }
 
     // Attempt to add this aperture into the aperture dictionary of the graphics state
     // If this fails, it means an aperture with this id has already been defined, which

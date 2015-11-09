@@ -2,6 +2,7 @@
 #define _STANDARD_APERTURE_POLYGON_H
 
 #include "StandardAperture.hh"
+#include "GlobalDefs.hh"
 
 #include <iostream>
 
@@ -13,6 +14,7 @@ public:
 	virtual ~StandardAperturePolygon();
 
 private:
+	Gerber::SemanticValidity do_check_semantic_validity();
 	std::ostream& do_print(std::ostream& os) const;
 
 	double m_diameter;

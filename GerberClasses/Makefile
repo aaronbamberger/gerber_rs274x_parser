@@ -7,7 +7,7 @@ objects := $(patsubst %.cc, %.o, $(wildcard *.cc))
 all: $(objects)
 
 %.o: %.cc
-	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c -g $<
 
 clean:
 	rm -rf *.o

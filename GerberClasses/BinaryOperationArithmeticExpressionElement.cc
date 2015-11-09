@@ -1,5 +1,6 @@
 #include "BinaryOperationArithmeticExpressionElement.hh"
 #include "ArithmeticExpressionElement.hh"
+#include "ApertureMacroVariableEnvironment.hh"
 
 #include <iostream>
 #include <memory>
@@ -13,25 +14,25 @@ BinaryOperationArithmeticExpressionElement::BinaryOperationArithmeticExpressionE
 BinaryOperationArithmeticExpressionElement::~BinaryOperationArithmeticExpressionElement()
 {}
 
-double BinaryOperationArithmeticExpressionElement::do_eval()
+double BinaryOperationArithmeticExpressionElement::do_eval(ApertureMacroVariableEnvironment& variable_env)
 {
 	double result = 0.0;
 	switch (m_op_type) {
-		case BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_ADD:
-			result = m_left_arg->eval() + m_right_arg->eval();
-			break;
+    case BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_ADD:
+        result = m_left_arg->eval(variable_env) + m_right_arg->eval(variable_env);
+        break;
 
-		case BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_SUB:
-			result = m_left_arg->eval() - m_right_arg->eval();
-			break;
+    case BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_SUB:
+        result = m_left_arg->eval(variable_env) - m_right_arg->eval(variable_env);
+        break;
 
-		case BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_MULT:
-			result = m_left_arg->eval() * m_right_arg->eval();
-			break;
+    case BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_MULT:
+        result = m_left_arg->eval(variable_env) * m_right_arg->eval(variable_env);
+        break;
 
-		case BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_DIV:
-			result = m_left_arg->eval() / m_right_arg->eval();
-			break;
+    case BinaryOperationArithmeticExpressionElement::BinaryOperationType::BINARY_OPERATION_TYPE_DIV:
+        result = m_left_arg->eval(variable_env) / m_right_arg->eval(variable_env);
+        break;
 	}
 	return result;
 }

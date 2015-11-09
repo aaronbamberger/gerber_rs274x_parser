@@ -2,6 +2,7 @@
 #define _BINARY_OPERATION_ARITHMETIC_EXPRESSION_ELEMENT_H
 
 #include "ArithmeticExpressionElement.hh"
+#include "ApertureMacroVariableEnvironment.hh"
 
 #include <iostream>
 #include <memory>
@@ -19,7 +20,7 @@ public:
 	virtual ~BinaryOperationArithmeticExpressionElement();
 
 private:
-	virtual double do_eval();
+	virtual double do_eval(ApertureMacroVariableEnvironment& variable_env);
 	virtual std::ostream& do_print(std::ostream& os) const;
 
 	BinaryOperationType m_op_type;

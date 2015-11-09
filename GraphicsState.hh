@@ -3,19 +3,16 @@
 
 #include <memory>
 #include <unordered_map>
+#include <string>
 
-//#include "GerberClasses/FormatSpecifier.hh"
-//#include "GerberClasses/UnitSpecifier.hh"
 #include "GerberClasses/GlobalDefs.hh"
 #include "GerberClasses/Point.hh"
-//#include "GerberClasses/StepAndRepeat.hh"
-//#include "GerberClasses/LevelPolarity.hh"
-//#include "GerberClasses/ApertureDefinition.hh"
 
 // Forward declare some classes to break circular dependencies
 class ApertureDefinition;
 class FormatSpecifier;
 class StepAndRepeat;
+class ApertureMacro;
 
 class GraphicsState {
 public:
@@ -34,7 +31,9 @@ public:
 	bool set_unit_type(Gerber::UnitType unit_type);
 	bool set_current_aperture(int aperture_num);
 	bool add_aperture_definition(int aperture_num, std::shared_ptr<ApertureDefinition> aperture_definition);
+	bool add_aperture_macro(std::shared_ptr<ApertureMacro> macro);
 	bool set_file_complete();
+	bool check_aperture_macro(std::string macro_name);
 
 	void set_interp_mode(Gerber::InterpolationMode mode);
 	void set_quadrant_mode(Gerber::QuadrantMode mode);
@@ -53,6 +52,7 @@ private:
 	Gerber::LevelPolarityType m_current_level_polarity;
 	Gerber::RegionModeState m_current_region_mode_state;
 	std::unordered_map<int, std::shared_ptr<ApertureDefinition> > m_aperture_dictionary;
+	std::unordered_map<std::string, std::shared_ptr<ApertureMacro> > m_aperture_template_dictionary;
 	bool m_file_complete;
 };
 

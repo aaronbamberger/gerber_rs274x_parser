@@ -1,47 +1,82 @@
 #include "ApertureMacroPrimitiveCircle.hh"
 #include "ArithmeticExpressionElement.hh"
+#include "ApertureMacroVariableEnvironment.hh"
+#include "GlobalDefs.hh"
 
 #include <iostream>
 #include <memory>
 
+InstantiatedApertureMacroPrimitiveCircle::InstantiatedApertureMacroPrimitiveCircle(double exposure,
+    double diameter,
+    double center_x,
+    double center_y,
+    double rotation) :
+        m_circle(exposure, diameter, center_x, center_y, rotation)
+{}
+
+InstantiatedApertureMacroPrimitiveCircle::InstantiatedApertureMacroPrimitiveCircle(double exposure,
+    double diameter,
+    double center_x,
+    double center_y) :
+        m_circle(exposure, diameter, center_x, center_y)
+{}
+
+InstantiatedApertureMacroPrimitiveCircle::~InstantiatedApertureMacroPrimitiveCircle()
+{}
+
+Gerber::SemanticValidity InstantiatedApertureMacroPrimitiveCircle::do_check_semantic_validity()
+{
+    // TODO: Implement
+    return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
+}
+
 ApertureMacroPrimitiveCircle::ApertureMacroPrimitiveCircle(std::shared_ptr<ArithmeticExpressionElement> exposure,
-		std::shared_ptr<ArithmeticExpressionElement> diameter,
-		std::shared_ptr<ArithmeticExpressionElement> center_x,
-		std::shared_ptr<ArithmeticExpressionElement> center_y,
-		std::shared_ptr<ArithmeticExpressionElement> rotation) : m_exposure(exposure),
-																	m_diameter(diameter),
-																	m_center_x(center_x),
-																	m_center_y(center_y),
-																	m_rotation(rotation)
+    std::shared_ptr<ArithmeticExpressionElement> diameter,
+    std::shared_ptr<ArithmeticExpressionElement> center_x,
+    std::shared_ptr<ArithmeticExpressionElement> center_y,
+    std::shared_ptr<ArithmeticExpressionElement> rotation) :
+        m_circle(exposure, diameter, center_x, center_y, rotation)
 {}
 
 ApertureMacroPrimitiveCircle::ApertureMacroPrimitiveCircle(std::shared_ptr<ArithmeticExpressionElement> exposure,
-		std::shared_ptr<ArithmeticExpressionElement> diameter,
-		std::shared_ptr<ArithmeticExpressionElement> center_x,
-		std::shared_ptr<ArithmeticExpressionElement> center_y) : m_exposure(exposure),
-																	m_diameter(diameter),
-																	m_center_x(center_x),
-																	m_center_y(center_y)
+    std::shared_ptr<ArithmeticExpressionElement> diameter,
+    std::shared_ptr<ArithmeticExpressionElement> center_x,
+    std::shared_ptr<ArithmeticExpressionElement> center_y) :
+        m_circle(exposure, diameter, center_x, center_y)
 {}
 
 ApertureMacroPrimitiveCircle::~ApertureMacroPrimitiveCircle()
 {}
 
+std::shared_ptr<InstantiatedApertureMacroPrimitiveCircle> ApertureMacroPrimitiveCircle::do_instantiate(ApertureMacroVariableEnvironment& variable_env)
+{
+    double exposure = m_circle.m_exposure->eval(variable_env);
+    double diameter = m_circle.m_diameter->eval(variable_env);
+    double center_x = m_circle.m_center_x->eval(variable_env);
+    double center_y = m_circle.m_center_y->eval(variable_env);
+    if (m_circle.m_has_rotation) {
+        double rotation = m_circle.m_rotation->eval(variable_env);
+        return std::make_shared<InstantiatedApertureMacroPrimitiveCircle>(exposure, diameter, center_x, center_y, rotation);
+    } else {
+        return std::make_shared<InstantiatedApertureMacroPrimitiveCircle>(exposure, diameter, center_x, center_y);
+    }
+}
+
 std::ostream& ApertureMacroPrimitiveCircle::do_print(std::ostream& os) const
 {
 	os << "Macro Primitive: Circle" << std::endl;
 	os << "Exposure:" << std::endl;
-	os << *m_exposure;
-	os << "Diamemter:" << std::endl;
-	os << *m_diameter;
+	os << *(m_circle.m_exposure);
+	os << "Diameter:" << std::endl;
+	os << *(m_circle.m_diameter);
 	os << "Center (X):" << std::endl;
-	os << *m_center_x;
+	os << *(m_circle.m_center_x);
 	os << "Center (Y):" << std::endl;
-	os << *m_center_y;
+	os << *(m_circle.m_center_y);
 	os << "Rotation:";
-	if (m_rotation) {
+	if (m_circle.m_has_rotation) {
 		os << std::endl;
-		os << *m_rotation;
+		os << *(m_circle.m_rotation);
 	} else {
 		os << " None" << std::endl;
 	}

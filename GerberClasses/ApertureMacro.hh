@@ -16,6 +16,8 @@ public:
 	ApertureMacro(char* macro_name, std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content_list);
 	virtual ~ApertureMacro();
 
+	std::string& macro_name();
+
 private:
 	virtual Gerber::SemanticValidity do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg);
 	virtual std::ostream& do_print(std::ostream& os) const;

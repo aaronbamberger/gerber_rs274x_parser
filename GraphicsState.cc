@@ -4,8 +4,10 @@
 #include "GerberClasses/StepAndRepeat.hh"
 #include "GerberClasses/LevelPolarity.hh"
 #include "GerberClasses/Point.hh"
+#include "GerberClasses/ApertureMacro.hh"
 
 #include <memory>
+#include <unordered_map>
 
 GraphicsState::GraphicsState() : m_coord_format(nullptr),
 									m_unit_type(Gerber::UnitType::UNIT_TYPE_UNDEFINED),
@@ -107,6 +109,15 @@ bool GraphicsState::add_aperture_definition(int aperture_num, std::shared_ptr<Ap
     return m_aperture_dictionary.insert(std::make_pair(aperture_num, aperture_definition)).second;
 }
 
+bool GraphicsState::add_aperture_macro(std::shared_ptr<ApertureMacro> macro)
+{
+    // Attempt to add the aperture macro to the aperture template dictionary.
+    // If the insertion fails, it means a macro with this name has already been inserted.
+    // Multiple aperture macros with the same name are prohibited by the spec, so we leave
+    // the aperture macro un-inserted and return the error
+    return m_aperture_template_dictionary.insert(std::make_pair(macro->macro_name(), macro)).second;
+}
+
 bool GraphicsState::set_file_complete()
 {
     // The file starts incomplete, and is set complete by seeing an end-of-file
@@ -115,6 +126,16 @@ bool GraphicsState::set_file_complete()
     // in the command stream, we return the error
     if (!m_file_complete) {
         m_file_complete = true;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool GraphicsState::check_aperture_macro(std::string macro_name)
+{
+    auto macro = m_aperture_template_dictionary.find(macro_name);
+    if (macro != m_aperture_template_dictionary.end()) {
         return true;
     } else {
         return false;

@@ -1,4 +1,5 @@
 #include "ConstantArithmeticExpressionElement.hh"
+#include "ApertureMacroVariableEnvironment.hh"
 
 #include <iostream>
 
@@ -8,7 +9,7 @@ ConstantArithmeticExpressionElement::ConstantArithmeticExpressionElement(double 
 ConstantArithmeticExpressionElement::~ConstantArithmeticExpressionElement()
 {}
 
-double ConstantArithmeticExpressionElement::do_eval()
+double ConstantArithmeticExpressionElement::do_eval(ApertureMacroVariableEnvironment& variable_env)
 {
 	return m_constant;
 }

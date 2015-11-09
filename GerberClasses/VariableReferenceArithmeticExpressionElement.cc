@@ -1,4 +1,5 @@
 #include "VariableReferenceArithmeticExpressionElement.hh"
+#include "ApertureMacroVariableEnvironment.hh"
 
 #include <iostream>
 
@@ -8,10 +9,9 @@ VariableReferenceArithmeticExpressionElement::VariableReferenceArithmeticExpress
 VariableReferenceArithmeticExpressionElement::~VariableReferenceArithmeticExpressionElement()
 {}
 
-double VariableReferenceArithmeticExpressionElement::do_eval()
+double VariableReferenceArithmeticExpressionElement::do_eval(ApertureMacroVariableEnvironment& variable_env)
 {
-	//TODO: Need to do the variable lookup with some sort of passed-in variable table
-	return 0.0;
+	return variable_env.get_variable(m_variable_number);
 }
 
 std::ostream& VariableReferenceArithmeticExpressionElement::do_print(std::ostream& os) const

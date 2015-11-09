@@ -1,6 +1,8 @@
 #ifndef _APERTURE_MACRO_CONTENT_H
 #define _APERTURE_MACRO_CONTENT_H
 
+#include "GlobalDefs.hh"
+
 #include <iostream>
 
 class ApertureMacroContent {

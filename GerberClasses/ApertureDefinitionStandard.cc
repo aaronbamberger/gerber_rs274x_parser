@@ -21,7 +21,14 @@ Gerber::SemanticValidity ApertureDefinitionStandard::do_check_semantic_validity(
         return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
     }
 
-    // TODO: Check validity of standard aperture
+    Gerber::SemanticValidity aperture_validity = m_standard_aperture->check_semantic_validity();
+
+    // Only error out here if the standard definition returned a fatal error
+    // Else, we'll keep going, and return any warnings or deprecations after
+    // checking other stuff that could be fatal
+    if (aperture_validity == Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL) {
+        return aperture_validity;
+    }
 
     // Attempt to add this aperture into the aperture dictionary of the graphics state
     // If this fails, it means an aperture with this id has already been defined, which
@@ -31,9 +38,7 @@ Gerber::SemanticValidity ApertureDefinitionStandard::do_check_semantic_validity(
         return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
     }
 
-    // We don't need to check the semantic validity of the custom macro this definition is based on,
-    // because this was already checked when the custom aperture macro was defined
-    return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
+    return aperture_validity;
 }
 
 std::ostream& ApertureDefinitionStandard::do_print(std::ostream& os) const

@@ -2,6 +2,7 @@
 #define _STANDARD_APERTURE_CIRCLE_H
 
 #include "StandardAperture.hh"
+#include "GlobalDefs.hh"
 
 #include <iostream>
 
@@ -12,6 +13,7 @@ public:
 	virtual ~StandardApertureCircle();
 
 private:
+	Gerber::SemanticValidity do_check_semantic_validity();
 	std::ostream& do_print(std::ostream& os) const;
 
 	double m_diameter;

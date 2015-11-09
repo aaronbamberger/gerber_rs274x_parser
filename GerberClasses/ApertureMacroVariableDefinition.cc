@@ -1,5 +1,6 @@
 #include "ApertureMacroVariableDefinition.hh"
 #include "ArithmeticExpressionElement.hh"
+#include "GlobalDefs.hh"
 
 #include <iostream>
 #include <memory>
