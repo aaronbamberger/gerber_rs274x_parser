@@ -1,4 +1,5 @@
 #include "ApertureMacroPrimitiveMoire.hh"
+#include "InstantiatedApertureMacroPrimitive.hh"
 #include "ArithmeticExpressionElement.hh"
 #include "ApertureMacroVariableEnvironment.hh"
 #include "GlobalDefs.hh"
@@ -64,7 +65,7 @@ ApertureMacroPrimitiveMoire::ApertureMacroPrimitiveMoire(std::shared_ptr<Arithme
 ApertureMacroPrimitiveMoire::~ApertureMacroPrimitiveMoire()
 {}
 
-std::shared_ptr<InstantiatedApertureMacroPrimitiveMoire> ApertureMacroPrimitiveMoire::do_instantiate(ApertureMacroVariableEnvironment& variable_env)
+std::shared_ptr<InstantiatedApertureMacroPrimitive> ApertureMacroPrimitiveMoire::do_instantiate(ApertureMacroVariableEnvironment& variable_env)
 {
     double center_x = m_moire.m_center_x->eval(variable_env);
     double center_y = m_moire.m_center_y->eval(variable_env);

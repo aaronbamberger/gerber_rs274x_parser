@@ -28,7 +28,7 @@ double ApertureMacroVariableEnvironment::get_variable(int var_num)
     // Per the spec, variables that aren't explicitly set are read as 0
     auto var = m_variable_env.find(var_num);
     if (var != m_variable_env.end()) {
-        return *var;
+        return var->second;
     } else {
         return 0.0;
     }

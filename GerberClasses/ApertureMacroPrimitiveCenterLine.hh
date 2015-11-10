@@ -21,7 +21,8 @@ template <typename T> struct CenterLine {
         m_center_x(center_x), m_center_y(center_y), m_has_rotation(false)
     {}
 
-    ~CenterLine();
+    ~CenterLine()
+    {}
 
     T m_exposure;
     T m_rect_width;
@@ -73,7 +74,7 @@ public:
 	virtual ~ApertureMacroPrimitiveCenterLine();
 
 private:
-	std::shared_ptr<InstantiatedApertureMacroPrimitiveCenterLine> do_instantiate(ApertureMacroVariableEnvironment& variable_env);
+	std::shared_ptr<InstantiatedApertureMacroPrimitive> do_instantiate(ApertureMacroVariableEnvironment& variable_env);
 
 	std::ostream& do_print(std::ostream& os) const;
 

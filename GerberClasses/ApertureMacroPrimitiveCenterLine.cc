@@ -1,4 +1,5 @@
 #include "ApertureMacroPrimitiveCenterLine.hh"
+#include "InstantiatedApertureMacroPrimitive.hh"
 #include "ArithmeticExpressionElement.hh"
 #include "ApertureMacroVariableEnvironment.hh"
 #include "GlobalDefs.hh"
@@ -52,7 +53,7 @@ ApertureMacroPrimitiveCenterLine::ApertureMacroPrimitiveCenterLine(std::shared_p
 ApertureMacroPrimitiveCenterLine::~ApertureMacroPrimitiveCenterLine()
 {}
 
-std::shared_ptr<InstantiatedApertureMacroPrimitiveCenterLine> ApertureMacroPrimitiveCenterLine::do_instantiate(ApertureMacroVariableEnvironment& variable_env)
+std::shared_ptr<InstantiatedApertureMacroPrimitive> ApertureMacroPrimitiveCenterLine::do_instantiate(ApertureMacroVariableEnvironment& variable_env)
 {
     double exposure = m_center_line.m_exposure->eval(variable_env);
     double rect_width = m_center_line.m_rect_width->eval(variable_env);

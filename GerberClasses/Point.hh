@@ -1,7 +1,7 @@
 #ifndef _POINT_H
 #define _POINT_H
 
-template <class T> struct Point {
+template <typename T> struct Point {
     Point()
     {}
 

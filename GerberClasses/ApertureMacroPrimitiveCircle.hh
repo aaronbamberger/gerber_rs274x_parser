@@ -21,7 +21,8 @@ template <typename T> struct Circle {
         m_center_y(center_y), m_has_rotation(false)
     {}
 
-    ~Circle();
+    ~Circle()
+    {}
 
     T m_exposure;
     T m_diameter;
@@ -68,7 +69,7 @@ public:
 	virtual ~ApertureMacroPrimitiveCircle();
 
 private:
-	std::shared_ptr<InstantiatedApertureMacroPrimitiveCircle> do_instantiate(ApertureMacroVariableEnvironment& variable_env);
+	std::shared_ptr<InstantiatedApertureMacroPrimitive> do_instantiate(ApertureMacroVariableEnvironment& variable_env);
 
 	std::ostream& do_print(std::ostream& os) const;
 

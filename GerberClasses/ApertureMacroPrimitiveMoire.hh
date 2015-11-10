@@ -21,7 +21,8 @@ template <typename T> struct Moire {
         m_max_rings(max_rings), m_crosshair_thickness(crosshair_thickness), m_crosshair_length(crosshair_length), m_has_rotation(false)
     {}
 
-    ~Moire();
+    ~Moire()
+    {}
 
     T m_center_x;
     T m_center_y;
@@ -88,7 +89,7 @@ public:
 	virtual ~ApertureMacroPrimitiveMoire();
 
 private:
-	std::shared_ptr<InstantiatedApertureMacroPrimitiveMoire> do_instantiate(ApertureMacroVariableEnvironment& variable_env);
+	std::shared_ptr<InstantiatedApertureMacroPrimitive> do_instantiate(ApertureMacroVariableEnvironment& variable_env);
 
 	std::ostream& do_print(std::ostream& os) const;
 

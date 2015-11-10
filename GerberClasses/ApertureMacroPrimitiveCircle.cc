@@ -1,4 +1,5 @@
 #include "ApertureMacroPrimitiveCircle.hh"
+#include "InstantiatedApertureMacroPrimitive.hh"
 #include "ArithmeticExpressionElement.hh"
 #include "ApertureMacroVariableEnvironment.hh"
 #include "GlobalDefs.hh"
@@ -48,7 +49,7 @@ ApertureMacroPrimitiveCircle::ApertureMacroPrimitiveCircle(std::shared_ptr<Arith
 ApertureMacroPrimitiveCircle::~ApertureMacroPrimitiveCircle()
 {}
 
-std::shared_ptr<InstantiatedApertureMacroPrimitiveCircle> ApertureMacroPrimitiveCircle::do_instantiate(ApertureMacroVariableEnvironment& variable_env)
+std::shared_ptr<InstantiatedApertureMacroPrimitive> ApertureMacroPrimitiveCircle::do_instantiate(ApertureMacroVariableEnvironment& variable_env)
 {
     double exposure = m_circle.m_exposure->eval(variable_env);
     double diameter = m_circle.m_diameter->eval(variable_env);
