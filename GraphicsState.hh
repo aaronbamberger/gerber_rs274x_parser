@@ -9,7 +9,7 @@
 #include "GerberClasses/Point.hh"
 
 // Forward declare some classes to break circular dependencies
-class ApertureDefinition;
+class Aperture;
 class FormatSpecifier;
 class StepAndRepeat;
 class ApertureMacro;
@@ -30,7 +30,7 @@ public:
 	bool set_coord_format(std::shared_ptr<FormatSpecifier> coord_format);
 	bool set_unit_type(Gerber::UnitType unit_type);
 	bool set_current_aperture(int aperture_num);
-	bool add_aperture_definition(int aperture_num, std::shared_ptr<ApertureDefinition> aperture_definition);
+	bool define_aperture(int aperture_num, std::shared_ptr<Aperture> aperture_definition);
 	bool add_aperture_macro(std::shared_ptr<ApertureMacro> macro);
 	bool set_file_complete();
 	bool check_aperture_macro(std::string macro_name);
@@ -40,6 +40,8 @@ public:
 	void set_region_mode_state(Gerber::RegionModeState state);
 	void set_step_and_repeat(std::shared_ptr<StepAndRepeat> step_and_repeat);
 	void set_level_polarity(Gerber::LevelPolarityType level_polarity);
+
+	const std::shared_ptr<ApertureMacro> lookup_aperture_macro(std::string macro_name);
 
 private:
 	std::shared_ptr<FormatSpecifier> m_coord_format;
@@ -51,7 +53,7 @@ private:
 	std::shared_ptr<StepAndRepeat> m_current_step_and_repeat;
 	Gerber::LevelPolarityType m_current_level_polarity;
 	Gerber::RegionModeState m_current_region_mode_state;
-	std::unordered_map<int, std::shared_ptr<ApertureDefinition> > m_aperture_dictionary;
+	std::unordered_map<int, std::shared_ptr<Aperture> > m_aperture_dictionary;
 	std::unordered_map<std::string, std::shared_ptr<ApertureMacro> > m_aperture_template_dictionary;
 	bool m_file_complete;
 };

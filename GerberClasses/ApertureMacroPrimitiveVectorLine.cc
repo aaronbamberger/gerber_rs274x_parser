@@ -35,6 +35,24 @@ Gerber::SemanticValidity InstantiatedApertureMacroPrimitiveVectorLine::do_check_
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
 }
 
+std::ostream& InstantiatedApertureMacroPrimitiveVectorLine::do_print(std::ostream& os) const
+{
+    os << "Instantiated Macro Primitive: Vector Line" << std::endl;
+    os << "Exposure: " << m_vector_line.m_exposure << std::endl;
+    os << "Line Width: " << m_vector_line.m_line_width << std::endl;
+    os << "Start (X): " << m_vector_line.m_start_x << std::endl;
+    os << "Start (Y): " << m_vector_line.m_start_y << std::endl;
+    os << "End (X): " << m_vector_line.m_end_x << std::endl;
+    os << "End (Y): " << m_vector_line.m_end_y << std::endl;
+    os << "Rotation: ";
+    if (m_vector_line.m_has_rotation) {
+        os << m_vector_line.m_rotation << std::endl;
+    } else {
+        os << "None" << std::endl;
+    }
+    return os;
+}
+
 ApertureMacroPrimitiveVectorLine::ApertureMacroPrimitiveVectorLine(std::shared_ptr<ArithmeticExpressionElement> exposure,
     std::shared_ptr<ArithmeticExpressionElement> line_width,
     std::shared_ptr<ArithmeticExpressionElement> start_x,

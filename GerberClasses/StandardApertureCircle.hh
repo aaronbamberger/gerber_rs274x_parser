@@ -5,6 +5,7 @@
 #include "GlobalDefs.hh"
 
 #include <iostream>
+#include <memory>
 
 class StandardApertureCircle : public StandardAperture {
 public:
@@ -15,6 +16,7 @@ public:
 private:
 	Gerber::SemanticValidity do_check_semantic_validity();
 	std::ostream& do_print(std::ostream& os) const;
+	std::shared_ptr<StandardAperture> do_clone();
 
 	double m_diameter;
 	double m_hole_diameter;

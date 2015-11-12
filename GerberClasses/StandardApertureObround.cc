@@ -2,6 +2,7 @@
 #include "GlobalDefs.hh"
 
 #include <iostream>
+#include <memory>
 
 StandardApertureObround::StandardApertureObround(double x_size, double y_size, double hole_diameter) : m_x_size(x_size),
 																										m_y_size(y_size),
@@ -56,6 +57,11 @@ Gerber::SemanticValidity StandardApertureObround::do_check_semantic_validity()
     }
 
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
+}
+
+std::shared_ptr<StandardAperture> StandardApertureObround::do_clone()
+{
+    return std::make_shared<StandardApertureObround>(*this);
 }
 
 std::ostream& StandardApertureObround::do_print(std::ostream& os) const

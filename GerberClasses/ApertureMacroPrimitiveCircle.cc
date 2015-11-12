@@ -31,6 +31,22 @@ Gerber::SemanticValidity InstantiatedApertureMacroPrimitiveCircle::do_check_sema
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
 }
 
+std::ostream& InstantiatedApertureMacroPrimitiveCircle::do_print(std::ostream& os) const
+{
+    os << "Instantiated Macro Primitive: Circle" << std::endl;
+    os << "Exposure: " << m_circle.m_exposure << std::endl;
+    os << "Diameter: " << m_circle.m_diameter << std::endl;
+    os << "Center (X): " << m_circle.m_center_x << std::endl;
+    os << "Center (Y): " << m_circle.m_center_y << std::endl;
+    os << "Rotation: ";
+    if (m_circle.m_has_rotation) {
+        os << m_circle.m_rotation << std::endl;
+    } else {
+        os << "None" << std::endl;
+    }
+    return os;
+}
+
 ApertureMacroPrimitiveCircle::ApertureMacroPrimitiveCircle(std::shared_ptr<ArithmeticExpressionElement> exposure,
     std::shared_ptr<ArithmeticExpressionElement> diameter,
     std::shared_ptr<ArithmeticExpressionElement> center_x,

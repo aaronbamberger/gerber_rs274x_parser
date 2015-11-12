@@ -1,14 +1,16 @@
 #include "StandardAperture.hh"
 
+#include <memory>
+
 StandardAperture::StandardAperture()
 {}
 
 StandardAperture::~StandardAperture()
 {}
 
-Gerber::SemanticValidity StandardAperture::check_semantic_validity()
+std::shared_ptr<StandardAperture> StandardAperture::clone()
 {
-    return do_check_semantic_validity();
+    return do_clone();
 }
 
 std::ostream& operator<<(std::ostream& os, const StandardAperture& standard_aperture)

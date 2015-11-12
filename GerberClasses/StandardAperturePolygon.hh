@@ -5,6 +5,7 @@
 #include "GlobalDefs.hh"
 
 #include <iostream>
+#include <memory>
 
 class StandardAperturePolygon : public StandardAperture {
 public:
@@ -16,6 +17,7 @@ public:
 private:
 	Gerber::SemanticValidity do_check_semantic_validity();
 	std::ostream& do_print(std::ostream& os) const;
+	std::shared_ptr<StandardAperture> do_clone();
 
 	double m_diameter;
 	double m_num_vertices;

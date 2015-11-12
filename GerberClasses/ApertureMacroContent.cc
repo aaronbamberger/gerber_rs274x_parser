@@ -1,12 +1,21 @@
 #include "ApertureMacroContent.hh"
 
+#include "InstantiatedApertureMacroPrimitive.hh"
+#include "ApertureMacroVariableEnvironment.hh"
+
 #include <iostream>
+#include <memory>
 
 ApertureMacroContent::ApertureMacroContent()
 {}
 
 ApertureMacroContent::~ApertureMacroContent()
 {}
+
+std::shared_ptr<InstantiatedApertureMacroPrimitive> ApertureMacroContent::instantiate(ApertureMacroVariableEnvironment& variable_env)
+{
+    return do_instantiate(variable_env);
+}
 
 std::ostream& operator<<(std::ostream& os, const ApertureMacroContent& macro_content)
 {

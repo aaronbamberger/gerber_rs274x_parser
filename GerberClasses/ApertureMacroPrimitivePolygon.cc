@@ -33,6 +33,29 @@ Gerber::SemanticValidity InstantiatedApertureMacroPrimitivePolygon::do_check_sem
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
 }
 
+std::ostream& InstantiatedApertureMacroPrimitivePolygon::do_print(std::ostream& os) const
+{
+    os << "Instantiated Macro Primitive: Polygon" << std::endl;
+    os << "Exposure:" << std::endl;
+    os << m_polygon.m_exposure;
+    os << "Number of Vertices:" << std::endl;
+    os << m_polygon.m_num_vertices;
+    os << "Center (X):" << std::endl;
+    os << m_polygon.m_center_x;
+    os << "Center (Y):" << std::endl;
+    os << m_polygon.m_center_y;
+    os << "Diameter:" << std::endl;
+    os << m_polygon.m_diameter;
+    os << "Rotation:";
+    if (m_polygon.m_has_rotation) {
+        os << std::endl;
+        os << m_polygon.m_rotation;
+    } else {
+        os << " None" << std::endl;
+    }
+    return os;
+}
+
 ApertureMacroPrimitivePolygon::ApertureMacroPrimitivePolygon(std::shared_ptr<ArithmeticExpressionElement> exposure,
     std::shared_ptr<ArithmeticExpressionElement> num_vertices,
     std::shared_ptr<ArithmeticExpressionElement> center_x,

@@ -19,6 +19,12 @@ Gerber::SemanticValidity InstantiatedApertureMacroPrimitiveComment::do_check_sem
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
 }
 
+std::ostream& InstantiatedApertureMacroPrimitiveComment::do_print(std::ostream& os) const
+{
+    os << "Instantiated Macro Primitive Comment: " << m_comment << std::endl;
+    return os;
+}
+
 ApertureMacroPrimitiveComment::ApertureMacroPrimitiveComment(char* comment) : m_comment(comment)
 {}
 

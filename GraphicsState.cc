@@ -5,6 +5,7 @@
 #include "GerberClasses/LevelPolarity.hh"
 #include "GerberClasses/Point.hh"
 #include "GerberClasses/ApertureMacro.hh"
+#include "GerberClasses/Aperture.hh"
 
 #include <memory>
 #include <unordered_map>
@@ -99,14 +100,14 @@ bool GraphicsState::set_unit_type(Gerber::UnitType unit_type) {
 	return true;
 }
 
-bool GraphicsState::add_aperture_definition(int aperture_num, std::shared_ptr<ApertureDefinition> aperture_definition)
+bool GraphicsState::define_aperture(int aperture_num, std::shared_ptr<Aperture> aperture)
 {
     // Attempt to add the new aperture definition to the aperture dictionary.
     // If the insertion fails, it means an aperture with this id has already
     // been inserted.  Multiple aperture definitions for the same id are prohibited
     // by the spec, so we leave the new aperture definition un-inserted, and return
     // the error
-    return m_aperture_dictionary.insert(std::make_pair(aperture_num, aperture_definition)).second;
+    return m_aperture_dictionary.insert(std::make_pair(aperture_num, aperture)).second;
 }
 
 bool GraphicsState::add_aperture_macro(std::shared_ptr<ApertureMacro> macro)
@@ -140,6 +141,11 @@ bool GraphicsState::check_aperture_macro(std::string macro_name)
     } else {
         return false;
     }
+}
+
+const std::shared_ptr<ApertureMacro> GraphicsState::lookup_aperture_macro(std::string macro_name)
+{
+    return m_aperture_template_dictionary.at(macro_name);
 }
 
 void GraphicsState::set_interp_mode(Gerber::InterpolationMode mode)

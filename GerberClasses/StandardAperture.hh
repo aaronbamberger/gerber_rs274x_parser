@@ -1,21 +1,24 @@
 #ifndef _STANDARD_APERTURE_H
 #define _STANDARD_APERTURE_H
 
+#include "Aperture.hh"
 #include "GlobalDefs.hh"
 
 #include <iostream>
+#include <memory>
 
-class StandardAperture {
+class StandardAperture : public Aperture {
 public:
 	StandardAperture();
 	virtual ~StandardAperture();
 
-	Gerber::SemanticValidity check_semantic_validity();
+	std::shared_ptr<StandardAperture> clone();
 
 	friend std::ostream& operator<<(std::ostream& os, const StandardAperture& standard_aperture);
 
 private:
-	virtual Gerber::SemanticValidity do_check_semantic_validity() = 0;
+	virtual std::shared_ptr<StandardAperture> do_clone() = 0;
+
 	virtual std::ostream& do_print(std::ostream& os) const = 0;
 };
 

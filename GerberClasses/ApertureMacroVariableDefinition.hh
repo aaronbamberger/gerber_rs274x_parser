@@ -3,6 +3,8 @@
 
 #include "ApertureMacroContent.hh"
 #include "ArithmeticExpressionElement.hh"
+#include "InstantiatedApertureMacroPrimitive.hh"
+#include "ApertureMacroVariableEnvironment.hh"
 
 #include <iostream>
 #include <memory>
@@ -13,6 +15,7 @@ public:
 	virtual ~ApertureMacroVariableDefinition();
 
 private:
+	virtual std::shared_ptr<InstantiatedApertureMacroPrimitive> do_instantiate(ApertureMacroVariableEnvironment& variable_env);
 	virtual std::ostream& do_print(std::ostream& os) const;
 
 	int m_var_num;

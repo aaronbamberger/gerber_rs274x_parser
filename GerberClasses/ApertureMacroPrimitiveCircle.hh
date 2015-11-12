@@ -49,6 +49,7 @@ public:
 
 private:
     Gerber::SemanticValidity do_check_semantic_validity();
+    std::ostream& do_print(std::ostream& os) const;
 
     Circle<double> m_circle;
 };

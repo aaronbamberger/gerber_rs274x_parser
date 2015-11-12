@@ -2,6 +2,7 @@
 #include "GlobalDefs.hh"
 
 #include <iostream>
+#include <memory>
 #include <cmath>
 
 StandardAperturePolygon::StandardAperturePolygon(double diameter, double num_vertices, double rotation_angle, double hole_diameter) : m_diameter(diameter),
@@ -73,6 +74,11 @@ Gerber::SemanticValidity StandardAperturePolygon::do_check_semantic_validity()
     }
 
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
+}
+
+std::shared_ptr<StandardAperture> StandardAperturePolygon::do_clone()
+{
+    return std::make_shared<StandardAperturePolygon>(*this);
 }
 
 std::ostream& StandardAperturePolygon::do_print(std::ostream& os) const

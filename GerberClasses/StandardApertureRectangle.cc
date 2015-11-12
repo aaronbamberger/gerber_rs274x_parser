@@ -1,6 +1,7 @@
 #include "StandardApertureRectangle.hh"
 
 #include <iostream>
+#include <memory>
 #include <algorithm>
 
 StandardApertureRectangle::StandardApertureRectangle(double x_size, double y_size, double hole_diameter) : m_x_size(x_size),
@@ -50,6 +51,11 @@ Gerber::SemanticValidity StandardApertureRectangle::do_check_semantic_validity()
     }
 
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
+}
+
+std::shared_ptr<StandardAperture> StandardApertureRectangle::do_clone()
+{
+    return std::make_shared<StandardApertureRectangle>(*this);
 }
 
 std::ostream& StandardApertureRectangle::do_print(std::ostream& os) const

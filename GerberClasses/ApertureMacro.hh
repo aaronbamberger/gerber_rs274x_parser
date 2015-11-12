@@ -4,6 +4,8 @@
 #include "Command.hh"
 #include "ApertureMacroContent.hh"
 #include "GlobalDefs.hh"
+#include "InstantiatedApertureMacro.hh"
+#include "ApertureMacroVariableEnvironment.hh"
 #include "../GraphicsState.hh"
 
 #include <iostream>
@@ -13,8 +15,10 @@
 
 class ApertureMacro : public Command {
 public:
-	ApertureMacro(char* macro_name, std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content_list);
+	ApertureMacro(char* macro_name, std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content);
 	virtual ~ApertureMacro();
+
+	std::shared_ptr<InstantiatedApertureMacro> instantiate(ApertureMacroVariableEnvironment& variable_env);
 
 	std::string& macro_name();
 
@@ -23,7 +27,7 @@ private:
 	virtual std::ostream& do_print(std::ostream& os) const;
 
 	std::string m_macro_name;
-	std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > m_macro_content_list;
+	std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > m_macro_content;
 };
 
 #endif // _APERTURE_MACRO_H

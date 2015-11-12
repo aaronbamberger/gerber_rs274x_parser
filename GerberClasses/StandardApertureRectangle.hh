@@ -5,6 +5,7 @@
 #include "GlobalDefs.hh"
 
 #include <iostream>
+#include <memory>
 
 class StandardApertureRectangle : public StandardAperture {
 public:
@@ -15,6 +16,7 @@ public:
 private:
 	Gerber::SemanticValidity do_check_semantic_validity();
 	std::ostream& do_print(std::ostream& os) const;
+	std::shared_ptr<StandardAperture> do_clone();
 
 	double m_x_size;
 	double m_y_size;

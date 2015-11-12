@@ -2,6 +2,7 @@
 #include "GlobalDefs.hh"
 
 #include <iostream>
+#include <memory>
 
 StandardApertureCircle::StandardApertureCircle(double diameter, double hole_diameter) : m_diameter(diameter),
 																						m_hole_diameter(hole_diameter),
@@ -42,6 +43,11 @@ Gerber::SemanticValidity StandardApertureCircle::do_check_semantic_validity()
     }
 
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
+}
+
+std::shared_ptr<StandardAperture> StandardApertureCircle::do_clone()
+{
+    return std::make_shared<StandardApertureCircle>(*this);
 }
 
 std::ostream& StandardApertureCircle::do_print(std::ostream& os) const

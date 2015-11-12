@@ -33,8 +33,7 @@ Gerber::SemanticValidity ApertureDefinitionStandard::do_check_semantic_validity(
     // Attempt to add this aperture into the aperture dictionary of the graphics state
     // If this fails, it means an aperture with this id has already been defined, which
     // is a fatal error
-    auto aperture_def_copy = std::shared_ptr<ApertureDefinition>(new ApertureDefinitionStandard(*this));
-    if (!graphics_state.add_aperture_definition(m_aperture_number, aperture_def_copy)) {
+    if (!graphics_state.define_aperture(m_aperture_number, m_standard_aperture->clone())) {
         return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
     }
 

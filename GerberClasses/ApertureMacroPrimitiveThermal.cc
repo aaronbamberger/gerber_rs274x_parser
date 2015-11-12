@@ -33,6 +33,29 @@ Gerber::SemanticValidity InstantiatedApertureMacroPrimitiveThermal::do_check_sem
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
 }
 
+std::ostream& InstantiatedApertureMacroPrimitiveThermal::do_print(std::ostream& os) const
+{
+    os << "Instantiated Macro Primitive: Thermal" << std::endl;
+    os << "Center (X):" << std::endl;
+    os << m_thermal.m_center_x;
+    os << "Center (Y):" << std::endl;
+    os << m_thermal.m_center_y;
+    os << "Outer Diameter:" << std::endl;
+    os << m_thermal.m_outer_diameter;
+    os << "Inner Diameter:" << std::endl;
+    os << m_thermal.m_inner_diameter;
+    os << "Gap Thickness:" << std::endl;
+    os << m_thermal.m_gap_thickness;
+    os << "Rotation:";
+    if (m_thermal.m_has_rotation) {
+        os << std::endl;
+        os << m_thermal.m_rotation;
+    } else {
+        os << " None" << std::endl;
+    }
+    return os;
+}
+
 ApertureMacroPrimitiveThermal::ApertureMacroPrimitiveThermal(std::shared_ptr<ArithmeticExpressionElement> center_x,
     std::shared_ptr<ArithmeticExpressionElement> center_y,
     std::shared_ptr<ArithmeticExpressionElement> outer_diameter,

@@ -33,6 +33,29 @@ Gerber::SemanticValidity InstantiatedApertureMacroPrimitiveCenterLine::do_check_
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
 }
 
+std::ostream& InstantiatedApertureMacroPrimitiveCenterLine::do_print(std::ostream& os) const
+{
+    os << "Instantiated Macro Primitive: Center Line" << std::endl;
+    os << "Exposure:" << std::endl;
+    os << m_center_line.m_exposure;
+    os << "Rectangle Width:" << std::endl;
+    os << m_center_line.m_rect_width;
+    os << "Rectangle Height:" << std::endl;
+    os << m_center_line.m_rect_height;
+    os << "Center (X):" << std::endl;
+    os << m_center_line.m_center_x;
+    os << "Center (Y):" << std::endl;
+    os << m_center_line.m_center_y;
+    os << "Rotation:";
+    if (m_center_line.m_has_rotation) {
+        os << std::endl;
+        os << m_center_line.m_rotation;
+    } else {
+        os << " None" << std::endl;
+    }
+    return os;
+}
+
 ApertureMacroPrimitiveCenterLine::ApertureMacroPrimitiveCenterLine(std::shared_ptr<ArithmeticExpressionElement> exposure,
     std::shared_ptr<ArithmeticExpressionElement> rect_width,
     std::shared_ptr<ArithmeticExpressionElement> rect_height,
