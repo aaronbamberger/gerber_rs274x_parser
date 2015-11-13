@@ -13,7 +13,7 @@
 #include <ios>
 #include <memory>
 
-void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type& semantic_value);
+void pretty_print_token(int token_type, const yy::GerberRS274XParser::semantic_type& semantic_value, const yy::GerberRS274XParser::location_type& location);
 void pretty_print_command_list(std::shared_ptr<CommandList>& command_list);
 
 int main(int argc, char** argv)
@@ -32,7 +32,6 @@ int main(int argc, char** argv)
 
 	GerberRS274XScanner scanner(&gerber_file, &std::cout);
 	
-	/*
 	yy::GerberRS274XParser::semantic_type semantic_value;
 	yy::GerberRS274XParser::location_type location;
 	
@@ -43,11 +42,11 @@ int main(int argc, char** argv)
 		if (token_type == 0) {
 			done = true;
 		} else {
-			pretty_print_token(token_type, semantic_value);
+			pretty_print_token(token_type, semantic_value, location);
 		}
 	}
-	*/
 
+	/*
 	std::shared_ptr<CommandList> result;
 	yy::GerberRS274XParser parser(&result, scanner);
 	parser.set_debug_level(1);
@@ -58,6 +57,7 @@ int main(int argc, char** argv)
 	pretty_print_command_list(result);
 	
 	result->check_semantic_validity();
+	*/
 
 	gerber_file.close();
 	
@@ -69,8 +69,10 @@ void pretty_print_command_list(std::shared_ptr<CommandList>& command_list)
 	std::cout << *command_list;
 }
 
-void pretty_print_token(int token_type, yy::GerberRS274XParser::semantic_type& semantic_value)
+void pretty_print_token(int token_type, const yy::GerberRS274XParser::semantic_type& semantic_value, const yy::GerberRS274XParser::location_type& location)
 {
+    printf("Token Location: (%d, %d)-->(%d, %d)\n", location.begin.line, location.begin.column, location.end.line, location.end.column);
+
 	switch (token_type) {
 		case yy::GerberRS274XParser::token::D_CMD_TYPE_INTERPOLATE:
 			printf("D Command: Interpolate\n");
