@@ -2,7 +2,7 @@ CC = clang
 CXX = clang++
 CXXFLAGS = -std=c++11
 BISON = bison
-BISONFLAGS = --warnings=none
+BISONFLAGS = 
 FLEX = flex
 MAKE = make
 
