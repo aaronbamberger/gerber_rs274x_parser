@@ -7,8 +7,13 @@
 #include <memory>
 #include <string>
 
-ApertureDefinitionStandard::ApertureDefinitionStandard(int aperture_number, std::shared_ptr<StandardAperture> standard_aperture) : ApertureDefinition(aperture_number),
-																																	m_standard_aperture(standard_aperture)
+ApertureDefinitionStandard::ApertureDefinitionStandard(int aperture_number, std::shared_ptr<StandardAperture> standard_aperture) :
+    ApertureDefinition(aperture_number), m_standard_aperture(standard_aperture)
+{}
+
+ApertureDefinitionStandard::ApertureDefinitionStandard(int aperture_number, std::shared_ptr<StandardAperture> standard_aperture,
+    yy::location aperture_number_location, yy::location location) :
+        ApertureDefinition(aperture_number, aperture_number_location, location), m_standard_aperture(standard_aperture)
 {}
 
 ApertureDefinitionStandard::~ApertureDefinitionStandard()
@@ -42,7 +47,8 @@ Gerber::SemanticValidity ApertureDefinitionStandard::do_check_semantic_validity(
 
 std::ostream& ApertureDefinitionStandard::do_print(std::ostream& os) const
 {
-	os << "Standard Aperture Definition: " << m_aperture_number << std::endl;
+	os << "Standard Aperture Definition (@" << m_location << "):" << std::endl;
+	os << "Aperture ID: " << m_aperture_number << " (@" << m_aperture_number_location << ")" << std::endl;
 	os << *m_standard_aperture;
 	return os;
 }

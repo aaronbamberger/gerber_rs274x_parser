@@ -5,6 +5,7 @@
 #include "StandardAperture.hh"
 #include "GlobalDefs.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <memory>
@@ -13,6 +14,8 @@
 class ApertureDefinitionStandard : public ApertureDefinition {
 public:
 	ApertureDefinitionStandard(int aperture_number, std::shared_ptr<StandardAperture> standard_aperture);
+	ApertureDefinitionStandard(int aperture_number, std::shared_ptr<StandardAperture> standard_aperture,
+        yy::location aperture_number_location, yy::location location);
 	virtual ~ApertureDefinitionStandard();
 
 private:

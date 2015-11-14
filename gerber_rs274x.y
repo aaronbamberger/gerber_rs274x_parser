@@ -36,6 +36,7 @@
 	#include "GerberClasses/EndOfFile.hh"
 	#include "GerberClasses/Point.hh"
     #include "GerberClasses/GlobalDefs.hh"
+    #include "GerberClasses/ApertureDefinitionModifier.hh"
 
 	#include <memory>
 	#include <utility>
@@ -143,8 +144,9 @@
 %type <std::shared_ptr<StandardApertureRectangle> > standard_aperture_rectangle
 %type <std::shared_ptr<StandardApertureObround> > standard_aperture_obround
 %type <std::shared_ptr<StandardAperturePolygon> > standard_aperture_polygon
+%type <ApertureDefinitionModifier> aperture_definition_modifier_with_location
 %type <std::shared_ptr<ApertureDefinition> > aperture_definition
-%type <std::shared_ptr<std::list<double> > > aperture_definition_modifier_list
+%type <std::shared_ptr<std::list<ApertureDefinitionModifier> > > aperture_definition_modifier_list
 %type <std::shared_ptr<FormatSpecifier> > format_specifier
 %type <std::shared_ptr<StepAndRepeat> > step_and_repeat
 %type <std::shared_ptr<Command> > command
@@ -228,24 +230,32 @@ command:
 
 aperture_definition:
 	EXT_CMD_DELIMITER APERTURE_DEFINITION APERTURE_NUMBER standard_aperture END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$[aperture_definition] = std::make_shared<ApertureDefinitionStandard>($[APERTURE_NUMBER], $[standard_aperture]);
+		$[aperture_definition] = std::make_shared<ApertureDefinitionStandard>($[APERTURE_NUMBER], $[standard_aperture],
+            @[APERTURE_NUMBER], @[aperture_definition]);
 	}
 |	EXT_CMD_DELIMITER APERTURE_DEFINITION APERTURE_NUMBER CUSTOM_APERTURE_NAME aperture_definition_modifier_list END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$[aperture_definition] = std::make_shared<ApertureDefinitionCustom>($[APERTURE_NUMBER], $[CUSTOM_APERTURE_NAME], $[aperture_definition_modifier_list]);
+		$[aperture_definition] = std::make_shared<ApertureDefinitionCustom>($[APERTURE_NUMBER], $[CUSTOM_APERTURE_NAME], $[aperture_definition_modifier_list],
+		    @[APERTURE_NUMBER], @[CUSTOM_APERTURE_NAME], @[aperture_definition_modifier_list], @[aperture_definition]);
 	}
 |	EXT_CMD_DELIMITER APERTURE_DEFINITION APERTURE_NUMBER CUSTOM_APERTURE_NAME END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$[aperture_definition] = std::make_shared<ApertureDefinitionCustom>($[APERTURE_NUMBER], $[CUSTOM_APERTURE_NAME]);
+		$[aperture_definition] = std::make_shared<ApertureDefinitionCustom>($[APERTURE_NUMBER], $[CUSTOM_APERTURE_NAME],
+            @[APERTURE_NUMBER], @[CUSTOM_APERTURE_NAME], @[aperture_definition]);
 	}
 
 aperture_definition_modifier_list[result]:
-	aperture_definition_modifier_list[list] APERTURE_DEFINITION_MODIFIER[new_elem] {
+	aperture_definition_modifier_list[list] aperture_definition_modifier_with_location[new_elem] {
 		$list->push_back($[new_elem]);
 		$result = $list;
 	}
-|	APERTURE_DEFINITION_MODIFIER[new_elem] {
-		$result = std::make_shared<std::list<double> >();
+|	aperture_definition_modifier_with_location[new_elem] {
+		$result = std::make_shared<std::list<ApertureDefinitionModifier> >();
 		$result->push_back($[new_elem]);
 	}
+
+aperture_definition_modifier_with_location[result]:
+    APERTURE_DEFINITION_MODIFIER[modifier] {
+        $result = ApertureDefinitionModifier($modifier, @modifier);
+    }
 
 standard_aperture:
 	standard_aperture_circle {

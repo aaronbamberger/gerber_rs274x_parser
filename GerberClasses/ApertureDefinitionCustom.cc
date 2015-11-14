@@ -2,20 +2,33 @@
 #include "GlobalDefs.hh"
 #include "ApertureMacroVariableEnvironment.hh"
 #include "ApertureMacro.hh"
+#include "ApertureDefinitionModifier.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <memory>
 #include <list>
 #include <string>
 
-ApertureDefinitionCustom::ApertureDefinitionCustom(int aperture_number, std::string custom_aperture_name, std::shared_ptr<std::list<double> > modifier_list) : ApertureDefinition(aperture_number),
-																																							m_custom_aperture_name(custom_aperture_name),
-																																							m_modifier_list(modifier_list)
+ApertureDefinitionCustom::ApertureDefinitionCustom(int aperture_number, std::string custom_aperture_name, std::shared_ptr<std::list<ApertureDefinitionModifier> > modifier_list) :
+    ApertureDefinition(aperture_number), m_custom_aperture_name(custom_aperture_name), m_modifier_list(modifier_list)
 {}
 
-ApertureDefinitionCustom::ApertureDefinitionCustom(int aperture_number, std::string custom_aperture_name) : ApertureDefinition(aperture_number),
-																										m_custom_aperture_name(custom_aperture_name)
+ApertureDefinitionCustom::ApertureDefinitionCustom(int aperture_number, std::string custom_aperture_name) :
+    ApertureDefinition(aperture_number), m_custom_aperture_name(custom_aperture_name)
+{}
+
+ApertureDefinitionCustom::ApertureDefinitionCustom(int aperture_number, std::string custom_aperture_name, std::shared_ptr<std::list<ApertureDefinitionModifier> > modifier_list,
+    yy::location aperture_number_location, yy::location aperture_name_location, yy::location modifier_list_location, yy::location location) :
+        ApertureDefinition(aperture_number, aperture_number_location, location), m_custom_aperture_name(custom_aperture_name), m_modifier_list(modifier_list),
+        m_aperture_name_location(aperture_name_location), m_modifier_list_location(modifier_list_location)
+{}
+
+ApertureDefinitionCustom::ApertureDefinitionCustom(int aperture_number, std::string custom_aperture_name,
+    yy::location aperture_number_location, yy::location aperture_name_location, yy::location location) :
+        ApertureDefinition(aperture_number, aperture_number_location, location), m_custom_aperture_name(custom_aperture_name),
+        m_aperture_name_location(aperture_name_location)
 {}
 
 ApertureDefinitionCustom::~ApertureDefinitionCustom()
@@ -38,8 +51,9 @@ Gerber::SemanticValidity ApertureDefinitionCustom::do_check_semantic_validity(Gr
     // Initialize the variable environment with the contents of the modifier list
     ApertureMacroVariableEnvironment variable_env;
     int variable_num = 1;
-    for (double modifier : *m_modifier_list) {
-        variable_env.set_variable(variable_num++, modifier);
+    for (auto modifier : *m_modifier_list) {
+        // TODO: Insert variable location as well
+        variable_env.set_variable(variable_num++, modifier.m_value);
     }
     // Lookup the macro from the aperture template dictionary
     auto aperture_macro = graphics_state.lookup_aperture_macro(m_custom_aperture_name);
@@ -60,12 +74,13 @@ Gerber::SemanticValidity ApertureDefinitionCustom::do_check_semantic_validity(Gr
 
 std::ostream& ApertureDefinitionCustom::do_print(std::ostream& os) const
 {
-	os << "Custom Aperture Definition: " << m_aperture_number << std::endl;
-	os << "Based on Aperture Macro: " << m_custom_aperture_name << std::endl;
+	os << "Custom Aperture Definition: (@" << m_location << ")" << std::endl;
+	os << "Aperture ID: " << m_aperture_number << " (@" << m_aperture_number_location << ")" << std::endl;
+	os << "Based on Aperture Macro: " << m_custom_aperture_name << " (@" << m_aperture_name_location << ")" << std::endl;
 	if (m_modifier_list) {
 		os << "Modifier List: ";
-		for (double modifier : *m_modifier_list) {
-			os << modifier << ", ";
+		for (auto modifier : *m_modifier_list) {
+			os << modifier.m_value << " (@" << modifier.m_location << ")" << ", ";
 		}
 		os << std::endl;
 	} else {
