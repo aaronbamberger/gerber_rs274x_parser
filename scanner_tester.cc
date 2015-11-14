@@ -1,6 +1,7 @@
 
 #include "gerber_rs274x_scanner.hh"
 #include "gerber_parser.yy.hh"
+#include "location.hh"
 
 #include "GerberClasses/GlobalDefs.hh"
 
@@ -10,7 +11,11 @@
 #include <memory>
 #include <string>
 
-void pretty_print_token(int token_type, const yy::GerberRS274XParser::semantic_type& semantic_value, const yy::GerberRS274XParser::location_type& location);
+#define LEXER 1
+#define PARSER 2
+#define TEST PARSER
+
+void pretty_print_token(int token_type, const yy::GerberRS274XParser::semantic_type& semantic_value, const yy::location& location);
 void pretty_print_command_list(std::shared_ptr<CommandList>& command_list);
 
 int main(int argc, char** argv)
@@ -29,8 +34,9 @@ int main(int argc, char** argv)
 
 	GerberRS274XScanner scanner(&gerber_file, &std::cout);
 	
+#if (TEST == LEXER)
 	yy::GerberRS274XParser::semantic_type semantic_value;
-	yy::GerberRS274XParser::location_type location;
+	yy::location location;
 	
 	bool done = false;
 	
@@ -42,8 +48,9 @@ int main(int argc, char** argv)
 			pretty_print_token(token_type, semantic_value, location);
 		}
 	}
+#endif
 
-	/*
+#if (TEST == PARSER)
 	std::shared_ptr<CommandList> result;
 	yy::GerberRS274XParser parser(&result, scanner);
 	parser.set_debug_level(1);
@@ -54,7 +61,7 @@ int main(int argc, char** argv)
 	pretty_print_command_list(result);
 	
 	result->check_semantic_validity();
-	*/
+#endif
 
 	gerber_file.close();
 	
@@ -66,7 +73,7 @@ void pretty_print_command_list(std::shared_ptr<CommandList>& command_list)
 	std::cout << *command_list;
 }
 
-void pretty_print_token(int token_type, const yy::GerberRS274XParser::semantic_type& semantic_value, const yy::GerberRS274XParser::location_type& location)
+void pretty_print_token(int token_type, const yy::GerberRS274XParser::semantic_type& semantic_value, const yy::location& location)
 {
     printf("Token Location: (%d, %d)-->(%d, %d)\n", location.begin.line, location.begin.column, location.end.line, location.end.column);
 

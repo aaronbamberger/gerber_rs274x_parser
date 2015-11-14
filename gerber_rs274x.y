@@ -47,7 +47,7 @@
 }
 
 %code {
-	static int yylex(yy::GerberRS274XParser::semantic_type* yylval, yy::GerberRS274XParser::location_type* yylloc, GerberRS274XScanner& scanner);
+	static int yylex(yy::GerberRS274XParser::semantic_type* yylval, yy::location* yylloc, GerberRS274XScanner& scanner);
 }
 
 %defines "gerber_parser.yy.hh"
@@ -311,73 +311,109 @@ format_specifier:
 
 interpolate_cmd:
 	coordinate_data D_CMD_TYPE_INTERPOLATE END_OF_DATA_BLOCK {
-		$[interpolate_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_INTERPOLATE, $[coordinate_data]);
+		$[interpolate_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_INTERPOLATE,
+            $[coordinate_data], @[interpolate_cmd]);
 	}
 |	D_CMD_TYPE_INTERPOLATE END_OF_DATA_BLOCK {
-		$[interpolate_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_INTERPOLATE);
+		$[interpolate_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_INTERPOLATE,
+            @[interpolate_cmd]);
 	}
 
 move_cmd:
 	coordinate_data D_CMD_TYPE_MOVE END_OF_DATA_BLOCK {
-		$[move_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_MOVE, $[coordinate_data]);
+		$[move_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_MOVE,
+            $[coordinate_data], @[move_cmd]);
 	}
 |	D_CMD_TYPE_MOVE END_OF_DATA_BLOCK {
-		$[move_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_MOVE);
+		$[move_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_MOVE,
+		    @[move_cmd]);
 	}
 
 flash_cmd:
 	coordinate_data D_CMD_TYPE_FLASH END_OF_DATA_BLOCK {
-		$[flash_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_FLASH, $[coordinate_data]);
+		$[flash_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_FLASH,
+            $[coordinate_data], @[flash_cmd]);
 	}
 |	D_CMD_TYPE_FLASH END_OF_DATA_BLOCK {
-		$[flash_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_FLASH);
+		$[flash_cmd] = std::make_shared<DCommand>(DCommand::DCommandType::D_COMMAND_FLASH,
+            @[flash_cmd]);
 	}
 
 coordinate_data:
 	X_COORDINATE {
-		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], 0, 0, 0, true, false, false, false);
+		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], 0, 0, 0,
+            true, false, false, false,
+		    @[X_COORDINATE], yy::location(), yy::location(), yy::location());
 	}
 |	Y_COORDINATE {
-		$[coordinate_data] = std::make_shared<CoordinateData>(0, $[Y_COORDINATE], 0, 0, false, true, false, false);
+		$[coordinate_data] = std::make_shared<CoordinateData>(0, $[Y_COORDINATE], 0, 0,
+            false, true, false, false,
+            yy::location(), @[Y_COORDINATE], yy::location(), yy::location());
 	}
 |	X_COORDINATE Y_COORDINATE {
-		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], $[Y_COORDINATE], 0, 0, true, true, false, false);
+		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], $[Y_COORDINATE], 0, 0,
+            true, true, false, false,
+            @[X_COORDINATE], @[Y_COORDINATE], yy::location(), yy::location());
 	}
 |	I_OFFSET {
-		$[coordinate_data] = std::make_shared<CoordinateData>(0, 0, $[I_OFFSET], 0, false, false, true, false);
+		$[coordinate_data] = std::make_shared<CoordinateData>(0, 0, $[I_OFFSET], 0,
+            false, false, true, false,
+            yy::location(), yy::location(), @[I_OFFSET], yy::location());
 	}
 |	X_COORDINATE I_OFFSET {
-		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], 0, $[I_OFFSET], 0, true, false, true, false);
+		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], 0, $[I_OFFSET], 0,
+            true, false, true, false,
+            @[X_COORDINATE], yy::location(), @[I_OFFSET], yy::location());
 	}
 |	Y_COORDINATE I_OFFSET {
-		$[coordinate_data] = std::make_shared<CoordinateData>(0, $[Y_COORDINATE], $[I_OFFSET], 0, false, true, true, false);
+		$[coordinate_data] = std::make_shared<CoordinateData>(0, $[Y_COORDINATE], $[I_OFFSET], 0,
+            false, true, true, false,
+            yy::location(), @[Y_COORDINATE], @[I_OFFSET], yy::location());
 	}
 |	X_COORDINATE Y_COORDINATE I_OFFSET {
-		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], $[Y_COORDINATE], $[I_OFFSET], 0, true, true, true, false);
+		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], $[Y_COORDINATE], $[I_OFFSET],
+            0, true, true, true, false,
+            @[X_COORDINATE], @[Y_COORDINATE], @[I_OFFSET], yy::location());
 	}
 |	J_OFFSET {
-		$[coordinate_data] = std::make_shared<CoordinateData>(0, 0, 0, $[J_OFFSET], false, false, false, true);
+		$[coordinate_data] = std::make_shared<CoordinateData>(0, 0, 0, $[J_OFFSET],
+            false, false, false, true,
+            yy::location(), yy::location(), yy::location(), @[J_OFFSET]);
 	}
 |	X_COORDINATE J_OFFSET {
-		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], 0, 0, $[J_OFFSET], true, false, false, true);
+		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], 0, 0, $[J_OFFSET],
+            true, false, false, true,
+            @[X_COORDINATE], yy::location(), yy::location(), @[J_OFFSET]);
 	}
 |	Y_COORDINATE J_OFFSET {
-		$[coordinate_data] = std::make_shared<CoordinateData>(0, $[Y_COORDINATE], 0, $[J_OFFSET], false, true, false, true);
+		$[coordinate_data] = std::make_shared<CoordinateData>(0, $[Y_COORDINATE], 0, $[J_OFFSET],
+            false, true, false, true,
+            yy::location(), @[Y_COORDINATE], yy::location(), @[J_OFFSET]);
 	}
 |	X_COORDINATE Y_COORDINATE J_OFFSET {
-		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], $[Y_COORDINATE], 0, $[J_OFFSET], true, true, false, true);
+		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], $[Y_COORDINATE], 0, $[J_OFFSET],
+            true, true, false, true,
+            @[X_COORDINATE], @[Y_COORDINATE], yy::location(), @[J_OFFSET]);
 	}
 |	I_OFFSET J_OFFSET {
-		$[coordinate_data] = std::make_shared<CoordinateData>(0, 0, $[I_OFFSET], $[J_OFFSET], false, false, true, true);
+		$[coordinate_data] = std::make_shared<CoordinateData>(0, 0, $[I_OFFSET], $[J_OFFSET],
+            false, false, true, true,
+            yy::location(), yy::location(), @[I_OFFSET], @[J_OFFSET]);
 	}
 |	X_COORDINATE I_OFFSET J_OFFSET {
-		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], 0, $[I_OFFSET], $[J_OFFSET], true, false, true, true);
+		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], 0, $[I_OFFSET], $[J_OFFSET],
+            true, false, true, true,
+            @[X_COORDINATE], yy::location(), @[I_OFFSET], @[J_OFFSET]);
 	}
 |	Y_COORDINATE I_OFFSET J_OFFSET {
-		$[coordinate_data] = std::make_shared<CoordinateData>(0, $[Y_COORDINATE], $[I_OFFSET], $[J_OFFSET], false, true, true, true);
+		$[coordinate_data] = std::make_shared<CoordinateData>(0, $[Y_COORDINATE], $[I_OFFSET], $[J_OFFSET],
+            false, true, true, true,
+            yy::location(), @[Y_COORDINATE], @[I_OFFSET], @[J_OFFSET]);
 	}
 |	X_COORDINATE Y_COORDINATE I_OFFSET J_OFFSET {
-		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], $[Y_COORDINATE], $[I_OFFSET], $[J_OFFSET], true, true, true, true);
+		$[coordinate_data] = std::make_shared<CoordinateData>($[X_COORDINATE], $[Y_COORDINATE], $[I_OFFSET], $[J_OFFSET],
+            true, true, true, true,
+            @[X_COORDINATE], @[Y_COORDINATE], @[I_OFFSET], @[J_OFFSET]);
 	}
 
 aperture_macro:
@@ -541,7 +577,7 @@ arithmetic_expression[result]:
 
 #include "gerber_rs274x_scanner.hh"
 
-static int yylex(yy::GerberRS274XParser::semantic_type* yylval, yy::GerberRS274XParser::location_type* yylloc, GerberRS274XScanner& scanner)
+static int yylex(yy::GerberRS274XParser::semantic_type* yylval, yy::location* yylloc, GerberRS274XScanner& scanner)
 {
 	return scanner.yylex(yylval, yylloc);
 }

@@ -1,17 +1,17 @@
 #include "DCommand.hh"
 #include "GlobalDefs.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 #include "FormatSpecifier.hh"
 #include "UnitSpecifier.hh"
 
 #include <iostream>
 
-DCommand::DCommand(DCommandType type) : m_type(type)
+DCommand::DCommand(DCommandType type, yy::location location) : m_type(type), m_location(location)
 {}
 
-DCommand::DCommand(DCommandType type, std::shared_ptr<CoordinateData> coord_data) : 
-	m_type(type),
-	m_coord_data(coord_data)
+DCommand::DCommand(DCommandType type, std::shared_ptr<CoordinateData> coord_data, yy::location location) :
+	m_type(type), m_coord_data(coord_data), m_location(location)
 {}
 
 DCommand::~DCommand()
@@ -110,17 +110,19 @@ std::ostream& DCommand::do_print(std::ostream& os) const
 	os << "D Command: ";
 	switch (m_type) {
     case DCommand::DCommandType::D_COMMAND_INTERPOLATE:
-        os << "Interpolate" << std::endl;
+        os << "Interpolate";
         break;
 
     case DCommand::DCommandType::D_COMMAND_MOVE:
-        os << "Move" << std::endl;
+        os << "Move";
         break;
 
     case DCommand::DCommandType::D_COMMAND_FLASH:
-        os << "Flash" << std::endl;
+        os << "Flash";
         break;
 	}
+
+	os << " @" << m_location << std::endl;
 
 	if (m_coord_data) {
 		os << *m_coord_data;

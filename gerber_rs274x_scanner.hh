@@ -21,7 +21,7 @@ public:
 	GerberRS274XScanner(std::istream *arg_yyin = 0, std::ostream *arg_yyout = 0);
 
 	// This is the overloaded scanning function that bison will call
-	int yylex(yy::GerberRS274XParser::semantic_type* yylval_in, yy::GerberRS274XParser::location_type* yylloc_in);
+	int yylex(yy::GerberRS274XParser::semantic_type* yylval_in, yy::location* yylloc_in);
 
 private:
 	// This is the scanning function created by flex.  We make this private and define our
@@ -35,7 +35,7 @@ private:
 
 	// Pointer to location value passed by bison
 	// that we can use in the flex actions
-	yy::GerberRS274XParser::location_type* yylloc;
+	yy::location* yylloc;
 };
 
 #endif // GERBER_RS274X_PARSER_DRIVER_H

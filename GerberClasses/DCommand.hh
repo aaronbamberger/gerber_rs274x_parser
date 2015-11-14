@@ -5,6 +5,7 @@
 #include "CoordinateData.hh"
 #include "GlobalDefs.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <memory>
@@ -18,8 +19,8 @@ public:
 		D_COMMAND_FLASH
 	};
 
-	DCommand(DCommandType type);
-	DCommand(DCommandType type, std::shared_ptr<CoordinateData> coord_data);
+	DCommand(DCommandType type, yy::location location);
+	DCommand(DCommandType type, std::shared_ptr<CoordinateData> coord_data, yy::location location);
 	virtual ~DCommand();
 
 private:
@@ -28,6 +29,7 @@ private:
 
 	DCommandType m_type;
 	std::shared_ptr<CoordinateData> m_coord_data;
+	yy::location m_location;
 };
 
 #endif // _D_COMMAND_H
