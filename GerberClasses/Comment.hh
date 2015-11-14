@@ -4,6 +4,7 @@
 #include "Command.hh"
 #include "GlobalDefs.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <string>
@@ -11,6 +12,7 @@
 class Comment : public Command {
 public:
 	Comment(std::string comment);
+	Comment(std::string comment, yy::location location);
 	~Comment();
 
 private:
@@ -18,6 +20,7 @@ private:
 	virtual std::ostream& do_print(std::ostream& os) const;
 
 	std::string m_comment;
+	yy::location m_location;
 };
 
 #endif // _COMMENT_H

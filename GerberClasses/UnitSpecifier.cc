@@ -1,11 +1,16 @@
 #include "UnitSpecifier.hh"
 #include "GlobalDefs.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <string>
 
 UnitSpecifier::UnitSpecifier(Gerber::UnitType unit_type) : m_unit_type(unit_type)
+{}
+
+UnitSpecifier::UnitSpecifier(Gerber::UnitType unit_type, yy::location location) :
+    m_unit_type(unit_type), m_location(location)
 {}
 
 UnitSpecifier::~UnitSpecifier()
@@ -41,16 +46,19 @@ std::ostream& UnitSpecifier::do_print(std::ostream& os) const
 	os << "Units: ";
 	switch (m_unit_type) {
 		case Gerber::UnitType::UNIT_TYPE_IN:
-			os << "Inches" << std::endl;
+			os << "Inches";
 			break;
 
 		case Gerber::UnitType::UNIT_TYPE_MM:
-			os << "Millimeters" << std::endl;
+			os << "Millimeters";
 			break;
 
 		case Gerber::UnitType::UNIT_TYPE_UNDEFINED:
-		    os << "Undefined" << std::endl;
+		    os << "Undefined";
 		    break;
 	}
+
+	os << " @" << m_location << std::endl;
+
 	return os;
 }

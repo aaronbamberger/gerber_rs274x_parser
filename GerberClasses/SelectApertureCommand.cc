@@ -1,12 +1,17 @@
 #include "SelectApertureCommand.hh"
 #include "GlobalDefs.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <string>
 #include <cstdint>
 
 SelectApertureCommand::SelectApertureCommand(int aperture_num) : m_aperture_num(aperture_num)
+{}
+
+SelectApertureCommand::SelectApertureCommand(int aperture_num, yy::location location) :
+    m_aperture_num(aperture_num), m_location(location)
 {}
 
 SelectApertureCommand::~SelectApertureCommand()
@@ -45,6 +50,6 @@ Gerber::SemanticValidity SelectApertureCommand::do_check_semantic_validity(Graph
 
 std::ostream& SelectApertureCommand::do_print(std::ostream& os) const
 {
-	os << "Select Aperture: " << m_aperture_num << std::endl;
+	os << "Select Aperture: " << m_aperture_num << " @" << m_location << std::endl;
 	return os;
 }

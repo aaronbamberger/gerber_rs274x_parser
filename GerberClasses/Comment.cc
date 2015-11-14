@@ -1,11 +1,15 @@
 #include "Comment.hh"
 #include "GlobalDefs.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <string>
 
 Comment::Comment(std::string comment) : m_comment(comment)
+{}
+
+Comment::Comment(std::string comment, yy::location location) : m_comment(comment), m_location(location)
 {}
 
 Comment::~Comment()
@@ -24,6 +28,6 @@ Gerber::SemanticValidity Comment::do_check_semantic_validity(GraphicsState& grap
 
 std::ostream& Comment::do_print(std::ostream& os) const
 {
-	os << "Comment: " << m_comment << std::endl;
+	os << "Comment: " << m_comment << " (@" << m_location <<  ")" << std::endl;
 	return os;
 }

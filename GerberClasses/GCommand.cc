@@ -1,11 +1,15 @@
 #include "GCommand.hh"
 #include "GlobalDefs.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <string>
 
 GCommand::GCommand(GCommandType type) : m_type(type)
+{}
+
+GCommand::GCommand(GCommandType type, yy::location location) : m_type(type), m_location(location)
 {}
 
 GCommand::~GCommand()
@@ -65,32 +69,35 @@ std::ostream& GCommand::do_print(std::ostream& os) const
 	os << "G Command: ";
 	switch (m_type) {
     case GCommand::GCommandType::G_COMMAND_LINEAR_INTERP_MODE:
-        os << "Linear Interpolation Mode" << std::endl;
+        os << "Linear Interpolation Mode";
         break;
 
     case GCommand::GCommandType::G_COMMAND_CW_CIRCULAR_INTERP_MODE:
-        os << "Clockwise Circular Interpolation Mode" << std::endl;
+        os << "Clockwise Circular Interpolation Mode";
         break;
 
     case GCommand::GCommandType::G_COMMAND_CCW_CIRCULAR_INTERP_MODE:
-        os << "Counter-Clockwise Circular Interpolation Mode" << std::endl;
+        os << "Counter-Clockwise Circular Interpolation Mode";
         break;
 
     case GCommand::GCommandType::G_COMMAND_SINGLE_QUADRANT_MODE:
-        os << "Single-Quadrant Mode" << std::endl;
+        os << "Single-Quadrant Mode";
         break;
 
     case GCommand::GCommandType::G_COMMAND_MULTI_QUADRANT_MODE:
-        os << "Multi-Quadrant Mode" << std::endl;
+        os << "Multi-Quadrant Mode";
         break;
 
     case GCommand::GCommandType::G_COMMAND_REGION_MODE_ON:
-        os << "Region Mode On" << std::endl;
+        os << "Region Mode On";
         break;
 
     case GCommand::GCommandType::G_COMMAND_REGION_MODE_OFF:
-        os << "Region Mode Off" << std::endl;
+        os << "Region Mode Off";
         break;
 	}
+
+	os << " @" << m_location << std::endl;
+
 	return os;
 }

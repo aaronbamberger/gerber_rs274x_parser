@@ -313,7 +313,9 @@ J{INT_W_SIGN} {
 }
 
 <PARSING_COORD_FORMAT>X {
-    UPDATE_LOCATION_COLS_STANDARD;
+    // Skip location over X
+    yylloc->columns(1);
+    yylloc->step();
     
     BEGIN(PARSING_COORD_FORMAT_NUM_INT_POSITIONS);
 }
@@ -334,7 +336,9 @@ J{INT_W_SIGN} {
 }
 
 <PARSING_COORD_FORMAT_NUM_DEC_POSITIONS>Y {
-    UPDATE_LOCATION_COLS_STANDARD;
+    // Skip location over Y
+    yylloc->columns(1);
+    yylloc->step();
     
     BEGIN(PARSING_COORD_FORMAT_NUM_INT_POSITIONS);
 }
@@ -377,6 +381,9 @@ J{INT_W_SIGN} {
     if (newline_count > 0) {
         yylloc->lines(newline_count);
         yylloc->columns(comment.length() - current_search_pos);
+    } else {
+        // If it's a single-line comment, then the token length is just the comment length
+        yylloc->columns(comment.length());
     }
     
     yylval->build(comment);

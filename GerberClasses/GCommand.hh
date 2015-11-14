@@ -4,6 +4,7 @@
 #include "Command.hh"
 #include "GlobalDefs.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <string>
@@ -21,6 +22,7 @@ public:
 	};
 
 	GCommand(GCommandType type);
+	GCommand(GCommandType type, yy::location location);
 	virtual ~GCommand();
 
 private:
@@ -30,6 +32,7 @@ private:
 	void update_graphics_state(GraphicsState& graphics_state);
 
 	GCommandType m_type;
+	yy::location m_location;
 };
 
 #endif // _G_COMMAND_H

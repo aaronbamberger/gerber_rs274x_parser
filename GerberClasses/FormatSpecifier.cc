@@ -1,16 +1,28 @@
 #include "FormatSpecifier.hh"
 #include "GlobalDefs.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <string>
 #include <memory>
 
-FormatSpecifier::FormatSpecifier(int x_num_int_positions, int x_num_dec_positions, int y_num_int_positions, int y_num_dec_positions) : m_x_num_int_positions(x_num_int_positions),
-																																		m_x_num_dec_positions(x_num_dec_positions),
-																																		m_y_num_int_positions(y_num_int_positions),
-																																		m_y_num_dec_positions(y_num_dec_positions)
+FormatSpecifier::FormatSpecifier(int x_num_int_positions, int x_num_dec_positions, int y_num_int_positions, int y_num_dec_positions) :
+    m_x_num_int_positions(x_num_int_positions), m_x_num_dec_positions(x_num_dec_positions),
+    m_y_num_int_positions(y_num_int_positions), m_y_num_dec_positions(y_num_dec_positions)
 {}
+
+FormatSpecifier::FormatSpecifier(int x_num_int_positions, int x_num_dec_positions, int y_num_int_positions, int y_num_dec_positions,
+    yy::location x_num_int_positions_location, yy::location x_num_dec_positions_location,
+    yy::location y_num_int_positions_location, yy::location y_num_dec_positions_location,
+    yy::location location) :
+        m_x_num_int_positions(x_num_int_positions), m_x_num_dec_positions(x_num_dec_positions),
+        m_y_num_int_positions(y_num_int_positions), m_y_num_dec_positions(y_num_dec_positions),
+        m_x_num_int_positions_location(x_num_int_positions_location), m_x_num_dec_positions_location(x_num_dec_positions_location),
+        m_y_num_int_positions_location(y_num_int_positions_location), m_y_num_dec_positions_location(y_num_dec_positions_location),
+        m_location(location)
+{}
+
 
 FormatSpecifier::~FormatSpecifier()
 {}
@@ -90,10 +102,10 @@ Gerber::SemanticValidity FormatSpecifier::do_check_semantic_validity(GraphicsSta
 
 std::ostream& FormatSpecifier::do_print(std::ostream& os) const
 {
-	os << "Format Specifier:" << std::endl;
-	os << "Number of Integer Positions (X): " << m_x_num_int_positions << std::endl;
-	os << "Number of Decimal Positions (X): " << m_x_num_dec_positions << std::endl;
-	os << "Number of Integer Positions (Y): " << m_y_num_int_positions << std::endl;
-	os << "Number of Decimal Positions (Y): " << m_y_num_dec_positions << std::endl;
+	os << "Format Specifier (@" << m_location << "):" << std::endl;
+	os << "Number of Integer Positions (X): " << m_x_num_int_positions << " @" << m_x_num_int_positions_location << std::endl;
+	os << "Number of Decimal Positions (X): " << m_x_num_dec_positions << " @" << m_x_num_dec_positions_location << std::endl;
+	os << "Number of Integer Positions (Y): " << m_y_num_int_positions << " @" << m_y_num_int_positions_location << std::endl;
+	os << "Number of Decimal Positions (Y): " << m_y_num_dec_positions << " @" << m_y_num_dec_positions_location << std::endl;
 	return os;
 }

@@ -1,11 +1,16 @@
 #include "LevelPolarity.hh"
 #include "GlobalDefs.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <string>
 
 LevelPolarity::LevelPolarity(Gerber::LevelPolarityType polarity) : m_polarity(polarity)
+{}
+
+LevelPolarity::LevelPolarity(Gerber::LevelPolarityType polarity, yy::location location) :
+    m_polarity(polarity), m_location(location)
 {}
 
 LevelPolarity::~LevelPolarity()
@@ -30,12 +35,15 @@ std::ostream& LevelPolarity::do_print(std::ostream& os) const
 	os << "Level Polarity: ";
 	switch(m_polarity) {
 		case Gerber::LevelPolarityType::LEVEL_POLARITY_DARK:
-			os << "Dark" << std::endl;
+			os << "Dark";
 			break;
 
 		case Gerber::LevelPolarityType::LEVEL_POLARITY_CLEAR:
-			os << "Clear" << std::endl;
+			os << "Clear";
 			break;
 	}
+
+	os << " (@" << m_location << ")" << std::endl;
+
 	return os;
 }

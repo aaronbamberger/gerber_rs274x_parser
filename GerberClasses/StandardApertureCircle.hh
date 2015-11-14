@@ -3,6 +3,7 @@
 
 #include "StandardAperture.hh"
 #include "GlobalDefs.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <memory>
@@ -11,6 +12,9 @@ class StandardApertureCircle : public StandardAperture {
 public:
 	StandardApertureCircle(double diameter, double hole_diameter);
 	StandardApertureCircle(double diameter);
+	StandardApertureCircle(double diameter, double hole_diameter, yy::location diameter_location,
+        yy::location hole_location, yy::location location);
+    StandardApertureCircle(double diameter, yy::location diameter_location, yy::location location);
 	virtual ~StandardApertureCircle();
 
 private:
@@ -21,6 +25,9 @@ private:
 	double m_diameter;
 	double m_hole_diameter;
 	bool m_has_hole;
+	yy::location m_diameter_location;
+	yy::location m_hole_diameter_location;
+	yy::location m_location;
 };
 
 #endif // _STANDARD_APERTURE_CIRCLE_H

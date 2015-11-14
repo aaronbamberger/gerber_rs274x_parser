@@ -1,17 +1,29 @@
 #include "StandardApertureCircle.hh"
 #include "GlobalDefs.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <memory>
 
-StandardApertureCircle::StandardApertureCircle(double diameter, double hole_diameter) : m_diameter(diameter),
-																						m_hole_diameter(hole_diameter),
-																						m_has_hole(true)
+StandardApertureCircle::StandardApertureCircle(double diameter, double hole_diameter) :
+    m_diameter(diameter), m_hole_diameter(hole_diameter), m_has_hole(true)
 {}
 
-StandardApertureCircle::StandardApertureCircle(double diameter) : m_diameter(diameter),
-                                                                    m_hole_diameter(0.0),
-																	m_has_hole(false)
+StandardApertureCircle::StandardApertureCircle(double diameter) :
+    m_diameter(diameter), m_hole_diameter(0.0), m_has_hole(false)
+{}
+
+StandardApertureCircle::StandardApertureCircle(double diameter, double hole_diameter,
+    yy::location diameter_location, yy::location hole_diameter_location, yy::location location) :
+        m_diameter(diameter), m_hole_diameter(hole_diameter), m_has_hole(true),
+        m_diameter_location(diameter_location), m_hole_diameter_location(hole_diameter_location),
+        m_location(location)
+{}
+
+StandardApertureCircle::StandardApertureCircle(double diameter, yy::location diameter_location,
+    yy::location location) :
+        m_diameter(diameter), m_hole_diameter(0.0), m_has_hole(false),
+        m_diameter_location(diameter_location), m_location(location)
 {}
 
 StandardApertureCircle::~StandardApertureCircle()
@@ -52,11 +64,11 @@ std::shared_ptr<StandardAperture> StandardApertureCircle::do_clone()
 
 std::ostream& StandardApertureCircle::do_print(std::ostream& os) const
 {
-	os << "Standard Aperture: Circle" << std::endl;
-	os << "Diameter: " << m_diameter << std::endl;
+	os << "Standard Aperture: Circle (@" << m_location << ")" << std::endl;
+	os << "Diameter: " << m_diameter << " (@" << m_diameter_location << ")" << std::endl;
 	os << "Hole diameter: ";
 	if (m_has_hole) {
-		os << m_hole_diameter << std::endl;
+		os << m_hole_diameter << " (@" << m_hole_diameter_location << ")" << std::endl;
 	} else {
 		os << "No Hole" << std::endl;
 	}

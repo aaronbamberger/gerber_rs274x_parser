@@ -178,40 +178,40 @@ command:
 		$command = $[flash_cmd];
 	}
 |	APERTURE_NUMBER END_OF_DATA_BLOCK {
-		$command = std::make_shared<SelectApertureCommand>($[APERTURE_NUMBER]);
+		$command = std::make_shared<SelectApertureCommand>($[APERTURE_NUMBER], @[APERTURE_NUMBER]);
 	}
 |	G_CMD_TYPE_LINEAR_INTERP_MODE END_OF_DATA_BLOCK {
-		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_LINEAR_INTERP_MODE);
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_LINEAR_INTERP_MODE, @command);
 	}
 |	G_CMD_TYPE_CW_CIRC_INTERP_MODE END_OF_DATA_BLOCK {
-		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_CW_CIRCULAR_INTERP_MODE);
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_CW_CIRCULAR_INTERP_MODE, @command);
 	}
 |	G_CMD_TYPE_CCW_CIRC_INTERP_MODE END_OF_DATA_BLOCK {
-		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_CCW_CIRCULAR_INTERP_MODE);
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_CCW_CIRCULAR_INTERP_MODE, @command);
 	}
 |	G_CMD_TYPE_REGION_MODE_ON END_OF_DATA_BLOCK {
-		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_REGION_MODE_ON);
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_REGION_MODE_ON, @command);
 	}
 |	G_CMD_TYPE_REGION_MODE_OFF END_OF_DATA_BLOCK {
-		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_REGION_MODE_OFF);
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_REGION_MODE_OFF, @command);
 	}
 |	G_CMD_TYPE_MULTI_QUADRANT_MODE END_OF_DATA_BLOCK {
-		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_MULTI_QUADRANT_MODE);
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_MULTI_QUADRANT_MODE, @command);
 	}
 |	G_CMD_TYPE_SINGLE_QUADRANT_MODE END_OF_DATA_BLOCK {
-		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_SINGLE_QUADRANT_MODE);
+		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_SINGLE_QUADRANT_MODE, @command);
 	}
 |	COMMENT_START COMMENT_STRING END_OF_DATA_BLOCK {
-		$command = std::make_shared<Comment>($[COMMENT_STRING]);
+		$command = std::make_shared<Comment>($[COMMENT_STRING], @command);
 	}
 |	END_OF_FILE END_OF_DATA_BLOCK {
-		$command = std::make_shared<EndOfFile>();
+		$command = std::make_shared<EndOfFile>(@command);
 	}
 |	format_specifier {
 		$command = $[format_specifier];
 	}
 |	EXT_CMD_DELIMITER UNIT_SPECIFIER END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$command = std::make_shared<UnitSpecifier>($[UNIT_SPECIFIER]);
+		$command = std::make_shared<UnitSpecifier>($[UNIT_SPECIFIER], @command);
 	}
 |	aperture_definition {
 		$command = $[aperture_definition];
@@ -223,7 +223,7 @@ command:
 		$command = $[step_and_repeat];
 	}
 | 	EXT_CMD_DELIMITER LEVEL_POLARITY END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$command = std::make_shared<LevelPolarity>($[LEVEL_POLARITY]);
+		$command = std::make_shared<LevelPolarity>($[LEVEL_POLARITY], @command);
 	}
 
 aperture_definition:
@@ -263,50 +263,61 @@ standard_aperture:
 
 standard_aperture_circle:
 	STANDARD_APERTURE_TYPE_CIRCLE APERTURE_DEFINITION_MODIFIER[diameter] APERTURE_DEFINITION_MODIFIER[hole_diameter] {
-		$[standard_aperture_circle] = std::make_shared<StandardApertureCircle>($diameter, $[hole_diameter]);
+		$[standard_aperture_circle] = std::make_shared<StandardApertureCircle>($diameter, $[hole_diameter],
+            @diameter, @[hole_diameter], @[standard_aperture_circle]);
 	}
 |	STANDARD_APERTURE_TYPE_CIRCLE APERTURE_DEFINITION_MODIFIER[diameter] {
-		$[standard_aperture_circle] = std::make_shared<StandardApertureCircle>($diameter);
+		$[standard_aperture_circle] = std::make_shared<StandardApertureCircle>($diameter, @diameter,
+            @[standard_aperture_circle]);
 	}
 
 standard_aperture_rectangle:
 	STANDARD_APERTURE_TYPE_RECTANGLE APERTURE_DEFINITION_MODIFIER[x_size] APERTURE_DEFINITION_MODIFIER[y_size] APERTURE_DEFINITION_MODIFIER[hole_diameter] {
-		$[standard_aperture_rectangle] = std::make_shared<StandardApertureRectangle>($[x_size], $[y_size], $[hole_diameter]);
+		$[standard_aperture_rectangle] = std::make_shared<StandardApertureRectangle>($[x_size], $[y_size], $[hole_diameter],
+            @[x_size], @[y_size], @[hole_diameter], @[standard_aperture_rectangle]);
 	}
 |	STANDARD_APERTURE_TYPE_RECTANGLE APERTURE_DEFINITION_MODIFIER[x_size] APERTURE_DEFINITION_MODIFIER[y_size] {
-		$[standard_aperture_rectangle] = std::make_shared<StandardApertureRectangle>($[x_size], $[y_size]);
+		$[standard_aperture_rectangle] = std::make_shared<StandardApertureRectangle>($[x_size], $[y_size],
+            @[x_size], @[y_size], @[standard_aperture_rectangle]);
 	}
 
 standard_aperture_obround:
 	STANDARD_APERTURE_TYPE_OBROUND APERTURE_DEFINITION_MODIFIER[x_size] APERTURE_DEFINITION_MODIFIER[y_size] APERTURE_DEFINITION_MODIFIER[hole_diameter] {
-		$[standard_aperture_obround] = std::make_shared<StandardApertureObround>($[x_size], $[y_size], $[hole_diameter]);
+		$[standard_aperture_obround] = std::make_shared<StandardApertureObround>($[x_size], $[y_size], $[hole_diameter],
+            @[x_size], @[y_size], @[hole_diameter], @[standard_aperture_obround]);
 	}
 |	STANDARD_APERTURE_TYPE_OBROUND APERTURE_DEFINITION_MODIFIER[x_size] APERTURE_DEFINITION_MODIFIER[y_size] {
-		$[standard_aperture_obround] = std::make_shared<StandardApertureObround>($[x_size], $[y_size]);
+		$[standard_aperture_obround] = std::make_shared<StandardApertureObround>($[x_size], $[y_size],
+            @[x_size], @[y_size], @[standard_aperture_obround]);
 	}
 
 standard_aperture_polygon:
 	STANDARD_APERTURE_TYPE_POLYGON APERTURE_DEFINITION_MODIFIER[diameter] APERTURE_DEFINITION_MODIFIER[num_vertices] APERTURE_DEFINITION_MODIFIER[rotation] APERTURE_DEFINITION_MODIFIER[hole_diameter] {
-		$[standard_aperture_polygon] = std::make_shared<StandardAperturePolygon>($diameter, $[num_vertices], $rotation, $[hole_diameter]);
+		$[standard_aperture_polygon] = std::make_shared<StandardAperturePolygon>($diameter, $[num_vertices], $rotation, $[hole_diameter],
+            @diameter, @[num_vertices], @rotation, @[hole_diameter], @[standard_aperture_polygon]);
 	}
 |	STANDARD_APERTURE_TYPE_POLYGON APERTURE_DEFINITION_MODIFIER[diameter] APERTURE_DEFINITION_MODIFIER[num_vertices] APERTURE_DEFINITION_MODIFIER[rotation] {
-		$[standard_aperture_polygon] = std::make_shared<StandardAperturePolygon>($diameter, $[num_vertices], $rotation);
+		$[standard_aperture_polygon] = std::make_shared<StandardAperturePolygon>($diameter, $[num_vertices], $rotation,
+            @diameter, @[num_vertices], @rotation, @[standard_aperture_polygon]);
 	}
 |	STANDARD_APERTURE_TYPE_POLYGON APERTURE_DEFINITION_MODIFIER[diameter] APERTURE_DEFINITION_MODIFIER[num_vertices] {
-		$[standard_aperture_polygon] = std::make_shared<StandardAperturePolygon>($diameter, $[num_vertices]);
+		$[standard_aperture_polygon] = std::make_shared<StandardAperturePolygon>($diameter, $[num_vertices],
+            @diameter, @[num_vertices], @[standard_aperture_polygon]);
 	}
 
 step_and_repeat:
 	EXT_CMD_DELIMITER STEP_AND_REPEAT_START X_REPEATS Y_REPEATS X_STEP_DISTANCE Y_STEP_DISTANCE END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$[step_and_repeat] = std::make_shared<StepAndRepeat>($[X_REPEATS], $[Y_REPEATS], $[X_STEP_DISTANCE], $[Y_STEP_DISTANCE]);
+		$[step_and_repeat] = std::make_shared<StepAndRepeat>($[X_REPEATS], $[Y_REPEATS], $[X_STEP_DISTANCE], $[Y_STEP_DISTANCE],
+            @[X_REPEATS], @[Y_REPEATS], @[X_STEP_DISTANCE], @[Y_STEP_DISTANCE], @[step_and_repeat]);
 	}
 |	EXT_CMD_DELIMITER STEP_AND_REPEAT_START END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$[step_and_repeat] = std::make_shared<StepAndRepeat>();
+		$[step_and_repeat] = std::make_shared<StepAndRepeat>(@[step_and_repeat]);
 	}
 
 format_specifier:
 	EXT_CMD_DELIMITER COORD_FORMAT COORD_FORMAT_NUM_INT_POSITIONS[x_int_positions] COORD_FORMAT_NUM_DEC_POSITIONS[x_dec_positions] COORD_FORMAT_NUM_INT_POSITIONS[y_int_positions] COORD_FORMAT_NUM_DEC_POSITIONS[y_dec_positions] END_OF_DATA_BLOCK EXT_CMD_DELIMITER {
-		$[format_specifier] = std::make_shared<FormatSpecifier>($[x_int_positions], $[x_dec_positions], $[y_int_positions], $[y_dec_positions]);
+		$[format_specifier] = std::make_shared<FormatSpecifier>($[x_int_positions], $[x_dec_positions], $[y_int_positions], $[y_dec_positions],
+            @[x_int_positions], @[x_dec_positions], @[y_int_positions], @[y_dec_positions], @[format_specifier]);
 	}
 
 interpolate_cmd:

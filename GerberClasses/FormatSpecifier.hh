@@ -4,6 +4,7 @@
 #include "Command.hh"
 #include "GlobalDefs.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <string>
@@ -11,6 +12,10 @@
 class FormatSpecifier : public Command {
 public:
 	FormatSpecifier(int x_num_int_positions, int x_num_dec_positions, int y_num_int_positions, int y_num_dec_positions);
+	FormatSpecifier(int x_num_int_positions, int x_num_dec_positions, int y_num_int_positions, int y_num_dec_positions,
+	        yy::location x_num_int_positions_location, yy::location x_num_dec_positions_location,
+	        yy::location y_num_int_positions_location, yy::location y_num_dec_positions_location,
+	        yy::location location);
 	~FormatSpecifier();
 
 private:
@@ -21,6 +26,12 @@ private:
 	int m_x_num_dec_positions;
 	int m_y_num_int_positions;
 	int m_y_num_dec_positions;
+
+	yy::location m_x_num_int_positions_location;
+	yy::location m_x_num_dec_positions_location;
+	yy::location m_y_num_int_positions_location;
+	yy::location m_y_num_dec_positions_location;
+	yy::location m_location;
 };
 
 #endif // _FORMAT_SPECIFIER_H
