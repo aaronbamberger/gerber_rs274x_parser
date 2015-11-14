@@ -10,8 +10,7 @@
 
     #include "GerberClasses/GlobalDefs.hh"
 
-	#include <stdlib.h>
-	#include <string.h>
+    #include <string>
 
 	int return_state;
 
@@ -126,22 +125,30 @@ BLANK [ \t]
 }
 
 X{INT_W_SIGN} {
-    yylval->build(atoi(&(YYText()[1]))); // Skip X
+    // Create a string with just the number by skipping the first character (X)
+    std::string number(&(YYText()[1]), YYLeng() - 1);
+    yylval->build(std::stoi(number));
     return yy::GerberRS274XParser::token::X_COORDINATE;
 }
 				
 Y{INT_W_SIGN} {
-    yylval->build(atoi(&(YYText()[1]))); // Skip Y
+    // Create a string with just the number by skipping the first character (Y)
+    std::string number(&(YYText()[1]), YYLeng() - 1);
+    yylval->build(std::stoi(number));
     return yy::GerberRS274XParser::token::Y_COORDINATE;
 }
 				
 I{INT_W_SIGN} {
-    yylval->build(atoi(&(YYText()[1]))); // Skip I
+    // Create a string with just the number by skipping the first character (I)
+    std::string number(&(YYText()[1]), YYLeng() - 1);
+    yylval->build(std::stoi(number));
     return yy::GerberRS274XParser::token::I_OFFSET;
 }
 				
 J{INT_W_SIGN} {
-    yylval->build(atoi(&(YYText()[1]))); // Skip J
+    // Create a string with just the number by skipping the first character (J)
+    std::string number(&(YYText()[1]), YYLeng() - 1);
+    yylval->build(std::stoi(number));
     return yy::GerberRS274XParser::token::J_OFFSET;
 }
 
@@ -152,22 +159,30 @@ J{INT_W_SIGN} {
 }
 
 <PARSING_STEP_AND_REPEAT>X{INT_WO_SIGN} {
-    yylval->build(atoi(&(YYText()[1]))); // Skip X
+    // Create a string with just the number by skipping the first character (X)
+    std::string number(&(YYText()[1]), YYLeng() - 1);
+    yylval->build(std::stoi(number));
     return yy::GerberRS274XParser::token::X_REPEATS;
 }
 
 <PARSING_STEP_AND_REPEAT>Y{INT_WO_SIGN} {
-    yylval->build(atoi(&(YYText()[1]))); // Skip Y
+    // Create a string with just the number by skipping the first character (Y)
+    std::string number(&(YYText()[1]), YYLeng() - 1);
+    yylval->build(std::stoi(number));
     return yy::GerberRS274XParser::token::Y_REPEATS;
 }
 
 <PARSING_STEP_AND_REPEAT>I{DECIMAL} {
-    yylval->build(strtod(&(YYText()[1]), NULL)); // Skip I
+    // Build string with just decimal by skipping the 1st character (I)
+    std::string decimal(&(YYText()[1]), YYLeng() - 1);
+    yylval->build(std::stod(decimal));
     return yy::GerberRS274XParser::token::X_STEP_DISTANCE;
 }
 
 <PARSING_STEP_AND_REPEAT>J{DECIMAL} {
-    yylval->build(strtod(&(YYText()[1]), NULL)); // Skip J
+    // Build string with just decimal by skipping the 1st character (J)
+    std::string decimal(&(YYText()[1]), YYLeng() - 1);
+    yylval->build(std::stod(decimal));
     return yy::GerberRS274XParser::token::Y_STEP_DISTANCE;
 }
 				
@@ -196,7 +211,9 @@ J{INT_W_SIGN} {
 }
 					
 {APERTURE_NUMBER} {
-    yylval->build(atoi(&(YYText()[1]))); // Skip D
+    // Build string with just decimal by skipping the 1st character (D)
+    std::string aperture_id(&(YYText()[1]), YYLeng() - 1);
+    yylval->build(std::stoi(aperture_id));
     return yy::GerberRS274XParser::token::APERTURE_NUMBER;
 }
 
@@ -244,12 +261,12 @@ J{INT_W_SIGN} {
 
 <PARSING_COORD_FORMAT_NUM_INT_POSITIONS>[[:digit:]] {
     BEGIN(PARSING_COORD_FORMAT_NUM_DEC_POSITIONS);
-    yylval->build(atoi(YYText()));
+    yylval->build(std::stoi(std::string(YYText(), YYLeng())));
     return yy::GerberRS274XParser::token::COORD_FORMAT_NUM_INT_POSITIONS;
 }
 
 <PARSING_COORD_FORMAT_NUM_DEC_POSITIONS>[[:digit:]] {
-    yylval->build(atoi(YYText()));
+    yylval->build(std::stoi(std::string(YYText(), YYLeng())));
     return yy::GerberRS274XParser::token::COORD_FORMAT_NUM_DEC_POSITIONS;
 }
 
@@ -258,7 +275,9 @@ J{INT_W_SIGN} {
 }
 										
 {UNIT_SPECIFIER} {
-    if (strncmp(&(YYText()[2]), "IN", 2) == 0) {
+    std::string unit_specifier(YYText(), YYLeng());
+    
+    if (unit_specifier.find("IN") != std::string::npos) {
         yylval->build(Gerber::UnitType::UNIT_TYPE_IN);
     } else {
         yylval->build(Gerber::UnitType::UNIT_TYPE_MM);
@@ -273,27 +292,25 @@ J{INT_W_SIGN} {
 }
 										
 <PARSING_COMMENT_STRING>{COMMENT_STRING} {
-    char* comment_string = (char*)malloc(YYLeng() + 1);
-    strncpy(comment_string, YYText(), YYLeng());
-    comment_string[YYLeng()] = '\0';
+    std::string comment(YYText(), YYLeng());
     
     // If the comment string contains any newlines, we need to account
     // for them in the token location
     int newline_count = 0;
-    char* current_substr = comment_string;
-    char* new_substr = strstr(current_substr, "\n");
-    while (new_substr != NULL) {
+    std::size_t current_search_pos = 0;
+    std::size_t next_search_pos = comment.find("\n", current_search_pos);
+    while (next_search_pos != std::string::npos) {
         ++newline_count;
-        current_substr = new_substr + 1;
-        new_substr = strstr(current_substr, "\n");
+        current_search_pos = next_search_pos + 1;
+        next_search_pos = comment.find("\n", current_search_pos);
     }
     
     if (newline_count > 0) {
         yylloc->lines(newline_count);
-        yylloc->columns(strlen(current_substr));
+        yylloc->columns(comment.length() - current_search_pos);
     }
     
-    yylval->build(comment_string);
+    yylval->build(comment);
     return yy::GerberRS274XParser::token::COMMENT_STRING;
 }
 
@@ -305,7 +322,9 @@ J{INT_W_SIGN} {
 
 <PARSING_APERTURE_NUMBER>{APERTURE_NUMBER} {
     BEGIN(PARSING_APERTURE_TEMPLATE);
-    yylval->build(atoi(&(YYText()[1]))); // Skip D
+    // Create a string with just the number by skipping the first character (D)
+    std::string aperture_id(&(YYText()[1]), YYLeng() - 1);
+    yylval->build(std::stoi(aperture_id));
     return yy::GerberRS274XParser::token::APERTURE_NUMBER;
 }
 
@@ -332,15 +351,15 @@ J{INT_W_SIGN} {
 
 <PARSING_APERTURE_TEMPLATE>{NAME} {
     BEGIN(PARSING_APERTURE_MODIFIERS);
-    char* custom_aperture_name = (char*)malloc(YYLeng() + 1);
-    strncpy(custom_aperture_name, YYText(), YYLeng());
-    custom_aperture_name[YYLeng()] = '\0';
-    yylval->build(custom_aperture_name);
+    std::string aperture_name(YYText(), YYLeng());
+    yylval->build(aperture_name);
     return yy::GerberRS274XParser::token::CUSTOM_APERTURE_NAME;
 }
 
 <PARSING_APERTURE_MODIFIERS>[,X]{DECIMAL} {
-    yylval->build(strtod(&(YYText()[1]), NULL)); // Skip , or X
+    // Build a string with just the decimal by skipping the 1st character (, or X)
+    std::string decimal(&(YYText()[1]), YYLeng() - 1);
+    yylval->build(std::stod(decimal));
     return yy::GerberRS274XParser::token::APERTURE_DEFINITION_MODIFIER;
 }
 
@@ -351,19 +370,17 @@ J{INT_W_SIGN} {
 }
 
 <PARSING_APERTURE_MACRO_NAME>{NAME} {
-    char* custom_aperture_name = (char*)malloc(YYLeng() + 1);
-    strncpy(custom_aperture_name, YYText(), YYLeng());
-    custom_aperture_name[YYLeng()] = '\0';
+    std::string custom_aperture_name(YYText(), YYLeng());
     yylval->build(custom_aperture_name);
     return yy::GerberRS274XParser::token::CUSTOM_APERTURE_NAME;
 }
 
 <PARSING_APERTURE_MACRO_CONTENT>{VARIABLE_DEFINITION} {
     BEGIN(PARSING_ARITHMETIC_EXPRESSION);
-    char temp_buffer[YYLeng() - 1]; // We're chopping off two characters, adding one extra for the terminating null
-    strncpy(temp_buffer, &(YYText()[1]), YYLeng() - 2); // Copy the variable number, less the preceding $ and the following =
-    temp_buffer[YYLeng() - 2] = '\0';
-    yylval->build(atoi(temp_buffer));
+    // Create string with just variable id by chopping off the first ($) and last (=) character of the string
+    std::string var_id(&(YYText()[1]), YYLeng() - 2);
+    
+    yylval->build(std::stoi(var_id));
     return yy::GerberRS274XParser::token::VARIABLE_DEFINITION;
 }
 
@@ -408,9 +425,7 @@ J{INT_W_SIGN} {
 }
 
 <PARSING_APERTURE_COMMENT>{COMMENT_STRING} {
-    char* aperture_comment = (char*)malloc(YYLeng() + 1);
-    strncpy(aperture_comment, YYText(), YYLeng());
-    aperture_comment[YYLeng()] = '\0';
+    std::string aperture_comment(YYText(), YYLeng());
     yylval->build(aperture_comment);
     return yy::GerberRS274XParser::token::APERTURE_COMMENT_CONTENT;
 }
@@ -444,12 +459,15 @@ J{INT_W_SIGN} {
 }
 
 <PARSING_ARITHMETIC_EXPRESSION,PARSING_APERTURE_PRIMITIVE>{ARITHMETIC_VAR_REFERENCE} {
-    yylval->build(atoi(&(YYText()[1]))); // Skip $
+    // Build a string with just the variable id by skipping the first character ($)
+    std::string var_id(&(YYText()[1]), YYLeng() - 1);
+    yylval->build(std::stoi(var_id));
     return yy::GerberRS274XParser::token::ARITHMETIC_VAR_REFERENCE;
 }
 
 <PARSING_ARITHMETIC_EXPRESSION,PARSING_APERTURE_PRIMITIVE>{DECIMAL} {
-    yylval->build(strtod(YYText(), NULL));
+    std::string decimal(YYText(), YYLeng());
+    yylval->build(std::stod(decimal));
     return yy::GerberRS274XParser::token::ARITHMETIC_CONSTANT;
 }
 

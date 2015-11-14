@@ -10,7 +10,7 @@
 
 class Comment : public Command {
 public:
-	Comment(char* comment);
+	Comment(std::string comment);
 	~Comment();
 
 private:

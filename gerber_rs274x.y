@@ -1,8 +1,3 @@
-%code top {
-	#include <stdio.h>
-	#include <stdlib.h>
-}
-
 %code requires {
 	#include "GerberClasses/CommandList.hh"
 	#include "GerberClasses/Command.hh"
@@ -45,6 +40,7 @@
 	#include <memory>
 	#include <utility>
 	#include <list>
+    #include <string>
 
 	// Forward declare the scanner class so we can use it in the function prototypes
 	class GerberRS274XScanner;
@@ -75,7 +71,7 @@
 %token G_CMD_TYPE_REGION_MODE_ON
 %token G_CMD_TYPE_REGION_MODE_OFF
 %token COMMENT_START
-%token <char*> COMMENT_STRING
+%token <std::string> COMMENT_STRING
 %token END_OF_FILE
 %token <int> X_COORDINATE
 %token <int> Y_COORDINATE
@@ -97,7 +93,7 @@
 %token STANDARD_APERTURE_TYPE_RECTANGLE
 %token STANDARD_APERTURE_TYPE_OBROUND
 %token STANDARD_APERTURE_TYPE_POLYGON
-%token <char*> CUSTOM_APERTURE_NAME
+%token <std::string> CUSTOM_APERTURE_NAME
 %token <double> APERTURE_DEFINITION_MODIFIER
 %token APERTURE_MACRO
 %token <int> VARIABLE_DEFINITION

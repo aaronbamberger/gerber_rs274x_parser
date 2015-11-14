@@ -4,14 +4,11 @@
 
 #include "GerberClasses/GlobalDefs.hh"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-
 #include <iostream>
 #include <fstream>
 #include <ios>
 #include <memory>
+#include <string>
 
 void pretty_print_token(int token_type, const yy::GerberRS274XParser::semantic_type& semantic_value, const yy::GerberRS274XParser::location_type& location);
 void pretty_print_command_list(std::shared_ptr<CommandList>& command_list);
@@ -51,9 +48,9 @@ int main(int argc, char** argv)
 	yy::GerberRS274XParser parser(&result, scanner);
 	parser.set_debug_level(1);
 	int parse_result = parser.parse();
-	printf("Parser returned result %d\n", parse_result);
+	std::cout << "Parser returned result: " << parse_result << std::endl;
 
-	printf("Parsed Gerber File.  Stream of Commands:\n");
+	std::cout << "Parsed Gerber File.  Stream of Commands:" << std::endl;
 	pretty_print_command_list(result);
 	
 	result->check_semantic_validity();
@@ -75,253 +72,250 @@ void pretty_print_token(int token_type, const yy::GerberRS274XParser::semantic_t
 
 	switch (token_type) {
 		case yy::GerberRS274XParser::token::D_CMD_TYPE_INTERPOLATE:
-			printf("D Command: Interpolate\n");
+		    std::cout << "D Command: Interpolate" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::D_CMD_TYPE_MOVE:
-			printf("D Command: Move\n");
+		    std::cout << "D Command: Move" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::D_CMD_TYPE_FLASH:
-			printf("D Command: Flash\n");
+		    std::cout << "D Command: Flash" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::G_CMD_TYPE_LINEAR_INTERP_MODE:
-			printf("G Command: Linear Interpolation Mode\n");
+			std::cout << "G Command: Linear Interpolation Mode" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::G_CMD_TYPE_CW_CIRC_INTERP_MODE:
-			printf("G Command: Clockwise Circular Interpolation Mode\n");
+			std::cout << "G Command: Clockwise Circular Interpolation Mode" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::G_CMD_TYPE_CCW_CIRC_INTERP_MODE:
-			printf("G Command: Counter-Clockwise Circular Interpolation Mode\n");
+			std::cout << "G Command: Counter-Clockwise Circular Interpolation Mode" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::G_CMD_TYPE_SINGLE_QUADRANT_MODE:
-			printf("G Command: Single-Quadrant Mode\n");
+			std::cout << "G Command: Single-Quadrant Mode" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::G_CMD_TYPE_MULTI_QUADRANT_MODE:
-			printf("G Command: Multi-Quadrant Mode\n");
+			std::cout << "G Command: Multi-Quadrant Mode" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::G_CMD_TYPE_REGION_MODE_ON:
-			printf("G Command: Region Mode On\n");
+			std::cout << "G Command: Region Mode On" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::G_CMD_TYPE_REGION_MODE_OFF:
-			printf("G Command: Region Mode Off\n");
+			std::cout << "G Command: Region Mode Off" << std::endl;
 			break;
 			
 		case yy::GerberRS274XParser::token::APERTURE_NUMBER:
-			printf("Aperture Number %d\n", semantic_value.as<int>());
+		    std::cout << "Aperture Number: " << semantic_value.as<int>() << std::endl;
 			break;
 			
 		case yy::GerberRS274XParser::token::COMMENT_START:
-			printf("Comment Start\n");
+			std::cout << "Comment Start" << std::endl;
 			break;
 		
 		case yy::GerberRS274XParser::token::COMMENT_STRING:
-			printf("Comment Content: %s\n", semantic_value.as<char*>());
-			free(semantic_value.as<char*>());
+		    std::cout << "Comment Content: " << semantic_value.as<std::string>() << std::endl;
 			break;
 			
 		case yy::GerberRS274XParser::token::END_OF_FILE:
-			printf("End of file\n");
+			std::cout << "End of file" << std::endl;
 			break;
 			
 		case yy::GerberRS274XParser::token::X_COORDINATE:
-			printf("X Coordinate: %d\n", semantic_value.as<int>());
+			std::cout << "X Coordinate: " << semantic_value.as<int>() << std::endl;
 			break;
 			
 		case yy::GerberRS274XParser::token::Y_COORDINATE:
-			printf("Y Coordinate: %d\n", semantic_value.as<int>());
+			std::cout << "Y Coordinate: " << semantic_value.as<int>() << std::endl;
 			break;
 			
 		case yy::GerberRS274XParser::token::I_OFFSET:
-			printf("I Offset: %d\n", semantic_value.as<int>());
+			std::cout << "I Offset: " << semantic_value.as<int>() << std::endl;
 			break;
 			
 		case yy::GerberRS274XParser::token::J_OFFSET:
-			printf("J Offset: %d\n", semantic_value.as<int>());
+			std::cout << "J Offset: " << semantic_value.as<int>() << std::endl;
 			break;
 			
 		case yy::GerberRS274XParser::token::COORD_FORMAT:
-			printf("Coordinate Format\n");
+			std::cout << "Coordinate Format" << std::endl;
 			break;
 			
 		case yy::GerberRS274XParser::token::COORD_FORMAT_NUM_INT_POSITIONS:
-			printf("Coordinate Format Number of Integer Positions: %d\n", semantic_value.as<int>());
+			std::cout << "Coordinate Format Number of Integer Positions: " << semantic_value.as<int>() << std::endl;
 			break;
 			
 		case yy::GerberRS274XParser::token::COORD_FORMAT_NUM_DEC_POSITIONS:
-			printf("Coordinate Format Number of Decimal Positions: %d\n", semantic_value.as<int>());
+			std::cout << "Coordinate Format Number of Decimal Positions: " << semantic_value.as<int>() << std::endl;
 			break;
 			
 		case yy::GerberRS274XParser::token::UNIT_SPECIFIER:
-			printf("Units: ");
+			std::cout << "Units: ";
 			switch (semantic_value.as<Gerber::UnitType>()) {
 				case Gerber::UnitType::UNIT_TYPE_IN:
-					printf("Inches\n");
+					std::cout << "Inches" << std::endl;
 					break;
 
 				case Gerber::UnitType::UNIT_TYPE_MM:
-					printf("Millimeters\n");
+					std::cout << "Millimeters" << std::endl;
 					break;
 
 				case Gerber::UnitType::UNIT_TYPE_UNDEFINED:
-				    printf("Undefined\n");
+				    std::cout << "Undefined" << std::endl;
 				    break;
 			}
 			break;
 			
 		case yy::GerberRS274XParser::token::END_OF_DATA_BLOCK:
-			printf("End of Data Block\n");		
+			std::cout << "End of Data Block" << std::endl;
 			break;
 			
 		case yy::GerberRS274XParser::token::EXT_CMD_DELIMITER:
-			printf("Extended Command Delimiter\n");
+			std::cout << "Extended Command Delimiter" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::APERTURE_DEFINITION:
-			printf("Aperture Definition\n");
+			std::cout << "Aperture Definition" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::STANDARD_APERTURE_TYPE_CIRCLE:
-			printf("Standard Aperture: Circle\n");
+			std::cout << "Standard Aperture: Circle" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::STANDARD_APERTURE_TYPE_RECTANGLE:
-			printf("Standard Aperture: Rectangle\n");
+			std::cout << "Standard Aperture: Rectangle" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::STANDARD_APERTURE_TYPE_OBROUND:
-			printf("Standard Aperture: Obround\n");
+			std::cout << "Standard Aperture: Obround" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::STANDARD_APERTURE_TYPE_POLYGON:
-			printf("Standard Aperture: Polygon\n");
+			std::cout << "Standard Aperture: Polygon" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::CUSTOM_APERTURE_NAME:
-			printf("Custom Aperture Name: %s\n", semantic_value.as<char*>());
-			free(semantic_value.as<char*>());
+		    std::cout << "Custom Aperture Name: " << semantic_value.as<std::string>() << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::APERTURE_DEFINITION_MODIFIER:
-			printf("Aperture Definition Modifier: %f\n", semantic_value.as<double>());
+			std::cout << "Aperture Definition Modifier: " << semantic_value.as<double>() << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::APERTURE_MACRO:
-			printf("Aperture Macro\n");
+			std::cout << "Aperture Macro" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::VARIABLE_DEFINITION:
-			printf("Variable Definition: $%d\n", semantic_value.as<int>());
+			std::cout << "Variable Definition: $" << semantic_value.as<int>() << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::ARITHMETIC_ADD:
-			printf("Arithmetic Operator: +\n");
+			std::cout << "Arithmetic Operator: +" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::ARITHMETIC_SUB:
-			printf("Arithmetic Operator: -\n");
+			std::cout << "Arithmetic Operator: -" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::ARITHMETIC_MULT:
-			printf("Arithmetic Operator: *\n");
+			std::cout << "Arithmetic Operator: *" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::ARITHMETIC_DIV:
-			printf("Arithmetic Operator: /\n");
+			std::cout << "Arithmetic Operator: /" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::ARITHMETIC_LEFT_PAREN:
-			printf("Arithmetic Operator: (\n");
+			std::cout << "Arithmetic Operator: (" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::ARITHMETIC_RIGHT_PAREN:
-			printf("Arithmetic Operator: )\n");
+			std::cout << "Arithmetic Operator: )" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::ARITHMETIC_CONSTANT:
-			printf("Arithmetic Constant: %f\n", semantic_value.as<double>());
+			std::cout << "Arithmetic Constant: " << semantic_value.as<double>() << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::ARITHMETIC_VAR_REFERENCE:
-			printf("Arithmetic Variable Reference: $%d\n", semantic_value.as<int>());
+			std::cout << "Arithmetic Variable Reference: " << semantic_value.as<int>() << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_CIRCLE:
-			printf("Aperture Primitive: Circle\n");
+			std::cout << "Aperture Primitive: Circle" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_VECTOR_LINE:
-			printf("Aperture Primitive: Vector Line\n");
+			std::cout << "Aperture Primitive: Vector Line" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_CENTER_LINE:
-			printf("Aperture Primitive: Center Line\n");
+			std::cout << "Aperture Primitive: Center Line" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_OUTLINE:
-			printf("Aperture Primitive: Outline\n");
+			std::cout << "Aperture Primitive: Outline" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_POLYGON:
-			printf("Aperture Primitive: Polygon\n");
+		    std::cout << "Aperture Primitive: Polygon" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_MOIRE:
-			printf("Aperture Primitive: Moire\n");
+			std::cout << "Aperture Primitive: Moire" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::APERTURE_PRIMITIVE_TYPE_THERMAL:
-			printf("Aperture Primitive: Thermal\n");
+			std::cout << "Aperture Primitive: Thermal" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::AM_DELIM:
-			printf("Aperture Primitive Modifier Delimiter\n");
+			std::cout << "Aperture Primitive Modifier Delimiter" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::APERTURE_COMMENT_START:
-			printf("Aperture Comment Start\n");
+			std::cout << "Aperture Comment Start" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::APERTURE_COMMENT_CONTENT:
-			printf("Aperture Comment: %s\n", semantic_value.as<char*>());
-			free(semantic_value.as<char*>());
+		    std::cout << "Aperture Comment: " << semantic_value.as<std::string>() << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::STEP_AND_REPEAT_START:
-			printf("Step and Repeat\n");
+			std::cout << "Step and Repeat" << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::X_REPEATS:
-			printf("X Repeats: %d\n", semantic_value.as<int>());
+			std::cout << "X Repeats: " << semantic_value.as<int>() << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::Y_REPEATS:
-			printf("Y Repeats: %d\n", semantic_value.as<int>());
+			std::cout << "Y Repeats: " << semantic_value.as<int>() << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::X_STEP_DISTANCE:
-			printf("X Step Distance: %f\n", semantic_value.as<double>());
+			std::cout << "X Step Distance: " << semantic_value.as<double>() << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::Y_STEP_DISTANCE:
-			printf("Y Step Distance: %f\n", semantic_value.as<double>());
+			std::cout << "Y Step Distance: " << semantic_value.as<double>() << std::endl;
 			break;
 
 		case yy::GerberRS274XParser::token::LEVEL_POLARITY:
 			switch (semantic_value.as<Gerber::LevelPolarityType>()) {
 				case Gerber::LevelPolarityType::LEVEL_POLARITY_CLEAR:
-					printf("Level Polarity Clear\n");
+					std::cout << "Level Polarity Clear" << std::endl;
 					break;
 
 				case Gerber::LevelPolarityType::LEVEL_POLARITY_DARK:
-					printf("Level Polarity Dark\n");
+					std::cout << "Level Polarity Dark" << std::endl;
 					break;
 			}
 			break;

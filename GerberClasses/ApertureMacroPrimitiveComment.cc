@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-InstantiatedApertureMacroPrimitiveComment::InstantiatedApertureMacroPrimitiveComment(std::string& comment) : m_comment(comment)
+InstantiatedApertureMacroPrimitiveComment::InstantiatedApertureMacroPrimitiveComment(std::string comment) : m_comment(comment)
 {}
 
 InstantiatedApertureMacroPrimitiveComment::~InstantiatedApertureMacroPrimitiveComment()
@@ -25,7 +25,7 @@ std::ostream& InstantiatedApertureMacroPrimitiveComment::do_print(std::ostream& 
     return os;
 }
 
-ApertureMacroPrimitiveComment::ApertureMacroPrimitiveComment(char* comment) : m_comment(comment)
+ApertureMacroPrimitiveComment::ApertureMacroPrimitiveComment(std::string comment) : m_comment(comment)
 {}
 
 ApertureMacroPrimitiveComment::~ApertureMacroPrimitiveComment()

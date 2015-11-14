@@ -15,7 +15,7 @@
 
 class ApertureMacro : public Command {
 public:
-	ApertureMacro(char* macro_name, std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content);
+	ApertureMacro(std::string macro_name, std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content);
 	virtual ~ApertureMacro();
 
 	std::shared_ptr<InstantiatedApertureMacro> instantiate(ApertureMacroVariableEnvironment& variable_env);

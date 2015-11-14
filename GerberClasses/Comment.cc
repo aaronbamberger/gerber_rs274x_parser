@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 
-Comment::Comment(char* comment) : m_comment(comment)
+Comment::Comment(std::string comment) : m_comment(comment)
 {}
 
 Comment::~Comment()

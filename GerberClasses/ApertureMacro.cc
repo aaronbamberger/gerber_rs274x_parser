@@ -10,7 +10,7 @@
 #include <string>
 #include <list>
 
-ApertureMacro::ApertureMacro(char* macro_name, std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content) : m_macro_name(macro_name), m_macro_content(macro_content)
+ApertureMacro::ApertureMacro(std::string macro_name, std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content) : m_macro_name(macro_name), m_macro_content(macro_content)
 {}
 
 ApertureMacro::~ApertureMacro()

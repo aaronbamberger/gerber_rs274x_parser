@@ -12,7 +12,7 @@
 
 class InstantiatedApertureMacroPrimitiveComment : public InstantiatedApertureMacroPrimitive {
 public:
-    InstantiatedApertureMacroPrimitiveComment(std::string& comment);
+    InstantiatedApertureMacroPrimitiveComment(std::string comment);
 
     virtual ~InstantiatedApertureMacroPrimitiveComment();
 
@@ -25,7 +25,7 @@ private:
 
 class ApertureMacroPrimitiveComment : public ApertureMacroPrimitive {
 public:
-	ApertureMacroPrimitiveComment(char* comment);
+	ApertureMacroPrimitiveComment(std::string comment);
 
 	virtual ~ApertureMacroPrimitiveComment();
 

@@ -12,8 +12,8 @@
 
 class ApertureDefinitionCustom : public ApertureDefinition {
 public:
-	ApertureDefinitionCustom(int aperture_number, char* custom_aperture_name, std::shared_ptr<std::list<double> > modifier_list);
-	ApertureDefinitionCustom(int aperture_number, char* custom_aperture_name);
+	ApertureDefinitionCustom(int aperture_number, std::string custom_aperture_name, std::shared_ptr<std::list<double> > modifier_list);
+	ApertureDefinitionCustom(int aperture_number, std::string custom_aperture_name);
 	virtual ~ApertureDefinitionCustom();
 
 private:
