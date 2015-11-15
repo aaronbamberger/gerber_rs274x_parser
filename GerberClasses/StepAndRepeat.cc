@@ -1,5 +1,7 @@
 #include "StepAndRepeat.hh"
 #include "GlobalDefs.hh"
+#include "SemanticIssue.hh"
+#include "SemanticIssueList.hh"
 #include "../GraphicsState.hh"
 #include "../location.hh"
 
@@ -30,11 +32,15 @@ StepAndRepeat::StepAndRepeat(yy::location location) : m_x_num_repeats(1), m_y_nu
 StepAndRepeat::~StepAndRepeat()
 {}
 
-Gerber::SemanticValidity StepAndRepeat::do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg)
+Gerber::SemanticValidity StepAndRepeat::do_check_semantic_validity(GraphicsState& graphics_state, SemanticIssueList& issue_list)
 {
     // No commands are allowed after the end-of-file command has been encountered
     if (graphics_state.file_complete()) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_location,
+            "No commands are allowed after the end-of-file command has been encountered");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
     // Copy the new step and repeat settings into the graphics state
@@ -42,20 +48,36 @@ Gerber::SemanticValidity StepAndRepeat::do_check_semantic_validity(GraphicsState
 
     // Repeats in both the x and y directions must be >= 1, otherwise it's a fatal error
     if (m_x_num_repeats < 1) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_x_num_repeats_location,
+            "The number of repeats in the X direction must be >= 1");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
     if (m_y_num_repeats < 1) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_y_num_repeats_location,
+            "The number of repeats in the Y direction must be >= 1");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
     // Likewise, step distance in both the x and y direction must be >= 0, otherwise it's a fatal error
     if (m_x_step_distance < 0.0) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_x_step_distance_location,
+            "The step distance in the X direction must be >= 0.0");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
     if (m_y_step_distance  < 0.0) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_y_step_distance_location,
+            "The step distance in the Y direction must be >= 0.0");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
 	return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;

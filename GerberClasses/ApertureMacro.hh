@@ -6,6 +6,7 @@
 #include "GlobalDefs.hh"
 #include "InstantiatedApertureMacro.hh"
 #include "ApertureMacroVariableEnvironment.hh"
+#include "SemanticIssueList.hh"
 #include "../GraphicsState.hh"
 
 #include <iostream>
@@ -23,7 +24,7 @@ public:
 	std::string& macro_name();
 
 private:
-	virtual Gerber::SemanticValidity do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg);
+	virtual Gerber::SemanticValidity do_check_semantic_validity(GraphicsState& graphics_state, SemanticIssueList& issue_list);
 	virtual std::ostream& do_print(std::ostream& os) const;
 
 	std::string m_macro_name;

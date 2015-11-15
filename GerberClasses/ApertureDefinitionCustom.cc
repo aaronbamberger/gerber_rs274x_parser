@@ -3,6 +3,8 @@
 #include "ApertureMacroVariableEnvironment.hh"
 #include "ApertureMacro.hh"
 #include "ApertureDefinitionModifier.hh"
+#include "SemanticIssue.hh"
+#include "SemanticIssueList.hh"
 #include "../GraphicsState.hh"
 #include "../location.hh"
 
@@ -34,8 +36,10 @@ ApertureDefinitionCustom::ApertureDefinitionCustom(int aperture_number, std::str
 ApertureDefinitionCustom::~ApertureDefinitionCustom()
 {}
 
-Gerber::SemanticValidity ApertureDefinitionCustom::do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg)
+Gerber::SemanticValidity ApertureDefinitionCustom::do_check_semantic_validity(GraphicsState& graphics_state, SemanticIssueList& issue_list)
 {
+    // TODO: Implement adding issues to issue list
+
     // No commands are allowed after the end-of-file command has been encountered
     if (graphics_state.file_complete()) {
         return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;

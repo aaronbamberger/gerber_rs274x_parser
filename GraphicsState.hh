@@ -19,13 +19,13 @@ public:
 	GraphicsState();
 	~GraphicsState();
 
-	const std::shared_ptr<FormatSpecifier>& coord_format();
-    const Gerber::UnitType unit_type();
-    const int current_aperture();
-    const Gerber::QuadrantMode current_quadrant_mode();
-	const Gerber::InterpolationMode current_interp_mode();
-	const Gerber::RegionModeState current_region_mode_state();
-	const bool file_complete();
+	const std::shared_ptr<FormatSpecifier>& coord_format() const;
+    Gerber::UnitType unit_type() const;
+    int current_aperture() const;
+    Gerber::QuadrantMode current_quadrant_mode() const;
+	Gerber::InterpolationMode current_interp_mode() const;
+	Gerber::RegionModeState current_region_mode_state() const;
+	bool file_complete() const;
 
 	bool set_coord_format(std::shared_ptr<FormatSpecifier> coord_format);
 	bool set_unit_type(Gerber::UnitType unit_type);

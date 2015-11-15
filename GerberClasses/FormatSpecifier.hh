@@ -3,6 +3,7 @@
 
 #include "Command.hh"
 #include "GlobalDefs.hh"
+#include "SemanticIssueList.hh"
 #include "../GraphicsState.hh"
 #include "../location.hh"
 
@@ -19,7 +20,7 @@ public:
 	~FormatSpecifier();
 
 private:
-	virtual Gerber::SemanticValidity do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg);
+	virtual Gerber::SemanticValidity do_check_semantic_validity(GraphicsState& graphics_state, SemanticIssueList& issue_list);
 	virtual std::ostream& do_print(std::ostream& os) const;
 
 	int m_x_num_int_positions;

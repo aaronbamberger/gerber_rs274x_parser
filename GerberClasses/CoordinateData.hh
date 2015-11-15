@@ -1,6 +1,9 @@
 #ifndef _COORDINATE_DATA_H
 #define _COORDINATE_DATA_H
 
+#include "GlobalDefs.hh"
+#include "SemanticIssueList.hh"
+#include "../GraphicsState.hh"
 #include "../location.hh"
 
 #include <iostream>
@@ -17,10 +20,16 @@ public:
 
 	~CoordinateData();
 
+	Gerber::SemanticValidity check_semantic_validity(const GraphicsState& graphics_state, SemanticIssueList& issue_list);
+
 	bool x_valid();
 	bool y_valid();
 	bool i_valid();
 	bool j_valid();
+
+	yy::location i_loc();
+    yy::location j_loc();
+    yy::location ij_loc();
 
 	friend std::ostream& operator<<(std::ostream& os, const CoordinateData& coord_data);
 

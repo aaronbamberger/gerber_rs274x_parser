@@ -1,5 +1,7 @@
 #include "GCommand.hh"
 #include "GlobalDefs.hh"
+#include "SemanticIssueList.hh"
+#include "SemanticIssue.hh"
 #include "../GraphicsState.hh"
 #include "../location.hh"
 
@@ -15,11 +17,15 @@ GCommand::GCommand(GCommandType type, yy::location location) : m_type(type), m_l
 GCommand::~GCommand()
 {}
 
-Gerber::SemanticValidity GCommand::do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg)
+Gerber::SemanticValidity GCommand::do_check_semantic_validity(GraphicsState& graphics_state, SemanticIssueList& issue_list)
 {
     // No commands are allowed after the end-of-file command has been encountered
     if (graphics_state.file_complete()) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_location,
+            "No commands are allowed after the end-of-file command has been encountered");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
 	// Update the graphics state.  This is important for correctly checking the semantic validity

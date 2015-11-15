@@ -4,12 +4,12 @@
 #include "ApertureDefinition.hh"
 #include "StandardAperture.hh"
 #include "GlobalDefs.hh"
+#include "SemanticIssueList.hh"
 #include "../GraphicsState.hh"
 #include "../location.hh"
 
 #include <iostream>
 #include <memory>
-#include <string>
 
 class ApertureDefinitionStandard : public ApertureDefinition {
 public:
@@ -19,7 +19,7 @@ public:
 	virtual ~ApertureDefinitionStandard();
 
 private:
-	virtual Gerber::SemanticValidity do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg);
+	virtual Gerber::SemanticValidity do_check_semantic_validity(GraphicsState& graphics_state, SemanticIssueList& issue_list);
 	virtual std::ostream& do_print(std::ostream& os) const;
 
 	std::shared_ptr<StandardAperture> m_standard_aperture;

@@ -1,4 +1,5 @@
 #include "Command.hh"
+#include "SemanticIssueList.hh"
 #include "../GraphicsState.hh"
 
 #include <iostream>
@@ -10,9 +11,9 @@ Command::Command()
 Command::~Command()
 {}
 
-Gerber::SemanticValidity Command::check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg)
+Gerber::SemanticValidity Command::check_semantic_validity(GraphicsState& graphics_state, SemanticIssueList& issue_list)
 {
-    return do_check_semantic_validity(graphics_state, error_msg);
+    return do_check_semantic_validity(graphics_state, issue_list);
 }
 
 std::ostream& operator<<(std::ostream& os, const Command& cmd)

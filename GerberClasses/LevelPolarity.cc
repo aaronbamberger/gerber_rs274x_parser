@@ -1,5 +1,7 @@
 #include "LevelPolarity.hh"
 #include "GlobalDefs.hh"
+#include "SemanticIssue.hh"
+#include "SemanticIssueList.hh"
 #include "../GraphicsState.hh"
 #include "../location.hh"
 
@@ -16,11 +18,15 @@ LevelPolarity::LevelPolarity(Gerber::LevelPolarityType polarity, yy::location lo
 LevelPolarity::~LevelPolarity()
 {}
 
-Gerber::SemanticValidity LevelPolarity::do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg)
+Gerber::SemanticValidity LevelPolarity::do_check_semantic_validity(GraphicsState& graphics_state, SemanticIssueList& issue_list)
 {
     // No commands are allowed after the end-of-file command has been encountered
     if (graphics_state.file_complete()) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_location,
+            "No commands are allowed after the end-of-file command has been encountered");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
     // Update the level polarity in the graphics state

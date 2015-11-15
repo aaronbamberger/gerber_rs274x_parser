@@ -2,6 +2,7 @@
 #define _COMMAND_H
 
 #include "GlobalDefs.hh"
+#include "SemanticIssueList.hh"
 
 #include <string>
 #include <iostream>
@@ -15,11 +16,11 @@ public:
 	Command();
 	virtual ~Command();
 
-	Gerber::SemanticValidity check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg);
+	Gerber::SemanticValidity check_semantic_validity(GraphicsState& graphics_state, SemanticIssueList& issue_list);
 	friend std::ostream& operator<<(std::ostream& os, const Command& cmd);	
 
 private:
-	virtual Gerber::SemanticValidity do_check_semantic_validity(GraphicsState& graphics_state, std::string& error_msg) = 0;
+	virtual Gerber::SemanticValidity do_check_semantic_validity(GraphicsState& graphics_state, SemanticIssueList& issue_list) = 0;
 	virtual std::ostream& do_print(std::ostream& os) const = 0;
 };
 

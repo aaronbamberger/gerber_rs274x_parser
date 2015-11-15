@@ -25,37 +25,37 @@ GraphicsState::GraphicsState() : m_coord_format(nullptr),
 GraphicsState::~GraphicsState()
 {}
 
-const std::shared_ptr<FormatSpecifier>& GraphicsState::coord_format()
+const std::shared_ptr<FormatSpecifier>& GraphicsState::coord_format() const
 {
     return m_coord_format;
 }
 
-const Gerber::UnitType GraphicsState::unit_type()
+Gerber::UnitType GraphicsState::unit_type() const
 {
     return m_unit_type;
 }
 
-const int GraphicsState::current_aperture()
+int GraphicsState::current_aperture() const
 {
     return m_current_aperture;
 }
 
-const Gerber::QuadrantMode GraphicsState::current_quadrant_mode()
+Gerber::QuadrantMode GraphicsState::current_quadrant_mode() const
 {
     return m_current_quadrant_mode;
 }
 
-const Gerber::InterpolationMode GraphicsState::current_interp_mode()
+Gerber::InterpolationMode GraphicsState::current_interp_mode() const
 {
     return m_current_interp_mode;
 }
 
-const Gerber::RegionModeState GraphicsState::current_region_mode_state()
+Gerber::RegionModeState GraphicsState::current_region_mode_state() const
 {
     return m_current_region_mode_state;
 }
 
-const bool GraphicsState::file_complete()
+bool GraphicsState::file_complete() const
 {
     return m_file_complete;
 }

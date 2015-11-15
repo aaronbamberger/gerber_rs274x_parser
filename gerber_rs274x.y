@@ -180,7 +180,7 @@ command:
 		$command = $[flash_cmd];
 	}
 |	APERTURE_NUMBER END_OF_DATA_BLOCK {
-		$command = std::make_shared<SelectApertureCommand>($[APERTURE_NUMBER], @[APERTURE_NUMBER]);
+		$command = std::make_shared<SelectApertureCommand>($[APERTURE_NUMBER], @[APERTURE_NUMBER], @command);
 	}
 |	G_CMD_TYPE_LINEAR_INTERP_MODE END_OF_DATA_BLOCK {
 		$command = std::make_shared<GCommand>(GCommand::GCommandType::G_COMMAND_LINEAR_INTERP_MODE, @command);
