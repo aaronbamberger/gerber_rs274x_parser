@@ -1,5 +1,7 @@
 #include "StandardApertureCircle.hh"
 #include "GlobalDefs.hh"
+#include "SemanticIssue.hh"
+#include "SemanticIssueList.hh"
 #include "../location.hh"
 
 #include <iostream>
@@ -29,12 +31,16 @@ StandardApertureCircle::StandardApertureCircle(double diameter, yy::location dia
 StandardApertureCircle::~StandardApertureCircle()
 {}
 
-Gerber::SemanticValidity StandardApertureCircle::do_check_semantic_validity()
+Gerber::SemanticValidity StandardApertureCircle::do_check_semantic_validity(SemanticIssueList& issue_list)
 {
     // Only for standard circle apertures, a diameter of zero is valid.  This is used
     // for informational purposes, and to attach attributes
     if (m_diameter < 0.0) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_diameter_location,
+            "Diameter for circle-type standard aperture must be >= 0");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
     // If the aperture has a hole, it must have a diameter >= 0, and the hole must not be bigger
@@ -44,13 +50,24 @@ Gerber::SemanticValidity StandardApertureCircle::do_check_semantic_validity()
     // in an improper way
     if (m_has_hole) {
         if (m_hole_diameter < 0.0) {
-            return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+            SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+                m_hole_diameter_location,
+                "Hole diameter for circle-type standard aperture must be >= 0");
+            issue_list.add_issue(issue);
+            return issue.severity();
         } else if (m_hole_diameter == 0.0) {
-            return Gerber::SemanticValidity::SEMANTIC_VALIDITY_WARNING;
+            SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_WARNING,
+                m_hole_diameter_location,
+                "Hole diameter of 0 for circle-type standard aperture is redundant (hole diameter can be omitted)");
+            issue_list.add_issue(issue);
         }
 
         if (m_hole_diameter >= m_diameter) {
-            return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+            SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+                m_hole_diameter_location,
+                "Hole in circle-type standard aperture must not be larger than the aperture itself");
+            issue_list.add_issue(issue);
+            return issue.severity();
         }
     }
 

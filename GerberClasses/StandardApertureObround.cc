@@ -1,5 +1,7 @@
 #include "StandardApertureObround.hh"
 #include "GlobalDefs.hh"
+#include "SemanticIssue.hh"
+#include "SemanticIssueList.hh"
 #include "../location.hh"
 
 #include <iostream>
@@ -31,15 +33,23 @@ StandardApertureObround::StandardApertureObround(double x_size, double y_size,
 StandardApertureObround::~StandardApertureObround()
 {}
 
-Gerber::SemanticValidity StandardApertureObround::do_check_semantic_validity()
+Gerber::SemanticValidity StandardApertureObround::do_check_semantic_validity(SemanticIssueList& issue_list)
 {
     // Width and height must be > 0
     if (m_x_size <= 0.0) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_x_size_location,
+            "X-size for obround-type standard aperture must be > 0");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
     if (m_y_size <= 0.0) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_y_size_location,
+            "Y-size for obround-type standard aperture must be > 0");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
     // If the aperture has a hole, it must have a diameter >= 0, and the hole must not be bigger
@@ -49,22 +59,27 @@ Gerber::SemanticValidity StandardApertureObround::do_check_semantic_validity()
     // in an improper way
     if (m_has_hole) {
         if (m_hole_diameter < 0.0) {
-            return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+            SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+                m_hole_diameter_location,
+                "Hole diameter for obround-type standard aperture must be >= 0");
+            issue_list.add_issue(issue);
+            return issue.severity();
         } else if (m_hole_diameter == 0.0) {
-            return Gerber::SemanticValidity::SEMANTIC_VALIDITY_WARNING;
+            SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_WARNING,
+                m_hole_diameter_location,
+                "Hole diameter of 0 for obround-type standard aperture is redundant (hole diameter can be omitted)");
+            issue_list.add_issue(issue);
         }
 
         // Hole obstructs entire aperture if its diameter is >= x_size + y_size
         // (unless x_size == y_size, in which case the aperture is a circle,
         // and either x_size or y_size is the diameter
-        if (m_x_size == m_y_size) {
-            if (m_hole_diameter >= m_x_size) {
-                return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
-            }
-        } else {
-            if (m_hole_diameter >= (m_x_size + m_y_size)) {
-                return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
-            }
+        if (((m_x_size == m_y_size) && (m_hole_diameter >= m_x_size)) || (m_hole_diameter >= (m_x_size + m_y_size))) {
+            SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+                m_hole_diameter_location,
+                "Hole in obround-type standard aperture must not be larger than the aperture itself");
+            issue_list.add_issue(issue);
+            return issue.severity();
         }
     }
 

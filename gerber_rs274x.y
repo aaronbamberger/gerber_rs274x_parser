@@ -439,7 +439,7 @@ coordinate_data:
 
 aperture_macro:
 	EXT_CMD_DELIMITER APERTURE_MACRO CUSTOM_APERTURE_NAME END_OF_DATA_BLOCK macro_content_list EXT_CMD_DELIMITER {
-		$[aperture_macro] = std::make_shared<ApertureMacro>($[CUSTOM_APERTURE_NAME], $[macro_content_list]);
+		$[aperture_macro] = std::make_shared<ApertureMacro>($[CUSTOM_APERTURE_NAME], $[macro_content_list], @[aperture_macro]);
 	}
 
 macro_content_list[result]:
@@ -509,10 +509,12 @@ macro_primitive_vector_line:
 
 macro_primitive_center_line:
 	APERTURE_PRIMITIVE_TYPE_CENTER_LINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[rect_width] AM_DELIM arithmetic_expression[rect_height] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] AM_DELIM arithmetic_expression[rotation] {
-		$[macro_primitive_center_line] = std::make_shared<ApertureMacroPrimitiveCenterLine>($exposure, $[rect_width], $[rect_height], $[center_x], $[center_y], $rotation);
+		$[macro_primitive_center_line] = std::make_shared<ApertureMacroPrimitiveCenterLine>($exposure, $[rect_width], $[rect_height], $[center_x], $[center_y], $rotation,
+            @exposure, @[rect_width], @[rect_height], @[center_x], @[center_y], @rotation, @[macro_primitive_center_line]);
 	}
 |	APERTURE_PRIMITIVE_TYPE_CENTER_LINE AM_DELIM arithmetic_expression[exposure] AM_DELIM arithmetic_expression[rect_width] AM_DELIM arithmetic_expression[rect_height] AM_DELIM arithmetic_expression[center_x] AM_DELIM arithmetic_expression[center_y] {
-		$[macro_primitive_center_line] = std::make_shared<ApertureMacroPrimitiveCenterLine>($exposure, $[rect_width], $[rect_height], $[center_x], $[center_y]);
+		$[macro_primitive_center_line] = std::make_shared<ApertureMacroPrimitiveCenterLine>($exposure, $[rect_width], $[rect_height], $[center_x], $[center_y],
+            @exposure, @[rect_width], @[rect_height], @[center_x], @[center_y], @[macro_primitive_center_line]);
 	}
 
 macro_primitive_outline:

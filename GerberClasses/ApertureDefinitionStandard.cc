@@ -23,14 +23,16 @@ ApertureDefinitionStandard::~ApertureDefinitionStandard()
 
 Gerber::SemanticValidity ApertureDefinitionStandard::do_check_semantic_validity(GraphicsState& graphics_state, SemanticIssueList& issue_list)
 {
-    //TODO: Implement adding issues to issue list
-
     // No commands are allowed after the end-of-file command has been encountered
     if (graphics_state.file_complete()) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_location,
+            "No commands are allowed after the end-of-file command has been encountered");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
-    Gerber::SemanticValidity aperture_validity = m_standard_aperture->check_semantic_validity();
+    Gerber::SemanticValidity aperture_validity = m_standard_aperture->check_semantic_validity(issue_list);
 
     // Only error out here if the standard definition returned a fatal error
     // Else, we'll keep going, and return any warnings or deprecations after
@@ -43,7 +45,11 @@ Gerber::SemanticValidity ApertureDefinitionStandard::do_check_semantic_validity(
     // If this fails, it means an aperture with this id has already been defined, which
     // is a fatal error
     if (!graphics_state.define_aperture(m_aperture_number, m_standard_aperture->clone())) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_location,
+            "Redefining an aperture ID is prohibited");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
     return aperture_validity;

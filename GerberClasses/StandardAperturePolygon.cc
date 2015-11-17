@@ -1,5 +1,8 @@
 #include "StandardAperturePolygon.hh"
 #include "GlobalDefs.hh"
+#include "SemanticIssue.hh"
+#include "SemanticIssueList.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <memory>
@@ -46,11 +49,15 @@ StandardAperturePolygon::StandardAperturePolygon(double diameter, double num_ver
 StandardAperturePolygon::~StandardAperturePolygon()
 {}
 
-Gerber::SemanticValidity StandardAperturePolygon::do_check_semantic_validity()
+Gerber::SemanticValidity StandardAperturePolygon::do_check_semantic_validity(SemanticIssueList& issue_list)
 {
     // Outer diameter must be > 0
     if (m_diameter <= 0.0) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_diameter_location,
+            "Outer diameter for polygon-type standard aperture must be > 0");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
     // Per spec, the number of vertices must be [3, 12].  We'll return a fatal error if the number
@@ -59,14 +66,25 @@ Gerber::SemanticValidity StandardAperturePolygon::do_check_semantic_validity()
     // Check if the number of vertices is integral
     double dummy;
     if (std::modf(m_num_vertices, &dummy) != 0.0) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_num_vertices_location,
+            "Number of vertices for polygon-type standard aperture must be an integer");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
     // Check range of number of vertices
     if (m_num_vertices < 3.0) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_num_vertices_location,
+            "Number of vertices for polygon-type standard aperture must be >= 3 (a polygon with < 3 vertices is undefined)");
+        issue_list.add_issue(issue);
+        return issue.severity();
     } else if (m_num_vertices > 12.0) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_WARNING;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_WARNING,
+            m_num_vertices_location,
+            "Number of vertices for a polygon-type standard aperture > 12 is outside of the official Gerber specification, but is supported by this implementation");
+        issue_list.add_issue(issue);
     }
 
     // If the aperture has a hole, it must have a diameter >= 0, and the hole must not be bigger
@@ -76,14 +94,25 @@ Gerber::SemanticValidity StandardAperturePolygon::do_check_semantic_validity()
     // in an improper way
     if (m_has_hole) {
         if (m_hole_diameter < 0.0) {
-            return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+            SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+                m_hole_diameter_location,
+                "Hole diameter for polygon-type standard aperture must be >= 0");
+            issue_list.add_issue(issue);
+            return issue.severity();
         } else if (m_hole_diameter == 0.0) {
-            return Gerber::SemanticValidity::SEMANTIC_VALIDITY_WARNING;
+            SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_WARNING,
+                m_hole_diameter_location,
+                "Hole diameter of 0 for polygon-type standard aperture is redundant (hole diameter can be omitted)");
+            issue_list.add_issue(issue);
         }
 
         // Hole obstructs entire aperture if its diameter is >= the outer diameter of the polygon
         if (m_hole_diameter >= m_diameter) {
-            return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+            SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+                m_hole_diameter_location,
+                "Hole in polygon-type standard aperture must not be larger than the aperture itself");
+            issue_list.add_issue(issue);
+            return issue.severity();
         }
     }
 

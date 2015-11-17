@@ -6,13 +6,22 @@
 #include "SemanticIssue.hh"
 #include "SemanticIssueList.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <memory>
 #include <string>
 #include <list>
 
-ApertureMacro::ApertureMacro(std::string macro_name, std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content) : m_macro_name(macro_name), m_macro_content(macro_content)
+ApertureMacro::ApertureMacro(std::string macro_name,
+    std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content) :
+        m_macro_name(macro_name), m_macro_content(macro_content)
+{}
+
+ApertureMacro::ApertureMacro(std::string macro_name,
+    std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content,
+    yy::location location) :
+        m_macro_name(macro_name), m_macro_content(macro_content), m_location(location)
 {}
 
 ApertureMacro::~ApertureMacro()
@@ -41,11 +50,13 @@ std::shared_ptr<InstantiatedApertureMacro> ApertureMacro::instantiate(ApertureMa
 
 Gerber::SemanticValidity ApertureMacro::do_check_semantic_validity(GraphicsState& graphics_state, SemanticIssueList& issue_list)
 {
-    // TODO: Implement adding issues to issue list
-
     // No commands are allowed after the end-of-file command has been encountered
     if (graphics_state.file_complete()) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_location,
+            "No commands are allowed after the end-of-file command has been encountered");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
     // We can't check the validity of the macro itself until it is instantiated, because we can't
@@ -57,7 +68,11 @@ Gerber::SemanticValidity ApertureMacro::do_check_semantic_validity(GraphicsState
     // of the graphics state.  If this fails, it means that a macro with the same name has already
     // been inserted into the template dictionary, which is a fatal error
     if (!graphics_state.add_aperture_macro(std::shared_ptr<ApertureMacro>(new ApertureMacro(*this)))) {
-        return Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL;
+        SemanticIssue issue(Gerber::SemanticValidity::SEMANTIC_VALIDITY_FATAL,
+            m_location,
+            "Multiple aperture macros with the same name are not allowed");
+        issue_list.add_issue(issue);
+        return issue.severity();
     }
 
 	return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;

@@ -8,6 +8,7 @@
 #include "ApertureMacroVariableEnvironment.hh"
 #include "SemanticIssueList.hh"
 #include "../GraphicsState.hh"
+#include "../location.hh"
 
 #include <iostream>
 #include <string>
@@ -16,7 +17,11 @@
 
 class ApertureMacro : public Command {
 public:
-	ApertureMacro(std::string macro_name, std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content);
+	ApertureMacro(std::string macro_name,
+        std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content);
+	ApertureMacro(std::string macro_name,
+	        std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > macro_content,
+	        yy::location location);
 	virtual ~ApertureMacro();
 
 	std::shared_ptr<InstantiatedApertureMacro> instantiate(ApertureMacroVariableEnvironment& variable_env);
@@ -29,6 +34,7 @@ private:
 
 	std::string m_macro_name;
 	std::shared_ptr<std::list<std::shared_ptr<ApertureMacroContent> > > m_macro_content;
+	yy::location m_location;
 };
 
 #endif // _APERTURE_MACRO_H

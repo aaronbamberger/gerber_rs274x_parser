@@ -9,6 +9,7 @@
 #define _INSTANTIATED_APERTURE_MACRO_PRIMITIVE_H
 
 #include "GlobalDefs.hh"
+#include "SemanticIssueList.hh"
 
 #include <iostream>
 
@@ -17,12 +18,12 @@ public:
     InstantiatedApertureMacroPrimitive();
     virtual ~InstantiatedApertureMacroPrimitive();
 
-    Gerber::SemanticValidity check_semantic_validity();
+    Gerber::SemanticValidity check_semantic_validity(SemanticIssueList& issue_list);
 
     friend std::ostream& operator<<(std::ostream& os, const InstantiatedApertureMacroPrimitive& macro_primitive);
 
 private:
-    virtual Gerber::SemanticValidity do_check_semantic_validity() = 0;
+    virtual Gerber::SemanticValidity do_check_semantic_validity(SemanticIssueList& issue_list) = 0;
     virtual std::ostream& do_print(std::ostream& os) const = 0;
 };
 
