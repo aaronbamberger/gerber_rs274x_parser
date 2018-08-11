@@ -3,6 +3,7 @@
 #include "ArithmeticExpressionElement.hh"
 #include "ApertureMacroVariableEnvironment.hh"
 #include "GlobalDefs.hh"
+#include "SemanticIssueList.hh"
 
 #include <iostream>
 #include <memory>
@@ -29,7 +30,7 @@ InstantiatedApertureMacroPrimitiveVectorLine::InstantiatedApertureMacroPrimitive
 InstantiatedApertureMacroPrimitiveVectorLine::~InstantiatedApertureMacroPrimitiveVectorLine()
 {}
 
-Gerber::SemanticValidity InstantiatedApertureMacroPrimitiveVectorLine::do_check_semantic_validity()
+Gerber::SemanticValidity InstantiatedApertureMacroPrimitiveVectorLine::do_check_semantic_validity(SemanticIssueList& issue_list)
 {
     // TODO: Implement
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;

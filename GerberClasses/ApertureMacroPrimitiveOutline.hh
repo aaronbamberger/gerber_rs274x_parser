@@ -7,6 +7,7 @@
 #include "Point.hh"
 #include "ApertureMacroVariableEnvironment.hh"
 #include "GlobalDefs.hh"
+#include "SemanticIssueList.hh"
 
 #include <iostream>
 #include <memory>
@@ -46,7 +47,7 @@ public:
     virtual ~InstantiatedApertureMacroPrimitiveOutline();
 
 private:
-    Gerber::SemanticValidity do_check_semantic_validity();
+    Gerber::SemanticValidity do_check_semantic_validity(SemanticIssueList& issue_list);
     std::ostream& do_print(std::ostream& os) const;
 
     Outline<double> m_outline;

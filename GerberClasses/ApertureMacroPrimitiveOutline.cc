@@ -24,7 +24,7 @@ InstantiatedApertureMacroPrimitiveOutline::InstantiatedApertureMacroPrimitiveOut
 InstantiatedApertureMacroPrimitiveOutline::~InstantiatedApertureMacroPrimitiveOutline()
 {}
 
-Gerber::SemanticValidity InstantiatedApertureMacroPrimitiveOutline::do_check_semantic_validity()
+Gerber::SemanticValidity InstantiatedApertureMacroPrimitiveOutline::do_check_semantic_validity(SemanticIssueList& issue_list)
 {
     // TODO: Implement
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;

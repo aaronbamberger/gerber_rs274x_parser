@@ -6,6 +6,7 @@
 #include "ArithmeticExpressionElement.hh"
 #include "ApertureMacroVariableEnvironment.hh"
 #include "GlobalDefs.hh"
+#include "SemanticIssueList.hh"
 
 #include <iostream>
 #include <memory>
@@ -51,7 +52,7 @@ public:
     virtual ~InstantiatedApertureMacroPrimitiveThermal();
 
 private:
-    Gerber::SemanticValidity do_check_semantic_validity();
+    Gerber::SemanticValidity do_check_semantic_validity(SemanticIssueList& issue_list);
     std::ostream& do_print(std::ostream& os) const;
 
     Thermal<double> m_thermal;

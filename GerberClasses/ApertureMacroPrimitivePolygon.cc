@@ -27,7 +27,7 @@ InstantiatedApertureMacroPrimitivePolygon::InstantiatedApertureMacroPrimitivePol
 InstantiatedApertureMacroPrimitivePolygon::~InstantiatedApertureMacroPrimitivePolygon()
 {}
 
-Gerber::SemanticValidity InstantiatedApertureMacroPrimitivePolygon::do_check_semantic_validity()
+Gerber::SemanticValidity InstantiatedApertureMacroPrimitivePolygon::do_check_semantic_validity(SemanticIssueList& issue_list)
 {
     //TODO: Implement
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;

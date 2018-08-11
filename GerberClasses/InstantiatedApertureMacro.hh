@@ -11,6 +11,7 @@
 #include "InstantiatedApertureMacroPrimitive.hh"
 #include "Aperture.hh"
 #include "GlobalDefs.hh"
+#include "SemanticIssueList.hh"
 
 #include <memory>
 #include <list>
@@ -23,7 +24,7 @@ public:
     void add_instantiated_macro_content(std::shared_ptr<InstantiatedApertureMacroPrimitive> instantiated_primitive);
 
 private:
-    virtual Gerber::SemanticValidity do_check_semantic_validity();
+    virtual Gerber::SemanticValidity do_check_semantic_validity(SemanticIssueList& issue_list);
 
     std::list<std::shared_ptr<InstantiatedApertureMacroPrimitive> > m_macro_content;
 };

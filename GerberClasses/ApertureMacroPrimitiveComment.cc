@@ -13,7 +13,7 @@ InstantiatedApertureMacroPrimitiveComment::InstantiatedApertureMacroPrimitiveCom
 InstantiatedApertureMacroPrimitiveComment::~InstantiatedApertureMacroPrimitiveComment()
 {}
 
-Gerber::SemanticValidity InstantiatedApertureMacroPrimitiveComment::do_check_semantic_validity()
+Gerber::SemanticValidity InstantiatedApertureMacroPrimitiveComment::do_check_semantic_validity(SemanticIssueList& issue_list)
 {
     // Comments are always semantically valid
     return Gerber::SemanticValidity::SEMANTIC_VALIDITY_OK;
