@@ -2,6 +2,7 @@
 *.gbr
 *.pdf
 *.yy.*
+*.swp
 location.hh
 position.hh
 stack.hh
@@ -9,3 +10,4 @@ scanner_tester
 Code Examples/
 .cproject
 .project
+Doc/
