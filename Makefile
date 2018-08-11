@@ -8,6 +8,12 @@ MAKE = make
 
 all: scanner_tester
 
+doc:
+	@if [ ! -d "Doc" ]; then \
+	    mkdir Doc; \
+	fi;
+	doxygen Doxyfile
+
 clean:
 	rm -rf *.o *.yy.*
 	$(MAKE) -C GerberClasses/ clean
