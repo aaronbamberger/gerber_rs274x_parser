@@ -1,15 +1,17 @@
 #ifndef _ATTRIBUTE_H
 #define _ATTRIBUTE_H
 
+#include "Util/ValueWithLocation.hh"
+
 #include <string>
 
 class Attribute {
 public:
-	Attibute(std::string name);
+	Attribute(ValueWithLocation<std::string> name);
 	virtual ~Attribute();
 
 protected:
-	std::string m_name;
+	ValueWithLocation<std::string> m_name;
 };
 
 #endif // _ATTRIBUTE_H

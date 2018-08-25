@@ -2,6 +2,7 @@
 #define _FILE_POLARITY_ATTRIBUTE
 
 #include "Attributes/StandardAttribute.hh"
+#include "Util/ValueWithLocation.hh"
 
 #include <string>
 
@@ -12,11 +13,11 @@ public:
 		NEGATIVE
 	};
 
-	FilePolarityAttribute(std::string name, Polarity polarity);
+	FilePolarityAttribute(ValueWithLocation<std::string> name, ValueWithLocation<Polarity> polarity);
 	virtual ~FilePolarityAttribute();
 
 private:
-	Polarity m_polarity;
+	ValueWithLocation<Polarity> m_polarity;
 };
 
 #endif // _FILE_POLARITY_ATTRIBUTE

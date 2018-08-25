@@ -2,6 +2,7 @@
 #define _PART_ATTRIBUTE_H
 
 #include "Attributes/StandardAttribute.hh"
+#include "Util/ValueWithLocation.hh"
 
 #include <string>
 
@@ -15,14 +16,14 @@ public:
 		OTHER
 	};
 
-	PartAttribute(std::string name, Part part);
+	PartAttribute(ValueWithLocation<std::string> name, ValueWithLocation<Part> part);
 	virtual ~PartAttribute();
 
-	void set_other_field(std::string other_field);
+	void set_other_field(ValueWithLocation<std::string> other_field);
 
 private:
-	Part m_part;
-	std::string m_other_field;
+	ValueWithLocation<Part> m_part;
+	ValueWithLocation<std::string> m_other_field;
 };
 
 #endif // _PART_ATTRIBUTE_H

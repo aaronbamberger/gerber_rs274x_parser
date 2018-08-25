@@ -1,6 +1,7 @@
 #ifndef _FILE_FUNCTION_ATTRIBUTE
 #define _FILE_FUNCTION_ATTRIBUTE
 
+#include "Util/ValueWithLocation.hh"
 #include "Attributes/StandardAttribute.hh"
 
 #include <string>
@@ -71,27 +72,28 @@ public:
 		NON_PLATED
 	};
 
-	FileFunctionAttribute(std::string name, FileFunction function);
+	FileFunctionAttribute(ValueWithLocation<std::string> name, ValueWithLocation<FileFunction> function);
 	virtual ~FileFunctionAttribute();
 
-	void set_layer_num(unsigned int layer_num);
-	void set_layer_type(LayerType layer_type);
-	void set_copper_type(CopperType copper_type);
-	void set_drill_type(DrillType drill_type);
-	void set_drill_route_type(DrillRouteType drill_route_type);
-	void set_edge_plate_type(EdgePlateType edge_plate_type);
-	void set_mask_index(unsigned int mask_index);
-	void set_other_description(std::string other_description)
+	void set_layer_num(ValueWithLocation<unsigned int> layer_num);
+	void set_layer_type(ValueWithLocation<LayerType> layer_type);
+	void set_copper_type(ValueWithLocation<CopperType> copper_type);
+	void set_drill_type(ValueWithLocation<DrillType> drill_type);
+	void set_drill_route_type(ValueWithLocation<DrillRouteType> drill_route_type);
+	void set_edge_plate_type(ValueWithLocation<EdgePlateType> edge_plate_type);
+	void set_mask_index(ValueWithLocation<unsigned int> mask_index);
+	void set_other_description(ValueWithLocation<std::string> other_description);
 
 private:
-	unsigned int m_layer_num;
-	LayerType m_layer_type;
-	CopperType m_copper_type;
-	DrillType m_drill_type;
-	DrillRouteType m_drill_route_type;
-	EdgePlateType m_edge_plate_type;
-	unsigned int m_mask_index;
-	std::string m_other_description;
+	ValueWithLocation<FileFunction> m_function;
+	ValueWithLocation<unsigned int> m_layer_num;
+	ValueWithLocation<LayerType> m_layer_type;
+	ValueWithLocation<CopperType> m_copper_type;
+	ValueWithLocation<DrillType> m_drill_type;
+	ValueWithLocation<DrillRouteType> m_drill_route_type;
+	ValueWithLocation<EdgePlateType> m_edge_plate_type;
+	ValueWithLocation<unsigned int> m_mask_index;
+	ValueWithLocation<std::string> m_other_description;
 };
 
 #endif // _FILE_FUNCTION_ATTRIBUTE

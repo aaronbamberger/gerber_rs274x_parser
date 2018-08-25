@@ -2,22 +2,23 @@
 #define _GENERATION_SOFTWARE_ATTRIBUTE_H
 
 #include "Attributes/StandardAttribute.hh"
+#include "Util/ValueWithLocation.hh"
 
 #include <string>
 
 class GenerationSoftwareAttribute : public StandardAttribute {
 public:
-	GenerationSoftwareAttribute(std::string name,
-								std::string vendor,
-								std::string application);
+	GenerationSoftwareAttribute(ValueWithLocation<std::string> name,
+								ValueWithLocation<std::string> vendor,
+								ValueWithLocation<std::string> application);
 	virtual ~GenerationSoftwareAttribute();
 
-	void set_version(std::string version);
+	void set_version(ValueWithLocation<std::string> version);
 
 private:
-	std::string m_vendor;
-	std::string m_application;
-	std::string m_version;
+	ValueWithLocation<std::string> m_vendor;
+	ValueWithLocation<std::string> m_application;
+	ValueWithLocation<std::string> m_version;
 };
 
 #endif // _GENERATION_SOFTWARE_ATTRIBUTE_H

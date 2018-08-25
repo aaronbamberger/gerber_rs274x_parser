@@ -11,5 +11,6 @@ Code Examples/
 .cproject
 .project
 Doc/*
+compile_commands.json
 !Gerber_Spec_2018_06.pdf
 !gerber_file_format_examples_20171122.zip

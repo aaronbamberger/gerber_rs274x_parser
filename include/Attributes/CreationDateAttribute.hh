@@ -2,6 +2,7 @@
 #define _CREATION_DATE_ATTRIBUTE_H
 
 #include "Attributes/StandardAttribute.hh"
+#include "Util/ValueWithLocation.hh"
 
 #include <string>
 #include <cstdint>
@@ -10,24 +11,24 @@
 
 class CreationDateAttribute : public StandardAttribute {
 public:
-	CreationDateAttribute(std::string name,
-					      std::uint16_t year,
-						  std::uint8_t month,
-						  std::uint8_t day,
-						  std::uint8_t hour,
-						  std::uint8_t minute,
-						  std::uint8_t second,
-						  std::int8_t utc_offset);
+	CreationDateAttribute(ValueWithLocation<std::string> name,
+					     ValueWithLocation<std::uint16_t> year,
+						 ValueWithLocation<std::uint8_t> month,
+						 ValueWithLocation<std::uint8_t> day,
+						 ValueWithLocation<std::uint8_t> hour,
+						 ValueWithLocation<std::uint8_t> minute,
+						 ValueWithLocation<std::uint8_t> second,
+						 ValueWithLocation<std::int8_t> utc_offset);
 	virtual ~CreationDateAttribute();
 
 private:
-	std::uint16_t m_year;
-	std::uint8_t m_month;
-	std::uint8_t m_day;
-	std::uint8_t m_hour;
-	std::uint8_t m_minute;
-	std::uint8_t m_second;
-	std::int8_t m_utc_offset;
+	ValueWithLocation<std::uint16_t> m_year;
+	ValueWithLocation<std::uint8_t> m_month;
+	ValueWithLocation<std::uint8_t> m_day;
+	ValueWithLocation<std::uint8_t> m_hour;
+	ValueWithLocation<std::uint8_t> m_minute;
+	ValueWithLocation<std::uint8_t> m_second;
+	ValueWithLocation<std::int8_t> m_utc_offset;
 };
 
 #endif // _CREATION_DATE_ATTRIBUTE_H
