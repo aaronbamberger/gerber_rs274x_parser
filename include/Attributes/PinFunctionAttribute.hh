@@ -2,16 +2,17 @@
 #define _PIN_FUNCTION_ATTRIBUTE_H
 
 #include "Attributes/StandardAttribute.hh"
+#include "Util/ValueWithLocation.hh"
 
 #include <string>
 
 class PinFunctionAttribute : public StandardAttribute {
 public:
-	PinFunctionAttribute(std::string name, std::string function);
+	PinFunctionAttribute(ValueWithLocation<std::string> name, ValueWithLocation<std::string> function);
 	virtual ~PinFunctionAttribute();
 
 private:
-	std::string m_function;
+	ValueWithLocation<std::string> m_function;
 };
 
 #endif // _PIN_FUNCTION_ATTRIBUTE_H

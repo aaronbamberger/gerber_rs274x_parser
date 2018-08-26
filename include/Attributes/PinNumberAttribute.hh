@@ -1,18 +1,21 @@
 #ifndef _PIN_NUMBER_ATTRIBUTE_H
 #define _PIN_NUMBER_ATTRIBUTE_H
 
-#include "StandardAttribute.hh"
+#include "Attributes/StandardAttribute.hh"
+#include "Util/ValueWithLocation.hh"
 
 #include <string>
 
-class PinNumberAttribute {
+class PinNumberAttribute : public StandardAttribute {
 public:
-	PinNumberAttribute(std::string name, std::string component, std::string pin);
+	PinNumberAttribute(ValueWithLocation<std::string> name,
+					   ValueWithLocation<std::string> component,
+					   ValueWithLocation<std::string> pin);
 	virtual ~PinNumberAttribute();
 
 private:
-	std::string m_component;
-	std::string m_pin;
+	ValueWithLocation<std::string> m_component;
+	ValueWithLocation<std::string> m_pin;
 };
 
 #endif // _PIN_NUMBER_ATTRIBUTE_H

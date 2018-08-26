@@ -7,6 +7,15 @@ set(ATTRIBUTES_SRCS
 	SameCoordinatesAttribute.cc
 	CreationDateAttribute.cc
 	GenerationSoftwareAttribute.cc
+	ProjectIdAttribute.cc
+	MD5Attribute.cc
+	AperFunctionAttribute.cc
+	DrillToleranceAttribute.cc
+	FlashTextAttribute.cc
+	NetAttribute.cc
+	PinNumberAttribute.cc
+	PinFunctionAttribute.cc
+	ComponentAttribute.cc
    )
 
 

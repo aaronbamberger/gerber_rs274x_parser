@@ -2,6 +2,7 @@
 #define _APER_FUNCTION_ATTRIBUTE_H
 
 #include "Attributes/StandardAttribute.hh"
+#include "Util/ValueWithLocation.hh"
 
 #include <string>
 
@@ -72,23 +73,24 @@ public:
 		LOCAL
 	};
 
-	AperFunctionAttribute(std::string name, AperFunction aper_function);
+	AperFunctionAttribute(ValueWithLocation<std::string> name, ValueWithLocation<AperFunction> aper_function);
 	virtual ~AperFunctionAttribute();
 
-	void set_via_drill_type(ViaDrillType via_drill_type);
-	void set_component_drill_type(ComponentDrillType component_drill_type);
-	void set_mechanical_drill_type(MechanicalDrillType mechanical_drill_type);
-	void set_pad_definition_type(PadDefinitionType pad_definition_type);
-	void set_fiducial_type(FiducialType fiducial_type);
-	void set_other_description(std::string other_description);
+	void set_via_drill_type(ValueWithLocation<ViaDrillType> via_drill_type);
+	void set_component_drill_type(ValueWithLocation<ComponentDrillType> component_drill_type);
+	void set_mechanical_drill_type(ValueWithLocation<MechanicalDrillType> mechanical_drill_type);
+	void set_pad_definition_type(ValueWithLocation<PadDefinitionType> pad_definition_type);
+	void set_fiducial_type(ValueWithLocation<FiducialType> fiducial_type);
+	void set_other_description(ValueWithLocation<std::string> other_description);
 
 private:
-	ViaDrillType m_via_drill_type;
-	ComponentDrillType m_component_drill_type;
-	MechanicalDrillType m_mechanical_drill_type;
-	PadDefinitionType m_pad_definition_type;
-	FiducialType m_fiducial_type;
-	std::string m_other_description;
+	ValueWithLocation<AperFunction> m_aper_function;
+	ValueWithLocation<ViaDrillType> m_via_drill_type;
+	ValueWithLocation<ComponentDrillType> m_component_drill_type;
+	ValueWithLocation<MechanicalDrillType> m_mechanical_drill_type;
+	ValueWithLocation<PadDefinitionType> m_pad_definition_type;
+	ValueWithLocation<FiducialType> m_fiducial_type;
+	ValueWithLocation<std::string> m_other_description;
 };
 
 #endif // _APER_FUNCTION_ATTRIBUTE_H
