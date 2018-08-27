@@ -133,8 +133,11 @@
 %token APERTURE_ATTRIBUTE
 %token OBJECT_ATTRIBUTE
 %token DELETE_ATTRIBUTE
-%token <std::string> ATTRIBUTE_STRING
-%token <unsigned int> ATTRIBUTE_INT
+%token <std::string> ATTRIBUTE_FIELD_STRING
+%token <unsigned long> ATTRIBUTE_FIELD_INT
+%token <double> ATTRIBUTE_FIELD_DECIMAL
+%token <StandardAttribute::StandardAttributeType> STANDARD_ATTRIBUTE_NAME
+%token <std::string> USER_ATTRIBUTE_NAME
 %token <PartAttribute::Part> PART_ATTRIBUTE_PART
 %token <FileFunctionAttribute::FileFunction> FILE_FUNCTION_ATTRIBUTE_FUNCTION
 %token <FileFunctionAttribute::LayerType> FILE_FUNCTION_ATTRIBUTE_LAYER_TYPE
@@ -143,6 +146,14 @@
 %token <FileFunctionAttribute::DrillRouteType> FILE_FUNCTION_ATTRIBUTE_DRILL_ROUTE_TYPE
 %token <FileFunctionAttribute::EdgePlateType> FILE_FUNCTION_ATTRIBUTE_EDGE_PLATE_TYPE
 %token <FilePolarityAttribute::Polarity> FILE_POLARITY_ATTRIBUTE_POLARITY
+%token <AperFunctionAttribute::AperFunction> APER_FUNCTION_ATTRIBUTE_FUNCTION
+%token <AperFunctionAttribute::ViaDrillType> APER_FUNCTION_ATTRIBUTE_VIA_DRILL_TYPE
+%token <AperFunctionAttribute::ComponentDrillType> APER_FUNCTION_ATTRIBUTE_COMPONENT_DRILL_TYPE
+%token <AperFunctionAttribute::MechanicalDrillType> APER_FUNCTION_ATTRIBUTE_MECHANICAL_DRILL_TYPE
+%token <AperFunctionAttribute::PadDefinitionType> APER_FUNCTION_ATTRIBUTE_PAD_DEFINITION_TYPE
+%token <AperFunctionAttribute::FiducialType> APER_FUNCTION_ATTRIBUTE_FIDUCIAL_TYPE
+%token <FlashTextAttribute::TextType> FLASH_TEXT_ATTRIBUTE_TEXT_TYPE
+%token <FlashTextAttribute::TextOrientation> FLASH_TEXT_ATTRIBUTE_TEXT_ORIENTATION
 
 %left ARITHMETIC_ADD ARITHMETIC_SUB
 %left ARITHMETIC_MULT ARITHMETIC_DIV
