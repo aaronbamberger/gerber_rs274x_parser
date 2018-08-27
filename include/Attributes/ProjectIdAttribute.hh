@@ -3,15 +3,16 @@
 
 #include "Attributes/StandardAttribute.hh"
 #include "Util/ValueWithLocation.hh"
+#include "location.hh"
 
 #include <string>
 
 class ProjectIdAttribute : public StandardAttribute {
 public:
-	ProjectIdAttribute(ValueWithLocation<std::string> name,
-					   ValueWithLocation<std::string> proj_name,
+	ProjectIdAttribute(ValueWithLocation<std::string> proj_name,
 					   ValueWithLocation<std::string> guid,
-					   ValueWithLocation<std::string> revision);
+					   ValueWithLocation<std::string> revision,
+					   yy::location name_location = yy::location());
 	virtual ~ProjectIdAttribute();
 
 private:

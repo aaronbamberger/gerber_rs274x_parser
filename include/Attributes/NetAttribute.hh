@@ -3,13 +3,14 @@
 
 #include "Attributes/StandardAttribute.hh"
 #include "Util/ValueWithLocation.hh"
+#include "location.hh"
 
 #include <string>
 #include <list>
 
 class NetAttribute : public StandardAttribute {
 public:
-	NetAttribute(ValueWithLocation<std::string> name, ValueWithLocation<std::string> net_name);
+	NetAttribute(ValueWithLocation<std::string> net_name, yy::location name_location = yy::location());
 	virtual ~NetAttribute();
 
 	void add_net_name(ValueWithLocation<std::string> net_name);

@@ -1,9 +1,12 @@
 #include "Attributes/GenerationSoftwareAttribute.hh"
 
-GenerationSoftwareAttribute::GenerationSoftwareAttribute(ValueWithLocation<std::string> name,
-														 ValueWithLocation<std::string> vendor,
-														 ValueWithLocation<std::string> application) :
-	StandardAttribute(name), m_vendor(vendor), m_application(application)
+GenerationSoftwareAttribute::GenerationSoftwareAttribute(ValueWithLocation<std::string> vendor,
+														 ValueWithLocation<std::string> application,
+														 yy::location name_location) :
+	StandardAttribute(ValueWithLocation<std::string>(".GenerationSoftware", name_location),
+		StandardAttributeType::STANDARD_ATTRIBUTE_GENERATION_SOFTWARE),
+	m_vendor(vendor),
+	m_application(application)
 {}
 
 GenerationSoftwareAttribute::~GenerationSoftwareAttribute()

@@ -3,6 +3,7 @@
 
 #include "Attributes/StandardAttribute.hh"
 #include "Util/ValueWithLocation.hh"
+#include "location.hh"
 
 #include <string>
 #include <cstdint>
@@ -11,14 +12,14 @@
 
 class CreationDateAttribute : public StandardAttribute {
 public:
-	CreationDateAttribute(ValueWithLocation<std::string> name,
-					     ValueWithLocation<std::uint16_t> year,
-						 ValueWithLocation<std::uint8_t> month,
-						 ValueWithLocation<std::uint8_t> day,
-						 ValueWithLocation<std::uint8_t> hour,
-						 ValueWithLocation<std::uint8_t> minute,
-						 ValueWithLocation<std::uint8_t> second,
-						 ValueWithLocation<std::int8_t> utc_offset);
+	CreationDateAttribute(ValueWithLocation<std::uint16_t> year,
+						  ValueWithLocation<std::uint8_t> month,
+						  ValueWithLocation<std::uint8_t> day,
+						  ValueWithLocation<std::uint8_t> hour,
+						  ValueWithLocation<std::uint8_t> minute,
+						  ValueWithLocation<std::uint8_t> second,
+						  ValueWithLocation<std::int8_t> utc_offset,
+						  yy::location name_location = yy::location());
 	virtual ~CreationDateAttribute();
 
 private:

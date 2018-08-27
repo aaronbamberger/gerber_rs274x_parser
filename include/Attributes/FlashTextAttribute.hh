@@ -3,6 +3,7 @@
 
 #include "Attributes/StandardAttribute.hh"
 #include "Util/ValueWithLocation.hh"
+#include "location.hh"
 
 #include <string>
 
@@ -19,9 +20,9 @@ public:
 		MIRRORED
 	};
 
-	FlashTextAttribute(ValueWithLocation<std::string> name,
-					   ValueWithLocation<std::string> text,
-					   ValueWithLocation<TextType> text_type);
+	FlashTextAttribute(ValueWithLocation<std::string> text,
+					   ValueWithLocation<TextType> text_type,
+					   yy::location name_location = yy::location());
 	virtual ~FlashTextAttribute();
 
 	void set_text_orientation(ValueWithLocation<TextOrientation> text_orientation);

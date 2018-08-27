@@ -8,7 +8,7 @@
 
 class PinFunctionAttribute : public StandardAttribute {
 public:
-	PinFunctionAttribute(ValueWithLocation<std::string> name, ValueWithLocation<std::string> function);
+	PinFunctionAttribute(ValueWithLocation<std::string> function, yy::location name_location = yy::location());
 	virtual ~PinFunctionAttribute();
 
 private:

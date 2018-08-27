@@ -1,7 +1,8 @@
 #include "Attributes/NetAttribute.hh"
 
-NetAttribute::NetAttribute(ValueWithLocation<std::string> name, ValueWithLocation<std::string> net_name) :
-	StandardAttribute(name)
+NetAttribute::NetAttribute(ValueWithLocation<std::string> net_name, yy::location name_location) :
+	StandardAttribute(ValueWithLocation<std::string>(".N", name_location),
+		StandardAttributeType::STANDARD_ATTRIBUTE_NET)
 {
 	m_net_names.push_back(net_name);
 }

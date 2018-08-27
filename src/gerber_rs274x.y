@@ -37,6 +37,23 @@
 	#include "Point.hh"
     #include "GlobalDefs.hh"
     #include "Commands/ApertureDefinitionModifier.hh"
+	#include "Util/ValueWithLocation.hh"
+	#include "Attributes/PartAttribute.hh"
+	#include "Attributes/FileFunctionAttribute.hh"
+	#include "Attributes/FilePolarityAttribute.hh"
+	#include "Attributes/SameCoordinatesAttribute.hh"
+	#include "Attributes/CreationDateAttribute.hh"
+	#include "Attributes/GenerationSoftwareAttribute.hh"
+	#include "Attributes/ProjectIdAttribute.hh"
+	#include "Attributes/MD5Attribute.hh"
+	#include "Attributes/AperFunctionAttribute.hh"
+	#include "Attributes/DrillToleranceAttribute.hh"
+	#include "Attributes/FlashTextAttribute.hh"
+	#include "Attributes/NetAttribute.hh"
+	#include "Attributes/PinNumberAttribute.hh"
+	#include "Attributes/PinFunctionAttribute.hh"
+	#include "Attributes/ComponentAttribute.hh"
+
 
 	#include <memory>
 	#include <utility>
@@ -112,6 +129,20 @@
 %token <char*> APERTURE_COMMENT_CONTENT
 %token STEP_AND_REPEAT_START
 %token <Gerber::LevelPolarityType> LEVEL_POLARITY
+%token FILE_ATTRIBUTE
+%token APERTURE_ATTRIBUTE
+%token OBJECT_ATTRIBUTE
+%token DELETE_ATTRIBUTE
+%token <std::string> ATTRIBUTE_STRING
+%token <unsigned int> ATTRIBUTE_INT
+%token <PartAttribute::Part> PART_ATTRIBUTE_PART
+%token <FileFunctionAttribute::FileFunction> FILE_FUNCTION_ATTRIBUTE_FUNCTION
+%token <FileFunctionAttribute::LayerType> FILE_FUNCTION_ATTRIBUTE_LAYER_TYPE
+%token <FileFunctionAttribute::CopperType> FILE_FUNCTION_ATTRIBUTE_COPPER_TYPE
+%token <FileFunctionAttribute::DrillType> FILE_FUNCTION_ATTRIBUTE_DRILL_TYPE
+%token <FileFunctionAttribute::DrillRouteType> FILE_FUNCTION_ATTRIBUTE_DRILL_ROUTE_TYPE
+%token <FileFunctionAttribute::EdgePlateType> FILE_FUNCTION_ATTRIBUTE_EDGE_PLATE_TYPE
+%token <FilePolarityAttribute::Polarity> FILE_POLARITY_ATTRIBUTE_POLARITY
 
 %left ARITHMETIC_ADD ARITHMETIC_SUB
 %left ARITHMETIC_MULT ARITHMETIC_DIV

@@ -3,14 +3,15 @@
 
 #include "Attributes/StandardAttribute.hh"
 #include "Util/ValueWithLocation.hh"
+#include "location.hh"
 
 #include <string>
 
 class GenerationSoftwareAttribute : public StandardAttribute {
 public:
-	GenerationSoftwareAttribute(ValueWithLocation<std::string> name,
-								ValueWithLocation<std::string> vendor,
-								ValueWithLocation<std::string> application);
+	GenerationSoftwareAttribute(ValueWithLocation<std::string> vendor,
+								ValueWithLocation<std::string> application,
+								yy::location name_location = yy::location());
 	virtual ~GenerationSoftwareAttribute();
 
 	void set_version(ValueWithLocation<std::string> version);

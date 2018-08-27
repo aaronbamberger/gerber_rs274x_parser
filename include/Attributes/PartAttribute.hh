@@ -3,6 +3,7 @@
 
 #include "Attributes/StandardAttribute.hh"
 #include "Util/ValueWithLocation.hh"
+#include "location.hh"
 
 #include <string>
 
@@ -16,7 +17,7 @@ public:
 		OTHER
 	};
 
-	PartAttribute(ValueWithLocation<std::string> name, ValueWithLocation<Part> part);
+	PartAttribute(ValueWithLocation<Part> part, yy::location name_location = yy::location());
 	virtual ~PartAttribute();
 
 	void set_other_field(ValueWithLocation<std::string> other_field);

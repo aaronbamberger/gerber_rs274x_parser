@@ -3,12 +3,13 @@
 
 #include "Attributes/StandardAttribute.hh"
 #include "Util/ValueWithLocation.hh"
+#include "location.hh"
 
 #include <string>
 
 class MD5Attribute : public StandardAttribute {
 public:
-	MD5Attribute(ValueWithLocation<std::string> name, ValueWithLocation<std::string> md5);
+	MD5Attribute(ValueWithLocation<std::string> md5, yy::location name_location = yy::location());
 	virtual ~MD5Attribute();
 
 private:

@@ -6,3 +6,8 @@ Attribute::Attribute(ValueWithLocation<std::string> name) :
 
 Attribute::~Attribute()
 {}
+
+ValueWithLocation<std::string>& Attribute::get_name()
+{
+	return m_name;
+}

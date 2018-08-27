@@ -1,9 +1,17 @@
 #include "Attributes/FileFunctionAttribute.hh"
 
-FileFunctionAttribute::FileFunctionAttribute(ValueWithLocation<std::string> name, ValueWithLocation<FileFunction> function) :
-	StandardAttribute(name), m_function(function), m_layer_num(0), m_layer_type(LayerType::NOT_SET),
-	m_copper_type(CopperType::NOT_SET), m_drill_type(DrillType::NOT_SET), m_drill_route_type(DrillRouteType::NOT_SET),
-	m_edge_plate_type(EdgePlateType::NOT_SET), m_mask_index(0), m_other_description("")
+FileFunctionAttribute::FileFunctionAttribute(ValueWithLocation<FileFunction> function, yy::location name_location) :
+	StandardAttribute(ValueWithLocation<std::string>(".FileFunction", name_location),
+		StandardAttributeType::STANDARD_ATTRIBUTE_FILE_FUNCTION),
+	m_function(function),
+	m_layer_num(0),
+	m_layer_type(LayerType::NOT_SET),
+	m_copper_type(CopperType::NOT_SET),
+	m_drill_type(DrillType::NOT_SET),
+	m_drill_route_type(DrillRouteType::NOT_SET),
+	m_edge_plate_type(EdgePlateType::NOT_SET),
+	m_mask_index(0),
+	m_other_description("")
 {}
 
 FileFunctionAttribute::~FileFunctionAttribute()

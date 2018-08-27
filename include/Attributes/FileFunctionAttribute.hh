@@ -3,6 +3,7 @@
 
 #include "Util/ValueWithLocation.hh"
 #include "Attributes/StandardAttribute.hh"
+#include "location.hh"
 
 #include <string>
 
@@ -72,7 +73,7 @@ public:
 		NON_PLATED
 	};
 
-	FileFunctionAttribute(ValueWithLocation<std::string> name, ValueWithLocation<FileFunction> function);
+	FileFunctionAttribute(ValueWithLocation<FileFunction> function, yy::location name_location = yy::location());
 	virtual ~FileFunctionAttribute();
 
 	void set_layer_num(ValueWithLocation<unsigned int> layer_num);

@@ -61,6 +61,7 @@ REGION_MODE_ON G0{0,8}36
 REGION_MODE_OFF G0{0,8}37
 END_OF_FILE M0{0,9}2
 STRING [[:alnum:]_+-/!?<>"'(){}.\|&@# ,;$:=]+
+FIELD [[:alnum:]_+-/!?<>"'(){}.\|&@# ;$:=]+
 COMMENT_STRING ([[:alnum:]_+-/?<>"'(){}.\|& ,;$:=])([[:alnum:]_+-/!?<>"'(){}.\|&@# ,;$:=\n])*
 NAME [[:alpha:]_.$]([[:alnum:]_.]*)
 COORD_FORMAT FSLA

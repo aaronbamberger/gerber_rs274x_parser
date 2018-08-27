@@ -3,12 +3,13 @@
 
 #include "Attributes/StandardAttribute.hh"
 #include "Util/ValueWithLocation.hh"
+#include "location.hh"
 
 #include <string>
 
 class ComponentAttribute : public StandardAttribute {
 public:
-	ComponentAttribute(ValueWithLocation<std::string> name, ValueWithLocation<std::string> ref_des);
+	ComponentAttribute(ValueWithLocation<std::string> ref_des, yy::location name_location = yy::location());
 	virtual ~ComponentAttribute();
 
 private:

@@ -1,7 +1,10 @@
 #include "Attributes/PartAttribute.hh"
 
-PartAttribute::PartAttribute(ValueWithLocation<std::string> name, ValueWithLocation<Part> part) :
-	StandardAttribute(name), m_part(part), m_other_field("")
+PartAttribute::PartAttribute(ValueWithLocation<Part> part, yy::location name_location) :
+	StandardAttribute(ValueWithLocation<std::string>(".Part", name_location),
+		StandardAttributeType::STANDARD_ATTRIBUTE_PART),
+	m_part(part),
+	m_other_field("")
 {}
 
 PartAttribute::~PartAttribute()

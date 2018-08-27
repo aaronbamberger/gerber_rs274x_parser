@@ -3,14 +3,15 @@
 
 #include "Attributes/StandardAttribute.hh"
 #include "Util/ValueWithLocation.hh"
+#include "location.hh"
 
 #include <string>
 
 class DrillToleranceAttribute : public StandardAttribute {
 public:
-	DrillToleranceAttribute(ValueWithLocation<std::string> name,
-							ValueWithLocation<double> plus_tolerance,
-							ValueWithLocation<double> minus_tolerance);
+	DrillToleranceAttribute(ValueWithLocation<double> plus_tolerance,
+							ValueWithLocation<double> minus_tolerance,
+							yy::location name_location = yy::location());
 	virtual ~DrillToleranceAttribute();
 
 private:

@@ -3,14 +3,15 @@
 
 #include "Attributes/StandardAttribute.hh"
 #include "Util/ValueWithLocation.hh"
+#include "location.hh"
 
 #include <string>
 
 class PinNumberAttribute : public StandardAttribute {
 public:
-	PinNumberAttribute(ValueWithLocation<std::string> name,
-					   ValueWithLocation<std::string> component,
-					   ValueWithLocation<std::string> pin);
+	PinNumberAttribute(ValueWithLocation<std::string> component,
+					   ValueWithLocation<std::string> pin,
+					   yy::location name_location = yy::location());
 	virtual ~PinNumberAttribute();
 
 private:

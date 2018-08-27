@@ -1,11 +1,16 @@
 #include "Attributes/FlashTextAttribute.hh"
 
-FlashTextAttribute::FlashTextAttribute(ValueWithLocation<std::string> name,
-									   ValueWithLocation<std::string> text,
-									   ValueWithLocation<TextType> text_type) :
-	StandardAttribute(name), m_text(text), m_text_type(text_type),
-	m_text_orientation(TextOrientation::NOT_SET), m_font_name(""),
-	m_font_size(0), m_comments("")
+FlashTextAttribute::FlashTextAttribute(ValueWithLocation<std::string> text,
+									   ValueWithLocation<TextType> text_type,
+									   yy::location name_location) :
+	StandardAttribute(ValueWithLocation<std::string>(".FlashText", name_location),
+		StandardAttributeType::STANDARD_ATTRIBUTE_FLASH_TEXT),
+	m_text(text),
+	m_text_type(text_type),
+	m_text_orientation(TextOrientation::NOT_SET),
+	m_font_name(""),
+	m_font_size(0),
+	m_comments("")
 {}
 
 FlashTextAttribute::~FlashTextAttribute()

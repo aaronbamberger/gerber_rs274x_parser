@@ -1,9 +1,14 @@
 #include "Attributes/AperFunctionAttribute.hh"
 
-AperFunctionAttribute::AperFunctionAttribute(ValueWithLocation<std::string> name, ValueWithLocation<AperFunction> aper_function) :
-	StandardAttribute(name), m_aper_function(aper_function), m_via_drill_type(ViaDrillType::NOT_SET),
-	m_component_drill_type(ComponentDrillType::NOT_SET), m_mechanical_drill_type(MechanicalDrillType::NOT_SET),
-	m_pad_definition_type(PadDefinitionType::NOT_SET), m_fiducial_type(FiducialType::NOT_SET),
+AperFunctionAttribute::AperFunctionAttribute(ValueWithLocation<AperFunction> aper_function, yy::location name_location) :
+	StandardAttribute(ValueWithLocation<std::string>(".AperFunction", name_location),
+		StandardAttributeType::STANDARD_ATTRIBUTE_APER_FUNCTION),
+	m_aper_function(aper_function),
+	m_via_drill_type(ViaDrillType::NOT_SET),
+	m_component_drill_type(ComponentDrillType::NOT_SET),
+	m_mechanical_drill_type(MechanicalDrillType::NOT_SET),
+	m_pad_definition_type(PadDefinitionType::NOT_SET),
+	m_fiducial_type(FiducialType::NOT_SET),
 	m_other_description("")
 {}
 

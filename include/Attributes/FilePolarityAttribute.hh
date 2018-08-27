@@ -3,6 +3,7 @@
 
 #include "Attributes/StandardAttribute.hh"
 #include "Util/ValueWithLocation.hh"
+#include "location.hh"
 
 #include <string>
 
@@ -13,7 +14,7 @@ public:
 		NEGATIVE
 	};
 
-	FilePolarityAttribute(ValueWithLocation<std::string> name, ValueWithLocation<Polarity> polarity);
+	FilePolarityAttribute(ValueWithLocation<Polarity> polarity, yy::location name_location = yy::location());
 	virtual ~FilePolarityAttribute();
 
 private:

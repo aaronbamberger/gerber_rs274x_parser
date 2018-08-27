@@ -3,6 +3,7 @@
 
 #include "Attributes/StandardAttribute.hh"
 #include "Util/ValueWithLocation.hh"
+#include "location.hh"
 
 #include <string>
 
@@ -73,7 +74,7 @@ public:
 		LOCAL
 	};
 
-	AperFunctionAttribute(ValueWithLocation<std::string> name, ValueWithLocation<AperFunction> aper_function);
+	AperFunctionAttribute(ValueWithLocation<AperFunction> aper_function, yy::location name_location = yy::location());
 	virtual ~AperFunctionAttribute();
 
 	void set_via_drill_type(ValueWithLocation<ViaDrillType> via_drill_type);

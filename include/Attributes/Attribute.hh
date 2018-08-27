@@ -10,6 +10,8 @@ public:
 	Attribute(ValueWithLocation<std::string> name);
 	virtual ~Attribute();
 
+	ValueWithLocation<std::string>& get_name();
+
 protected:
 	ValueWithLocation<std::string> m_name;
 };
