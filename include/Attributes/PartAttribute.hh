@@ -12,7 +12,7 @@ public:
 	enum class Part {
 		SINGLE,
 		ARRAY,
-		FABRIATION_PANEL,
+		FABRICATION_PANEL,
 		COUPON,
 		OTHER
 	};
