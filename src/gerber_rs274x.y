@@ -59,6 +59,7 @@
 	#include <utility>
 	#include <list>
     #include <string>
+	#include <unordered_map>
 
 	// Forward declare the scanner class so we can use it in the function prototypes
 	class GerberRS274XScanner;
@@ -66,6 +67,48 @@
 
 %code {
 	static int yylex(yy::GerberRS274XParser::semantic_type* yylval, yy::location* yylloc, GerberRS274XScanner& scanner);
+
+	// Some helper functions for checking whether or not a character string is an integer or decimal number
+	bool is_ulong(const char* str, unsigned long* value) {
+		char* str_end;
+
+		unsigned long result = std::strtoul(str, &str_end, 10);
+		if (*str_end == '\0') {
+			*value = result;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	bool is_double(const char* str, double* value) {
+		char* str_end;
+
+		double result = std::strtod(str, &str_end);
+		if (*str_end == '\0') {
+			*value = result;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+
+	std::unordered_map<std::string, PartAttribute::Part> part_attribute_parts {
+		std::make_pair("Single", PartAttribute::Part::SINGLE),
+		std::make_pair("Array", PartAttribute::Part::ARRAY),
+		std::make_pair("FabricationPanel", PartAttribute::Part::FABRICATION_PANEL),
+		std::make_pair("Coupon", PartAttribute::Part::COUPON),
+		std::make_pair("Other", PartAttribute::Part::OTHER)
+	};
+
+	std::unordered_map<std::string, FileFunctionAttribute::FileFunction> file_function_attribute_file_functions {
+		std::make_pair("Copper", FileFunctionAttribute::FileFunction::COPPER),
+		std::make_pair("Plated", FileFunctionAttribute::FileFunction::PLATED),
+		std::make_pair("NonPlated", FileFunctionAttribute::FileFunction::NON_PLATED),
+		std::make_pair("Profile", FileFunctionAttribute::FileFunction::PROFILE),
+		std::make_pair("Soldermask", FileFunctionAttribute::FileFunction::SOLDER_MASK)
+	};
 }
 
 %define parse.trace
@@ -133,27 +176,24 @@
 %token APERTURE_ATTRIBUTE
 %token OBJECT_ATTRIBUTE
 %token DELETE_ATTRIBUTE
-%token <std::string> ATTRIBUTE_FIELD_STRING
-%token <unsigned long> ATTRIBUTE_FIELD_INT
-%token <double> ATTRIBUTE_FIELD_DECIMAL
-%token <StandardAttribute::StandardAttributeType> STANDARD_ATTRIBUTE_NAME
+%token STANDARD_ATTRIBUTE_PART
+%token STANDARD_ATTRIBUTE_FILE_FUNCTION
+%token STANDARD_ATTRIBUTE_FILE_POLARITY
+%token STANDARD_ATTRIBUTE_SAME_COORDINATES
+%token STANDARD_ATTRIBUTE_CREATION_DATE
+%token STANDARD_ATTRIBUTE_GENERATION_SOFTWARE
+%token STANDARD_ATTRIBUTE_PROJECT_ID
+%token STANDARD_ATTRIBUTE_MD5
+%token STANDARD_ATTRIBUTE_APER_FUNCTION
+%token STANDARD_ATTRIBUTE_DRILL_TOLERANCE
+%token STANDARD_ATTRIBUTE_FLASH_TEXT
+%token STANDARD_ATTRIBUTE_NET
+%token STANDARD_ATTRIBUTE_PIN_NUMBER
+%token STANDARD_ATTRIBUTE_PIN_FUNCTION
+%token STANDARD_ATTRIBUTE_COMPONENT
+%token <std::string> INVALID_STANDARD_ATTRIBUTE
 %token <std::string> USER_ATTRIBUTE_NAME
-%token <PartAttribute::Part> PART_ATTRIBUTE_PART
-%token <FileFunctionAttribute::FileFunction> FILE_FUNCTION_ATTRIBUTE_FUNCTION
-%token <FileFunctionAttribute::LayerType> FILE_FUNCTION_ATTRIBUTE_LAYER_TYPE
-%token <FileFunctionAttribute::CopperType> FILE_FUNCTION_ATTRIBUTE_COPPER_TYPE
-%token <FileFunctionAttribute::DrillType> FILE_FUNCTION_ATTRIBUTE_DRILL_TYPE
-%token <FileFunctionAttribute::DrillRouteType> FILE_FUNCTION_ATTRIBUTE_DRILL_ROUTE_TYPE
-%token <FileFunctionAttribute::EdgePlateType> FILE_FUNCTION_ATTRIBUTE_EDGE_PLATE_TYPE
-%token <FilePolarityAttribute::Polarity> FILE_POLARITY_ATTRIBUTE_POLARITY
-%token <AperFunctionAttribute::AperFunction> APER_FUNCTION_ATTRIBUTE_FUNCTION
-%token <AperFunctionAttribute::ViaDrillType> APER_FUNCTION_ATTRIBUTE_VIA_DRILL_TYPE
-%token <AperFunctionAttribute::ComponentDrillType> APER_FUNCTION_ATTRIBUTE_COMPONENT_DRILL_TYPE
-%token <AperFunctionAttribute::MechanicalDrillType> APER_FUNCTION_ATTRIBUTE_MECHANICAL_DRILL_TYPE
-%token <AperFunctionAttribute::PadDefinitionType> APER_FUNCTION_ATTRIBUTE_PAD_DEFINITION_TYPE
-%token <AperFunctionAttribute::FiducialType> APER_FUNCTION_ATTRIBUTE_FIDUCIAL_TYPE
-%token <FlashTextAttribute::TextType> FLASH_TEXT_ATTRIBUTE_TEXT_TYPE
-%token <FlashTextAttribute::TextOrientation> FLASH_TEXT_ATTRIBUTE_TEXT_ORIENTATION
+%token <std::string> ATTRIBUTE_FIELD
 
 %left ARITHMETIC_ADD ARITHMETIC_SUB
 %left ARITHMETIC_MULT ARITHMETIC_DIV
@@ -191,6 +231,24 @@
 %type <std::shared_ptr<StepAndRepeat> > step_and_repeat
 %type <std::shared_ptr<Command> > command
 %type <std::shared_ptr<CommandList> > command_list
+%type <std::shared_ptr<PartAttribute> > standard_attribute_part
+%type <std::shared_ptr<FileFunctionAttribute> > standard_attribute_file_function
+%type <std::shared_ptr<FilePolarityAttribute> > standard_attribute_file_polarity
+%type <std::shared_ptr<SameCoordinatesAttribute> > standard_attribute_same_coordinates
+%type <std::shared_ptr<CreationDateAttribute> > standard_attribute_creation_date;
+%type <std::shared_ptr<GenerationSoftwareAttribute> > standard_attribute_generation_software
+%type <std::shared_ptr<ProjectIdAttribute> > standard_attribute_project_id
+%type <std::shared_ptr<MD5Attribute> > standard_attribute_md5
+%type <std::shared_ptr<AperFunctionAttribute> > standard_attribute_aper_function
+%type <std::shared_ptr<DrillToleranceAttribute> > standard_attribute_drill_tolerance
+%type <std::shared_ptr<FlashTextAttribute> > standard_attribute_flash_text
+%type <std::shared_ptr<NetAttribute> > standard_attribute_net
+%type <std::shared_ptr<PinNumberAttribute> > standard_attribute_pin_number
+%type <std::shared_ptr<PinFunctionAttribute> > standard_attribute_pin_function
+%type <std::shared_ptr<ComponentAttribute> > standard_attribute_component
+%type <std::shared_ptr<UserAttribute> > user_attribute
+%type <void> add_attribute
+%type <void> remove_attribute
 
 %%
 
@@ -635,6 +693,120 @@ arithmetic_expression[result]:
 |	ARITHMETIC_LEFT_PAREN arithmetic_expression[mid] ARITHMETIC_RIGHT_PAREN {
 		$result = $mid;
 	}
+
+/*
+add_attribute:
+	FILE_ATTRIBUTE standard_attribute_part {
+
+	}
+|	FILE_ATTRIBUTE standard_attribute_file_function {
+
+	}
+|	FILE_ATTRIBUTE standard_attribute_file_polarity {
+
+	}
+|	FILE_ATTRIBUTE standard_attribute_same_coordinates {
+
+	}
+|	FILE_ATTRIBUTE standard_attribute_creation_date {
+
+	}
+|	FILE_ATTRIBUTE standard_attribute_generation_software {
+
+	}
+|	FILE_ATTRIBUTE standard_attribute_project_id {
+
+	}
+|	FILE_ATTRIBUTE standard_attribute_md5 {
+
+	}
+|	APERTURE_ATTRIBUTE standard_attribute_aper_function {
+
+	}
+|	APERTURE_ATTRIBUTE standard_attribute_drill_tolerance {
+
+	}
+|	APERTURE_ATTRIBUTE standard_attribute_flash_text {
+
+	}
+|	OBJECT_ATTRIBUTE standard_attribute_component {
+
+	}
+|	OBJECT_ATTRIBUTE standard_attribute_net {
+
+	}
+|	OBJECT_ATTRIBUTE standard_attribute_pin_number {
+
+	}
+|	OBJECT_ATTRIBUTE standard_attribute_pin_function {
+
+	}
+|	FILE_ATTRIBUTE user_attribute {
+
+	}
+|	APERTURE_ATTRIBUTE user_attribute {
+
+	}
+|	OBJECT_ATTRIBUTE user_attribute {
+
+	}
+
+remove_attribute:
+	DELETE_ATTRIBUTE standard_attribute_part {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_file_function {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_file_polarity {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_same_coordinates {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_creation_date {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_generation_software {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_project_id {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_md5 {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_aper_function {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_drill_tolerance {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_flash_text {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_component {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_net {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_pin_number {
+
+	}
+|	DELETE_ATTRIBUTE standard_attribute_pin_function {
+
+	}
+|	DELETE_ATTRIBUTE user_attribute {
+
+	}
+|	DELETE_ATTRIBUTE user_attribute {
+
+	}
+|	DELETE_ATTRIBUTE user_attribute {
+
+	}
+*/
 
 %%
 

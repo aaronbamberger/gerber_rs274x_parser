@@ -27,66 +27,26 @@
 	// Location update that skips the 1st character in the match
     #define UPDATE_LOCATION_COLS_SKIP_FIRST_CHAR yylloc->columns(1); yylloc->step(); yylloc->columns(YYLeng() - 1)
 
-	// Some helper functions for checking whether or not a character string is an integer or decimal number
-	bool is_ulong(const char* str, unsigned long* value) {
-		char* str_end;
-
-		unsigned long result = std::strtoul(str, &str_end, 10);
-		if (*str_end == '\0') {
-			*value = result;
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	bool is_double(const char* str, double* value) {
-		char* str_end;
-
-		double result = std::strtod(str, &str_end);
-		if (*str_end == '\0') {
-			*value = result;
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	// Define a map of standard attribute names to types that we can use to lookup the proper type
+	// Define a map of standard attribute names to types that we can use to lookup the token type
 	// when lexing a standard attribute name
-	std::unordered_map<std::string, StandardAttribute::StandardAttributeType> standard_attribute_types {
-		std::make_pair(".Part", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_PART),
-		std::make_pair(".FileFunction", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_FILE_FUNCTION),
-		std::make_pair(".FilePolarity", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_FILE_POLARITY),
-		std::make_pair(".SameCoordinates", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_SAME_COORDINATES),
-		std::make_pair(".CreationDate", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_CREATION_DATE),
-		std::make_pair(".GenerationSoftware", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_GENERATION_SOFTWARE),
-		std::make_pair(".ProjectId", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_PROJECT_ID),
-		std::make_pair(".MD5", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_MD5),
-		std::make_pair(".AperFunction", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_APER_FUNCTION),
-		std::make_pair(".DrillTolerance", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_DRILL_TOLERANCE),
-		std::make_pair(".FlashText", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_FLASH_TEXT),
-		std::make_pair(".N", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_NET),
-		std::make_pair(".P", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_PIN_NUMBER),
-		std::make_pair(".PF", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_PIN_FUNCTION),
-		std::make_pair(".C", StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_COMPONENT)
+	std::unordered_map<std::string, yy::GerberRS274XParser::token_type> standard_attribute_types {
+		std::make_pair(".Part", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_PART),
+		std::make_pair(".FileFunction", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_FILE_FUNCTION),
+		std::make_pair(".FilePolarity", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_FILE_POLARITY),
+		std::make_pair(".SameCoordinates", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_SAME_COORDINATES),
+		std::make_pair(".CreationDate", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_CREATION_DATE),
+		std::make_pair(".GenerationSoftware", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_GENERATION_SOFTWARE),
+		std::make_pair(".ProjectId", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_PROJECT_ID),
+		std::make_pair(".MD5", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_MD5),
+		std::make_pair(".AperFunction", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_APER_FUNCTION),
+		std::make_pair(".DrillTolerance", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_DRILL_TOLERANCE),
+		std::make_pair(".FlashText", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_FLASH_TEXT),
+		std::make_pair(".N", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_NET),
+		std::make_pair(".P", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_PIN_NUMBER),
+		std::make_pair(".PF", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_PIN_FUNCTION),
+		std::make_pair(".C", yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_COMPONENT)
 	};
 
-	std::unordered_map<std::string, PartAttribute::Part> part_attribute_parts {
-		std::make_pair("Single", PartAttribute::Part::SINGLE),
-		std::make_pair("Array", PartAttribute::Part::ARRAY),
-		std::make_pair("FabricationPanel", PartAttribute::Part::FABRICATION_PANEL),
-		std::make_pair("Coupon", PartAttribute::Part::COUPON),
-		std::make_pair("Other", PartAttribute::Part::OTHER)
-	};
-
-	std::unordered_map<std::string, FileFunctionAttribute::FileFunction> file_function_attribute_file_functions {
-		std::make_pair("Copper", FileFunctionAttribute::FileFunction::COPPER),
-		std::make_pair("Plated", FileFunctionAttribute::FileFunction::PLATED),
-		std::make_pair("NonPlated", FileFunctionAttribute::FileFunction::NON_PLATED),
-		std::make_pair("Profile", FileFunctionAttribute::FileFunction::PROFILE),
-		std::make_pair("Soldermask", FileFunctionAttribute::FileFunction::SOLDER_MASK)
-	};
 %}
 
 %option 8bit
@@ -113,22 +73,7 @@
 %x PARSING_APERTURE_COMMENT
 %x PARSING_STEP_AND_REPEAT
 %x PARSING_ATTRIBUTE_NAME
-%x PARSING_PART_ATTRIBUTE
-%x PARSING_FILE_FUNCTION_ATTRIBUTE
-%x PARSING_FILE_POLARITY_ATTRIBUTE
-%x PARSING_SAME_COORDINATES_ATTRIBUTE
-%x PARSING_CREATION_DATE_ATTRIBUTE
-%x PARSING_GENERATION_SOFTWARE_ATTRIBUTE
-%x PARSING_PROJECT_ID_ATTRIBUTE
-%x PARSING_MD5_ATTRIBUTE
-%x PARSING_APER_FUNCTION_ATTRIBUTE
-%x PARSING_DRILL_TOLERANCE_ATTRIBUTE
-%x PARSING_FLASH_TEXT_ATTRIBUTE
-%x PARSING_NET_ATTRIBUTE
-%x PARSING_PIN_NUMBER_ATTRIBUTE
-%x PARSING_PIN_FUNCTION_ATTRIBUTE
-%x PARSING_COMPONENT_ATTRIBUTE
-%x PARSING_USER_ATTRIBUTE
+%x PARSING_ATTRIBUTE_FIELDS
 
 INTERPOLATE_CMD D0{0,9}1
 MOVE_CMD D0{0,9}2
@@ -721,130 +666,38 @@ J{INT_W_SIGN} {
 <PARSING_ATTRIBUTE_NAME>"\."?{NAME} {
 	UPDATE_LOCATION_COLS_STANDARD;
 	
+	BEGIN(PARSING_ATTRIBUTE_FIELDS);
+
 	if (YYText()[0] == '.') {
 		// If name begins with a period, it's a standard attribute
 		// Look it up in the standard attribute map
 		auto standard_attribute_type = standard_attribute_types.find(YYText());
 		if (standard_attribute_type != standard_attribute_types.end()) {
-			// Found the type
-			yylval->build(standard_attribute_type->second);
-			// Switch to a different start condition for each attribute type,
-			// so we can lex the fields appropriately
-			switch (standard_attribute_type->second) {
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_PART:
-				BEGIN(PARSING_PART_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_FILE_FUNCTION:
-				BEGIN(PARSING_FILE_FUNCTION_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_FILE_POLARITY:
-				BEGIN(PARSING_FILE_POLARITY_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_SAME_COORDINATES:
-				BEGIN(PARSING_SAME_COORDINATES_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_CREATION_DATE:
-				BEGIN(PARSING_CREATION_DATE_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_GENERATION_SOFTWARE:
-				BEGIN(PARSING_GENERATION_SOFTWARE_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_PROJECT_ID:
-				BEGIN(PARSING_PROJECT_ID_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_MD5:
-				BEGIN(PARSING_MD5_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_APER_FUNCTION:
-				BEGIN(PARSING_APER_FUNCTION_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_DRILL_TOLERANCE:
-				BEGIN(PARSING_DRILL_TOLERANCE_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_FLASH_TEXT:
-				BEGIN(PARSING_FLASH_TEXT_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_NET:
-				BEGIN(PARSING_NET_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_PIN_NUMBER:
-				BEGIN(PARSING_PIN_NUMBER_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_PIN_FUNCTION:
-				BEGIN(PARSING_PIN_FUNCTION_ATTRIBUTE);
-				break;
-
-			case StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_COMPONENT:
-				BEGIN(PARSING_COMPONENT_ATTRIBUTE);
-				break;
-			}
+			// This is a recognized standard attribute
+			return standard_attribute_type->second;
 		} else {
 			// Name begins with a period, but it's not one of the recognized standard
 			// attribute types
-			// Since this is an invalid attribute anyway, treat it as a user attribute to parse
-			// the rest of the fields with no special processing
-			BEGIN(PARSING_USER_ATTRIBUTE);
-			yylval->build(StandardAttribute::StandardAttributeType::STANDARD_ATTRIBUTE_INVALID);
+			yylval->build(YYText());
 		}
-		return yy::GerberRS274XParser::token::STANDARD_ATTRIBUTE_NAME;
+		return yy::GerberRS274XParser::token::INVALID_STANDARD_ATTRIBUTE;
 	} else {
 		// If not, it's a user attribute
-		BEGIN(PARSING_USER_ATTRIBUTE);
 		yylval->build(YYText());
 		return yy::GerberRS274XParser::token::USER_ATTRIBUTE_NAME;
 	}
 }
 
-<PARSING_PART_ATTRIBUTE,
-PARSING_FILE_FUNCTION_ATTRIBUTE,
-PARSING_FILE_POLARITY_ATTRIBUTE,
-PARSING_SAME_COORDINATES_ATTRIBUTE,
-PARSING_CREATION_DATE_ATTRIBUTE,
-PARSING_GENERATION_SOFTWARE_ATTRIBUTE,
-PARSING_PROJECT_ID_ATTRIBUTE,
-PARSING_MD5_ATTRIBUTE,
-PARSING_APER_FUNCTION_ATTRIBUTE,
-PARSING_DRILL_TOLERANCE_ATTRIBUTE,
-PARSING_FLASH_TEXT_ATTRIBUTE,
-PARSING_NET_ATTRIBUTE,
-PARSING_PIN_NUMBER_ATTRIBUTE,
-PARSING_PIN_FUNCTION_ATTRIBUTE,
-PARSING_COMPONENT_ATTRIBUTE,
-PARSING_USER_ATTRIBUTE>{ATTRIBUTE_FIELD_DELIMITER} {
+<PARSING_ATTRIBUTE_FIELDS>{ATTRIBUTE_FIELD_DELIMITER} {
+	// Eat all commas separating attribute fields
 	yylloc->step();
 }
 
-<PARSING_PART_ATTRIBUTE>{FIELD} {
+<PARSING_ATTRIBUTE_FIELDS>{FIELD} {
 	UPDATE_LOCATION_COLS_STANDARD;
 	
-	auto part_attribute = part_attribute_parts.find(YYText());
-	if (part_attribute != part_attribute_parts.end()) {
-		yylval->build(part_attribute->second);
-		return yy::GerberRS274XParser::token::PART_ATTRIBUTE_PART;
-	} else {
-		yylval->build(YYText());
-		return yy::GerberRS274XParser::token::ATTRIBUTE_FIELD_STRING;
-	}
+	yylval->build(YYText());
+	return yy::GerberRS274XParser::token::ATTRIBUTE_FIELD;
 }
-
-<PARSING_FILE_FUNCTION_ATTRIBUTE>{FIELD} {
-	UPDATE_LOCATION_COLS_STANDARD;
-
-
-}
-
 
 %%
