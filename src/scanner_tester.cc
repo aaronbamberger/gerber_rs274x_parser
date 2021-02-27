@@ -1,3 +1,9 @@
+/*
+ * Copyright 2021 Aaron Bamberger
+ * Licensed under BSD 2-clause license
+ * See LICENSE file at root of source tree,
+ * or https://opensource.org/licenses/BSD-2-Clause
+ */
 
 #include "gerber_rs274x_scanner.hh"
 #include "gerber_parser.yy.hh"

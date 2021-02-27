@@ -1,3 +1,10 @@
+/*
+ * Copyright 2021 Aaron Bamberger
+ * Licensed under BSD 2-clause license
+ * See LICENSE file at root of source tree,
+ * or https://opensource.org/licenses/BSD-2-Clause
+ */
+
 #ifndef _MD5_ATTRIBUTE_H
 #define _MD5_ATTRIBUTE_H
 
